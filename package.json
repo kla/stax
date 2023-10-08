@@ -1,8 +1,15 @@
 {
+  "main": "src/index",
+  "type": "module",
   "dependencies": {
+    "@devcontainers/cli": "^0.52.0",
+    "@types/node": "^20.5.9",
     "commander": "^11.0.0",
-    "shelljs": "^0.8.5"
+    "shelljs": "^0.8.5",
+    "tsx": "^3.12.8",
+    "typescript": "^5.2.2"
   },
-  "devDependencies": {
+  "devDependencies": {},
+  "scripts": {
   }
 }

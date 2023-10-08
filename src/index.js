@@ -1,5 +1,5 @@
 import { Command } from 'commander'
-import { setup } from './setup'
+import { setup } from './setup.js'
 
 const program = new Command()
 program.name('n3xus')

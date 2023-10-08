@@ -1,2 +1,2 @@
 #!/bin/sh
-bun lib/index.js $*
+node lib/index.js $@

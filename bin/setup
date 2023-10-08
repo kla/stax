@@ -1,2 +1,3 @@
 #!/bin/sh
-bun install
+[ -n "$CI" ] && corepack enable
+pnpm install

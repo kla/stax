@@ -1,2 +1,4 @@
 #!/bin/sh
-curl -fsSL https://bun.sh/install | bash
+echo "==> Installing node"
+nodenv install
+corepack enable
