@@ -1,4 +1,5 @@
 #!/bin/sh
+set -e
 echo "==> Installing node"
 nodenv install
 corepack enable
