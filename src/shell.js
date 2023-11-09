@@ -6,8 +6,8 @@ function directoryExists(path) {
 }
 
 export function run(command, options={}) {
-  if (options.cmd && !directoryExists(path)) {
-    console.error('Path does not exist')
+  if (options.cwd && !directoryExists(options.cwd)) {
+    console.error(`${options.cmd} does not exist`)
     return
   }
 
