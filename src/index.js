@@ -1,5 +1,6 @@
 import { Command } from 'commander'
-import { containers, stop, up } from './docker.js'
+import { stop, up } from './docker.js'
+import { list } from './appList.js'
 
 const program = new Command()
 program.name('n3xus')
@@ -16,6 +17,6 @@ program.command('down')
 
 program.command('list')
   .description('List applications')
-  .action(() => console.info(containers()))
+  .action(() => list())
 
 program.parse(process.argv)
