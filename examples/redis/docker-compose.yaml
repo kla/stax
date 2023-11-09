@@ -1,0 +1,8 @@
+---
+services:
+  redis:
+    container_name: redis
+    image: redis:7.2.3
+    restart: unless-stopped
+    ports:
+    - 6380:6379
