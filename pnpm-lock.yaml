@@ -6,28 +6,28 @@ settings:
 
 dependencies:
   '@devcontainers/cli':
-    specifier: ^0.52.0
-    version: 0.52.0
+    specifier: ^0.52.1
+    version: 0.52.1
   '@types/node':
-    specifier: ^20.5.9
-    version: 20.8.3
+    specifier: ^20.9.0
+    version: 20.9.0
   commander:
-    specifier: ^11.0.0
-    version: 11.0.0
+    specifier: ^11.1.0
+    version: 11.1.0
   shelljs:
     specifier: ^0.8.5
     version: 0.8.5
   tsx:
-    specifier: ^3.12.8
-    version: 3.13.0
+    specifier: ^3.14.0
+    version: 3.14.0
   typescript:
     specifier: ^5.2.2
     version: 5.2.2
 
 packages:
 
-  /@devcontainers/cli@0.52.0:
-    resolution: {integrity: sha512-F5DG8pM8NDsXpS2HoGXnjG6QtZJJ77FMRgH8Od6aiapqk9EAZkrTGAp3nAH8GBox5ZAmr2vWRsIUphbGGu1jTA==}
+  /@devcontainers/cli@0.52.1:
+    resolution: {integrity: sha512-sYK1cHHDVjdBIdxjMB8O668+qf0AAEJPMbeMR9ZTbUzXQBNke88vUOZ6DD9SjsqeE5es8SpWX6jV6gaItzJFyA==}
     engines: {node: ^16.13.0 || >=18.0.0}
     hasBin: true
     dev: false
@@ -230,8 +230,10 @@ packages:
     dev: false
     optional: true
 
-  /@types/node@20.8.3:
-    resolution: {integrity: sha512-jxiZQFpb+NlH5kjW49vXxvxTjeeqlbsnTAdBTKpzEdPs9itay7MscYXz3Fo9VYFEsfQ6LJFitHad3faerLAjCw==}
+  /@types/node@20.9.0:
+    resolution: {integrity: sha512-nekiGu2NDb1BcVofVcEKMIwzlx4NjHlcjhoxxKBNLtz15Y1z7MYf549DFvkHSId02Ax6kGwWntIBPC3l/JZcmw==}
+    dependencies:
+      undici-types: 5.26.5
     dev: false
 
   /balanced-match@1.0.2:
@@ -249,8 +251,8 @@ packages:
     resolution: {integrity: sha512-E+XQCRwSbaaiChtv6k6Dwgc+bx+Bs6vuKJHHl5kox/BaKbhiXzqQOwK4cO22yElGp2OCmjwVhT3HmxgyPGnJfQ==}
     dev: false
 
-  /commander@11.0.0:
-    resolution: {integrity: sha512-9HMlXtt/BNoYr8ooyjjNRdIilOTkVJXB+GhxMTtOKwk0R4j4lS4NpjuqmRxroBfnfTSHQIHQB7wryHhXarNjmQ==}
+  /commander@11.1.0:
+    resolution: {integrity: sha512-yPVavfyCcRhmorC7rWlkHn15b4wDVgVmBA7kV4QVBsF7kv/9TKJAbAXVTxvTnwP8HHKjRCJDClKbciiYS7p0DQ==}
     engines: {node: '>=16'}
     dev: false
 
@@ -412,8 +414,8 @@ packages:
     engines: {node: '>= 0.4'}
     dev: false
 
-  /tsx@3.13.0:
-    resolution: {integrity: sha512-rjmRpTu3as/5fjNq/kOkOtihgLxuIz6pbKdj9xwP4J5jOLkBxw/rjN5ANw+KyrrOXV5uB7HC8+SrrSJxT65y+A==}
+  /tsx@3.14.0:
+    resolution: {integrity: sha512-xHtFaKtHxM9LOklMmJdI3BEnQq/D5F73Of2E1GDrITi9sgoVkvIsrQUTY1G8FlmGtA+awCI4EBlTRRYxkL2sRg==}
     hasBin: true
     dependencies:
       esbuild: 0.18.20
@@ -427,6 +429,10 @@ packages:
     resolution: {integrity: sha512-mI4WrpHsbCIcwT9cF4FZvr80QUeKvsUsUvKDoR+X/7XHQH98xYD8YHZg7ANtz2GtZt/CBq2QJ0thkGJMHfqc1w==}
     engines: {node: '>=14.17'}
     hasBin: true
+    dev: false
+
+  /undici-types@5.26.5:
+    resolution: {integrity: sha512-JlCMO+ehdEIKqlFxk6IfVoAUVmgz7cU7zD/h9XZ0qzeosSHmUJVOzSQvvYSYWXkFXC+IfLKSIffhv0sVZup6pA==}
     dev: false
 
   /wrappy@1.0.2:

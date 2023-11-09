@@ -12,5 +12,5 @@ export function run(command, options={}) {
   }
 
   console.log(`➡️ ${command}`)
-  sh.exec(command, options)
+  return sh.exec(command, options)
 }
