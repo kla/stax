@@ -1,4 +1,6 @@
-import { run } from './shell.js'
+import { directoryExists, run } from './shell.js'
+
+const DEFAULT_PROJECT_NAME = 'n3x'
 
 function parseContainerJson(line) {
   if (!line)
@@ -23,14 +25,28 @@ export function containers() {
     .stdout
     .split("\n")
     .map((line) => parseContainerJson(line))
-    .filter((container) => container && container.Labels['com.docker.compose.project'] === 'n3x')
+    .filter((container) => container && container.Labels['com.docker.compose.project'] === DEFAULT_PROJECT_NAME)
 }
 
+export function findContainer(containerName) {
+  return containers().find((container) => container.Names == containerName)
+}
+
+function compose(command, options={}) {
+  return run(`docker compose --project-name ${DEFAULT_PROJECT_NAME} ${command}`, options)
+}
+
+// run(`npx devcontainer up --workspace-folder ${path}`)
 export function up(path) {
-  // run(`npx devcontainer up --workspace-folder ${path}`)
-  run(`docker compose --project-name n3x up --detach`, { cwd: path })
+  if (findContainer(path))
+    return compose(`start ${path}`)
+
+  if (directoryExists(path))
+    return compose('up --detach', { cwd: path })
+
+  console.error(`👿 Please specify a valid container name or application directory`)
 }
 
-export function stop(container_name) {
-  run(`docker compose --project-name n3x stop ${container_name}`)
+export function stop(containerName) {
+  return compose(`stop ${containerName}`)
 }

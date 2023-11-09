@@ -1,7 +1,7 @@
 import { existsSync, statSync } from 'fs'
 import sh from 'shelljs'
 
-function directoryExists(path) {
+export function directoryExists(path) {
   return existsSync(path) && statSync(path).isDirectory();
 }
 
