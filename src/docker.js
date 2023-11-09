@@ -1,3 +1,4 @@
+import { exit } from 'process'
 import { directoryExists, run } from './shell.js'
 
 const DEFAULT_PROJECT_NAME = 'n3x'
@@ -45,6 +46,7 @@ export function up(path) {
     return compose('up --detach', { cwd: path })
 
   console.error(`👿 Please specify a valid container name or application directory`)
+  exit(1)
 }
 
 export function stop(containerName) {
