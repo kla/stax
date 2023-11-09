@@ -42,6 +42,9 @@ export function up(path) {
   if (findContainer(path))
     return compose(`start ${path}`)
 
+  if (directoryExists(`${path}/.n3x`))
+    return compose('up --detach', { cwd: `${path}/.n3x` })
+
   if (directoryExists(path))
     return compose('up --detach', { cwd: path })
 
