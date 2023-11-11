@@ -1,0 +1,29 @@
+---
+services:
+  traefik:
+    container_name: traefik
+    image: traefik:v2.10.5
+    restart: unless-stopped
+    command:
+    # Enables the web UI
+    - --api.insecure=true
+    # Tells Traefik to listen to docker
+    - --providers.docker
+    - --entrypoints.web.address=:80
+    - --entrypoints.websecure.address=:443
+    # Uncomment to redirect everything to HTTPS
+    # - --entrypoints.web.http.redirections.entryPoint.to=websecure
+    # - --entrypoints.web.http.redirections.entryPoint.scheme=https
+    # - --entrypoints.web.http.redirections.entrypoint.permanent=true
+    # Setup cert
+    - --providers.file.directory=/etc/traefik/dynamic
+    ports:
+    - 443:443
+    - 80:80
+    # - 8080:8080 # The Web UI (enabled by --api.insecure=true)
+    volumes:
+    # So that Traefik can listen to the Docker events
+    - /var/run/docker.sock:/var/run/docker.sock
+    # Setup cert
+    - ./certs:/etc/certs:ro
+    - ./certs.yaml:/etc/traefik/dynamic/certs-traefik.yaml
