@@ -1,7 +1,8 @@
 import { exit } from 'process'
-import { directoryExists, run } from './shell.js'
+import { directoryExists, fileExists, run } from './shell.js'
 
 const DEFAULT_PROJECT_NAME = 'n3x'
+const COMPOSE_FILES = [ 'docker-compose.yaml', 'docker-compose.yml' ]
 
 function parseContainerJson(line) {
   if (!line)
@@ -37,15 +38,23 @@ function compose(command, options={}) {
   return run(`docker compose --project-name ${DEFAULT_PROJECT_NAME} ${command}`, options)
 }
 
+function findDockerComposeFile(path) {
+  if (!directoryExists(path))
+    return null
+
+  const file = COMPOSE_FILES.find((file) => fileExists(`${path}/${file}`))
+  return file ? `${path}/${file}` : null
+}
+
 // run(`npx devcontainer up --workspace-folder ${path}`)
 export function up(path) {
   if (findContainer(path))
     return compose(`start ${path}`)
 
-  if (directoryExists(`${path}/.n3x`))
+  if (findDockerComposeFile(`${path}/.n3x`))
     return compose('up --detach', { cwd: `${path}/.n3x` })
 
-  if (directoryExists(path))
+  if (findDockerComposeFile(path))
     return compose('up --detach', { cwd: path })
 
   console.error(`👿 Please specify a valid container name or application directory`)
