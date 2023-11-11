@@ -38,6 +38,10 @@ function compose(command, options={}) {
   return run(`docker compose --project-name ${DEFAULT_PROJECT_NAME} ${command}`, options)
 }
 
+function devcontainer(command) {
+  return run(`COMPOSE_PROJECT_NAME=${DEFAULT_PROJECT_NAME} npx devcontainer ${command}`)
+}
+
 function findDockerComposeFile(path) {
   if (!directoryExists(path))
     return null
@@ -46,10 +50,12 @@ function findDockerComposeFile(path) {
   return file ? `${path}/${file}` : null
 }
 
-// run(`npx devcontainer up --workspace-folder ${path}`)
 export function up(path) {
   if (findContainer(path))
     return compose(`start ${path}`)
+
+  if (fileExists(`${path}/.devcontainer/devcontainer.json`))
+    return devcontainer(`up --workspace-folder ${path}`)
 
   if (findDockerComposeFile(`${path}/.n3x`))
     return compose('up --detach', { cwd: `${path}/.n3x` })
