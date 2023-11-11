@@ -1,6 +1,6 @@
 ---
 services:
-  server:
+  memcache:
     container_name: memcache
     image: memcached:1.6.22
     restart: unless-stopped
