@@ -42,12 +42,11 @@ function devcontainer(command) {
   return run(`COMPOSE_PROJECT_NAME=${DEFAULT_PROJECT_NAME} npx devcontainer ${command}`)
 }
 
-function findDockerComposeFile(path) {
-  if (!directoryExists(path))
-    return null
-
-  const file = COMPOSE_FILES.find((file) => fileExists(`${path}/${file}`))
-  return file ? `${path}/${file}` : null
+function findDockerComposeFile(paths) {
+  paths = typeof(paths) == 'string' ? [ paths ] : paths
+  return paths.find((path) => directoryExists(path) &&
+    (fileExists(`${path}/docker-compose.yaml`) || fileExists(`${path}/docker-compose.yml`))
+  )
 }
 
 export function up(path) {
@@ -57,10 +56,7 @@ export function up(path) {
   if (fileExists(`${path}/.devcontainer/devcontainer.json`))
     return devcontainer(`up --workspace-folder ${path}`)
 
-  if (findDockerComposeFile(`${path}/.n3x`))
-    return compose('up --detach', { cwd: `${path}/.n3x` })
-
-  if (findDockerComposeFile(path))
+  if ((path = findDockerComposeFile([ `${path}/.n3x`, path ])))
     return compose('up --detach', { cwd: path })
 
   console.error(`👿 Please specify a valid container name or application directory`)
