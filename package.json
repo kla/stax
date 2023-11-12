@@ -2,7 +2,6 @@
   "main": "src/index",
   "type": "module",
   "dependencies": {
-    "@devcontainers/cli": "^0.52.1",
     "@types/node": "^20.9.0",
     "commander": "^11.1.0",
     "js-yaml": "^4.1.0",

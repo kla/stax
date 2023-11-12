@@ -5,9 +5,6 @@ settings:
   excludeLinksFromLockfile: false
 
 dependencies:
-  '@devcontainers/cli':
-    specifier: ^0.52.1
-    version: 0.52.1
   '@types/node':
     specifier: ^20.9.0
     version: 20.9.0
@@ -28,12 +25,6 @@ dependencies:
     version: 5.2.2
 
 packages:
-
-  /@devcontainers/cli@0.52.1:
-    resolution: {integrity: sha512-sYK1cHHDVjdBIdxjMB8O668+qf0AAEJPMbeMR9ZTbUzXQBNke88vUOZ6DD9SjsqeE5es8SpWX6jV6gaItzJFyA==}
-    engines: {node: ^16.13.0 || >=18.0.0}
-    hasBin: true
-    dev: false
 
   /@esbuild/android-arm64@0.18.20:
     resolution: {integrity: sha512-Nz4rJcchGDtENV0eMKUNa6L12zz2zBDXuhj/Vjh18zGqB44Bi7MBMSXjgunJgjRhCmKOjnPuZp4Mb6OKqtMHLQ==}
