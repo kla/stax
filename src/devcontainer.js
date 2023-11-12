@@ -17,6 +17,7 @@ class DevContainer {
 
     config.name ||= base.split('/').pop()
     config.workspaceFolder ||= base
+    config.localWorkingDirectory = `./tmp/${config.name}`
     return config
   }
 
@@ -28,13 +29,13 @@ class DevContainer {
       command: 'sleep infinity',
     }
 
-    mkdirSync(`./tmp/${this.config.name}`, { recursive: true })
-    writeFileSync(`./tmp/${this.config.name}/docker-compose.yaml`, yaml.dump(compose))
+    mkdirSync(this.config.localWorkingDirectory, { recursive: true })
+    writeFileSync(`${this.config.localWorkingDirectory}/docker-compose.yaml`, yaml.dump(compose))
   }
 
   up() {
     this.generateComposeFile()
-    up(`./tmp/${this.config.name}`)
+    up(this.config.localWorkingDirectory)
   }
 }
 
