@@ -33,6 +33,7 @@ class DevContainer {
 
     compose.services[this.config.name] = {
       image: this.config.image,
+      container_name: this.config.name,
       command: 'sleep infinity',
       volumes: [ csvKeyValuePairs(this.config.workspaceMount) ]
     }
