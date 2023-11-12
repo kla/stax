@@ -9,7 +9,7 @@ export function generateComposeFile(config) {
     image: config.image,
     container_name: config.name,
     command: 'sleep infinity',
-    volumes: [ csvKeyValuePairs(config.workspaceMount) ]
+    volumes: [ config.workspaceMount.includes(',') ? csvKeyValuePairs(config.workspaceMount) : config.workspaceMount ],
   }
 
   mkdirSync(config.local.workingDirectory, { recursive: true })

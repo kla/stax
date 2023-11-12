@@ -22,7 +22,7 @@ class DevContainer {
     }
 
     config.workspaceFolder ||= `/workspace/${config.name}`
-    config.workspaceMount = `source=${config.local.base},target=${config.workspaceFolder},type=bind`
+    config.workspaceMount ||= `source=${config.local.base},target=${config.workspaceFolder},type=bind`
 
     return config
   }
