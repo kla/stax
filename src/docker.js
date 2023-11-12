@@ -1,8 +1,8 @@
 import { exit } from 'process'
 import { directoryExists, fileExists, run } from './shell.js'
+import devcontainer from './devcontainer.js'
 
 const DEFAULT_PROJECT_NAME = 'n3x'
-const COMPOSE_FILES = [ 'docker-compose.yaml', 'docker-compose.yml' ]
 
 function parseContainerJson(line) {
   if (!line)
@@ -39,10 +39,6 @@ function compose(command, options={}) {
   return run(`docker compose --project-name ${DEFAULT_PROJECT_NAME} ${command}`, options)
 }
 
-function devcontainer(command) {
-  return run(`COMPOSE_PROJECT_NAME=${DEFAULT_PROJECT_NAME} npx devcontainer ${command}`)
-}
-
 function findDockerComposeFile(paths) {
   paths = typeof(paths) == 'string' ? [ paths ] : paths
   return paths.find((path) => directoryExists(path) &&
@@ -54,8 +50,9 @@ export function up(path) {
   if (findContainer(path))
     return compose(`start ${path}`)
 
-  if (fileExists(`${path}/.devcontainer/devcontainer.json`))
-    return devcontainer(`up --workspace-folder ${path}`)
+  const dc = devcontainer(path)
+  if (dc)
+    return dc.up()
 
   if ((path = findDockerComposeFile([ `${path}/.n3x`, path ])))
     return compose('up --detach', { cwd: path })
