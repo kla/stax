@@ -1,9 +1,8 @@
-import { readFileSync, mkdirSync, writeFileSync } from 'fs'
+import { readFileSync } from 'fs'
 import { dirname, resolve } from 'path'
 import { fileExists } from './shell.js'
 import { up } from './docker.js'
-import { csvKeyValuePairs } from './utils.js'
-import * as yaml from 'js-yaml'
+import { generateComposeFile } from './composer.js'
 
 class DevContainer {
   constructor(configFile) {
@@ -28,22 +27,8 @@ class DevContainer {
     return config
   }
 
-  generateComposeFile() {
-    const compose = { services: {} }
-
-    compose.services[this.config.name] = {
-      image: this.config.image,
-      container_name: this.config.name,
-      command: 'sleep infinity',
-      volumes: [ csvKeyValuePairs(this.config.workspaceMount) ]
-    }
-
-    mkdirSync(this.config.local.workingDirectory, { recursive: true })
-    writeFileSync(`${this.config.local.workingDirectory}/docker-compose.yaml`, yaml.dump(compose))
-  }
-
   up() {
-    this.generateComposeFile()
+    generateComposeFile(this.config)
     up(this.config.local.workingDirectory)
   }
 }
