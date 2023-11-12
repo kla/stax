@@ -17,6 +17,8 @@ export function run(command, options={}) {
 
   let cmd = `➡️ ${command}`
   if (options.cwd) cmd += ` (in ${options.cwd})`
+  if (options.env) options.env = { ...process.env, ...options.env }
+
   console.log(cmd)
   return sh.exec(command, options)
 }

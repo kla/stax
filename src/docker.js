@@ -35,6 +35,7 @@ export function findContainer(containerName) {
 }
 
 function compose(command, options={}) {
+  options = { ...options, env: { COMPOSE_IGNORE_ORPHANS: "1" } }
   return run(`docker compose --project-name ${DEFAULT_PROJECT_NAME} ${command}`, options)
 }
 
