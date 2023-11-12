@@ -2,6 +2,7 @@ import { readFileSync, mkdirSync, writeFileSync } from 'fs'
 import { dirname, resolve } from 'path'
 import { fileExists } from './shell.js'
 import { up } from './docker.js'
+import { csvKeyValuePairs } from './utils.js'
 import * as yaml from 'js-yaml'
 
 class DevContainer {
@@ -27,25 +28,13 @@ class DevContainer {
     return config
   }
 
-  bindMount() {
-    const obj = {}
-    const pairs = this.config.workspaceMount.split(',')
-
-    pairs.forEach((pair) => {
-      const [key, value] = pair.split('=')
-      obj[key] = value
-    })
-
-    return obj
-  }
-
   generateComposeFile() {
     const compose = { services: {} }
 
     compose.services[this.config.name] = {
       image: this.config.image,
       command: 'sleep infinity',
-      volumes: [ this.bindMount() ]
+      volumes: [ csvKeyValuePairs(this.config.workspaceMount) ]
     }
 
     mkdirSync(this.config.local.workingDirectory, { recursive: true })
