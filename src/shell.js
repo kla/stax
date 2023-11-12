@@ -17,5 +17,6 @@ export function run(command, options={}) {
 
   let cmd = `➡️ ${command}`
   if (options.cwd) cmd += ` (in ${options.cwd})`
+  console.log(cmd)
   return sh.exec(command, options)
 }
