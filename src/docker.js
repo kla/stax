@@ -57,7 +57,7 @@ export function up(path) {
   if ((path = findDockerComposeFile([ `${path}/.n3x`, path ])))
     return compose('up --detach', { cwd: path })
 
-  console.error(`👿 Please specify a valid container name or application directory`)
+  console.error(`👿 '${path}' is not a valid container name or application directory`)
   exit(1)
 }
 

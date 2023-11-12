@@ -16,9 +16,27 @@ class DevContainer {
     const base = resolve(dirname(this.configFile) + '/..')
 
     config.name ||= base.split('/').pop()
-    config.workspaceFolder ||= base
-    config.localWorkingDirectory = `./tmp/${config.name}`
+    config.local = {
+      base: base,
+      workingDirectory: resolve(`./tmp/${config.name}`),
+    }
+
+    config.workspaceFolder ||= `/workspace/${config.name}`
+    config.workspaceMount = `source=${config.local.base},target=${config.workspaceFolder},type=bind`
+
     return config
+  }
+
+  bindMount() {
+    const obj = {}
+    const pairs = this.config.workspaceMount.split(',')
+
+    pairs.forEach((pair) => {
+      const [key, value] = pair.split('=')
+      obj[key] = value
+    })
+
+    return obj
   }
 
   generateComposeFile() {
@@ -27,15 +45,16 @@ class DevContainer {
     compose.services[this.config.name] = {
       image: this.config.image,
       command: 'sleep infinity',
+      volumes: [ this.bindMount() ]
     }
 
-    mkdirSync(this.config.localWorkingDirectory, { recursive: true })
-    writeFileSync(`${this.config.localWorkingDirectory}/docker-compose.yaml`, yaml.dump(compose))
+    mkdirSync(this.config.local.workingDirectory, { recursive: true })
+    writeFileSync(`${this.config.local.workingDirectory}/docker-compose.yaml`, yaml.dump(compose))
   }
 
   up() {
     this.generateComposeFile()
-    up(this.config.localWorkingDirectory)
+    up(this.config.local.workingDirectory)
   }
 }
 
