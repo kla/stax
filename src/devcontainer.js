@@ -1,7 +1,6 @@
 import { readFileSync } from 'fs'
 import { dirname, resolve } from 'path'
 import { fileExists } from './shell.js'
-import { up } from './docker.js'
 import { generateComposeFile } from './composer.js'
 
 class DevContainer {
@@ -9,6 +8,10 @@ class DevContainer {
     this.configFile = configFile
     this.config = this.loadConfig(configFile)
     console.log(this.config)
+  }
+
+  get path() {
+    return this.config.local.workingDirectory
   }
 
   loadConfig() {
@@ -27,9 +30,9 @@ class DevContainer {
     return config
   }
 
-  up() {
+  generate() {
     generateComposeFile(this.config)
-    up(this.config.local.workingDirectory)
+    return this.path
   }
 }
 
