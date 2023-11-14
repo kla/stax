@@ -1,5 +1,6 @@
 import { existsSync, statSync } from 'fs'
 import { execa, execaSync } from 'execa'
+import chalk from 'chalk'
 
 export function directoryExists(path) {
   return existsSync(path) && statSync(path).isDirectory();
@@ -18,7 +19,7 @@ function checkRunOptions(options) {
 }
 
 function outputCommand(command, { cwd }) {
-  command = `➡️ ${command}`
+  command = chalk.green(`> ${command}`)
   if (cwd) command += ` (in ${cwd})`
   console.log(command)
 }
