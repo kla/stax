@@ -1,5 +1,5 @@
 import { exit } from 'process'
-import { directoryExists, fileExists, run } from './shell.js'
+import { directoryExists, fileExists, run, runCapture } from './shell.js'
 import devcontainer from './devcontainer.js'
 
 const DEFAULT_PROJECT_NAME = 'n3x'
@@ -23,7 +23,7 @@ function parseLabels(labels) {
 }
 
 export function containers() {
-  return run(`docker ps --all --format json`, { silent: true })
+  return runCapture(`docker ps --all --format json`)
     .stdout
     .split("\n")
     .map((line) => parseContainerJson(line))
@@ -34,7 +34,7 @@ export function findContainer(containerName) {
   return containers().find((container) => container.Names == containerName)
 }
 
-function compose(command, options={}) {
+async function compose(command, options={}) {
   options = { ...options, env: { COMPOSE_IGNORE_ORPHANS: "1" } }
   return run(`docker compose --project-name ${DEFAULT_PROJECT_NAME} ${command}`, options)
 }
@@ -46,7 +46,7 @@ function findDockerComposeFile(paths) {
   )
 }
 
-export function up(path) {
+export async function up(path) {
   if (findContainer(path))
     return compose(`start ${path}`)
 
