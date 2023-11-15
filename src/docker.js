@@ -64,3 +64,7 @@ export async function up(path) {
 export function stop(containerName) {
   return compose(`stop ${containerName}`)
 }
+
+export function remove(containerName) {
+  return compose(`rm --stop --force ${containerName}`)
+}

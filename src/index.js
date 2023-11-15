@@ -11,9 +11,15 @@ program.command('up')
   .action((path) => app(path).up())
 
 program.command('down')
-  .argument('<name>', 'Name of application')
+  .argument('<name>', 'Name or path to application')
   .description('Stop an application')
   .action((name) => app(name).down())
+
+program.command('remove')
+  .alias('rm')
+  .argument('<name>', 'Name of application')
+  .description('Remove application')
+  .action((name) => app(name, { containerMustExist: true }).remove())
 
 program.command('list')
   .description('List applications')
