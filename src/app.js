@@ -19,5 +19,6 @@ export default function app(path, options={}) {
     up: () => docker.up(path),
     down: () => docker.stop(path),
     remove: () => docker.remove(path),
+    exec: (command) => docker.exec(path, command),
   }
 }

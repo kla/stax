@@ -68,3 +68,7 @@ export function stop(containerName) {
 export function remove(containerName) {
   return compose(`rm --stop --force ${containerName}`)
 }
+
+export function exec(containerName, command) {
+  return compose(`exec ${containerName} ${command}`)
+}
