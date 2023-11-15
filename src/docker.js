@@ -23,7 +23,7 @@ function parseLabels(labels) {
 }
 
 export function containers() {
-  return runCapture(`docker ps --all --format json`)
+  return runCapture(`docker ps --all --format json`, { silent: true })
     .stdout
     .split("\n")
     .map((line) => parseContainerJson(line))

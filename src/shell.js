@@ -18,7 +18,10 @@ function checkRunOptions(options) {
   return options
 }
 
-function outputCommand(command, { cwd }) {
+function outputCommand(command, { cwd, silent }) {
+  if (silent)
+    return
+
   command = chalk.green(`> ${command}`)
   if (cwd) command += ` (in ${cwd})`
   console.log(command)
