@@ -29,7 +29,7 @@ function outputCommand(command, { cwd, silent }) {
 
 export function run(command, options={}) {
   if (!(options = checkRunOptions(options)))
-    return Promise.resolve({ stdout: null, stderr: null, code: -99 })
+    return { stdout: null, stderr: null, code: -99 }
 
   outputCommand(command, options)
 

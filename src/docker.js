@@ -1,6 +1,5 @@
 import { exit } from './utils.js'
 import { directoryExists, fileExists, run, runCapture } from './shell.js'
-import devcontainer from './devcontainer.js'
 
 const DEFAULT_PROJECT_NAME = 'n3x'
 
@@ -39,11 +38,6 @@ export function findContainer(containerName, options={}) {
   return c
 }
 
-function compose(command, options={}) {
-  options = { ...options, env: { COMPOSE_IGNORE_ORPHANS: "1" } }
-  return run(`docker compose --project-name ${DEFAULT_PROJECT_NAME} ${command}`, options)
-}
-
 function findDockerComposeFile(paths) {
   paths = typeof(paths) == 'string' ? [ paths ] : paths
   return paths.find((path) => directoryExists(path) &&
@@ -51,26 +45,33 @@ function findDockerComposeFile(paths) {
   )
 }
 
-export async function up(path) {
+function compose(command, path, options={}) {
+  let cwd
+
+  options = { append: true, ...options, env: { COMPOSE_IGNORE_ORPHANS: "1" } }
+  command = `docker compose --project-name ${DEFAULT_PROJECT_NAME} ${command}`
+
+  // is path is actually a container name?
   if (findContainer(path))
-    return compose(`start ${path}`)
+    return run(`${command}${options.append ? ` ${path}` : ''}`, options)
 
-  const dc = devcontainer(path)
-  if (dc)
-    return dc.up()
+  // find the docker-compose.yaml file and set cwd to it's directory
+  if ((cwd = findDockerComposeFile([ `${path}/.n3x`, path ])))
+    return run(command, { ...options, cwd: cwd })
 
-  if ((path = findDockerComposeFile([ `${path}/.n3x`, path ])))
-    return compose('up --detach', { cwd: path })
-
-  console.error(`👿 '${path}' is not a valid container name or application directory`)
-  exit(1)
-}
-
-export function stop(containerName) {
-  if (findContainer(containerName, { warn: true }))
-    return compose(`stop ${containerName}`)
+  if (options.exit)
+    exit(1, `👿 '${path}' is not a valid container name or application directory`)
 
   return null
+}
+
+export function up(path) {
+  const command = findContainer(path) ? 'start' : 'up --detach'
+  return compose(command, path, { exit: true })
+}
+
+export function stop(path) {
+  return compose('stop', path)
 }
 
 export function remove(containerName) {
@@ -78,5 +79,5 @@ export function remove(containerName) {
 }
 
 export function exec(containerName, command) {
-  return compose(`exec ${containerName} ${command}`)
+  return compose(`exec ${containerName} ${command}`, containerName, { append: false })
 }
