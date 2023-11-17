@@ -1,4 +1,4 @@
-import { exit } from 'process'
+import { exit } from './utils.js'
 import { directoryExists, fileExists, run, runCapture } from './shell.js'
 import devcontainer from './devcontainer.js'
 
@@ -30,11 +30,16 @@ export function containers() {
     .filter((container) => container && container.Labels['com.docker.compose.project'] === DEFAULT_PROJECT_NAME)
 }
 
-export function findContainer(containerName) {
-  return containers().find((container) => container.Names == containerName)
+export function findContainer(containerName, options={}) {
+  const c = containers().find((container) => container.Names == containerName)
+
+  if (!c && options.warn)
+    console.warn(`🤷 Container '${containerName}' not found`)
+
+  return c
 }
 
-async function compose(command, options={}) {
+function compose(command, options={}) {
   options = { ...options, env: { COMPOSE_IGNORE_ORPHANS: "1" } }
   return run(`docker compose --project-name ${DEFAULT_PROJECT_NAME} ${command}`, options)
 }
@@ -62,7 +67,10 @@ export async function up(path) {
 }
 
 export function stop(containerName) {
-  return compose(`stop ${containerName}`)
+  if (findContainer(containerName, { warn: true }))
+    return compose(`stop ${containerName}`)
+
+  return null
 }
 
 export function remove(containerName) {

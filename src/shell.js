@@ -1,5 +1,5 @@
 import { existsSync, statSync } from 'fs'
-import { execa, execaSync } from 'execa'
+import { execaSync } from 'execa'
 import chalk from 'chalk'
 
 export function directoryExists(path) {
@@ -27,17 +27,14 @@ function outputCommand(command, { cwd, silent }) {
   console.log(command)
 }
 
-export async function run(command, options={}) {
+export function run(command, options={}) {
   if (!(options = checkRunOptions(options)))
     return Promise.resolve({ stdout: null, stderr: null, code: -99 })
 
   outputCommand(command, options)
 
-  return new Promise((resolve, reject) => {
-    const parts = command.split(' ')
-    const ret = execa(parts.shift(), parts, { ...options, stdio: 'inherit' })
-    ret.on('close', (code) => code == 0 ? resolve(ret) : reject(ret))
-  })
+  const parts = command.split(' ')
+  return execaSync(parts.shift(), parts, { ...options, stdio: 'inherit' })
 }
 
 export function runCapture(command, options={}) {

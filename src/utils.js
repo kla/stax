@@ -6,3 +6,10 @@ export function csvKeyValuePairs(csv) {
     return labels;
   }, {})
 }
+
+export function exit(code, message=null) {
+  if (message)
+    console.error(message)
+
+  process.exit(code)
+}

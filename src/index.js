@@ -27,6 +27,11 @@ program.command('exec')
   .description('Execute a command in a running application')
   .action((name, command) => app(name, { containerMustExist: true }).exec(command))
 
+program.command('rebuild')
+  .argument('<name>', 'Name or path to application')
+  .description('Rebuild an application')
+  .action((name) => app(name).rebuild())
+
 program.command('list')
   .description('List applications')
   .action(() => list())
