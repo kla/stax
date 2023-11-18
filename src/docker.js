@@ -29,11 +29,11 @@ export function containers() {
     .filter((container) => container && container.Labels['com.docker.compose.project'] === DEFAULT_PROJECT_NAME)
 }
 
-export function findContainer(containerName, options={}) {
-  const c = containers().find((container) => container.Names == containerName)
+export function findContainer(container, options={}) {
+  const c = containers().find((container) => container.Names == container)
 
   if (!c && options.warn)
-    console.warn(`🤷 Container '${containerName}' not found`)
+    console.warn(`🤷 Container '${container}' not found`)
 
   return c
 }
@@ -45,7 +45,7 @@ function findDockerComposeFile(paths) {
   )
 }
 
-function compose(command, path, options={}) {
+function compose(command, container, options={}) {
   let cwd
 
   options = { append: true, ...options, env: { COMPOSE_IGNORE_ORPHANS: "1" } }
@@ -70,14 +70,14 @@ export function up(path) {
   return compose(command, path, { exit: true })
 }
 
-export function stop(path) {
-  return compose('stop', path)
+export function stop(container) {
+  return compose('stop', container)
 }
 
-export function remove(containerName) {
-  return compose(`rm --stop --force ${containerName}`)
+export function remove(container) {
+  return compose(`rm --stop --force ${container}`)
 }
 
-export function exec(containerName, command) {
-  return compose(`exec ${containerName} ${command}`, containerName, { append: false })
+export function exec(container, command) {
+  return compose(`exec ${container} ${command}`, container, { append: false })
 }

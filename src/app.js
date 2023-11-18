@@ -9,20 +9,24 @@ function verifyContainerExists(name) {
   }
 }
 
-export default function app(pathOrName, options={}) {
-  const dc = devcontainer(pathOrName)
+export function setup(location) {
+  const dc = devcontainer(location)
 
   if (dc)
-    pathOrName = dc.generate()
+    location = dc.generate()
 
+  return app(location)
+}
+
+export function app(name, options={}) {
   if (options.containerMustExist)
-    verifyContainerExists(pathOrName)
+    verifyContainerExists(name)
 
   return {
-    up: () => docker.up(pathOrName),
-    down: () => docker.stop(pathOrName),
-    remove: () => docker.remove(pathOrName),
-    exec: (command) => docker.exec(pathOrName, command),
-    rebuild: () => { docker.stop(pathOrName); docker.up(pathOrName) },
+    up: () => docker.up(name),
+    down: () => docker.stop(name),
+    remove: () => docker.remove(name),
+    exec: (command) => docker.exec(name, command),
+    rebuild: () => { docker.stop(name); docker.up(name) },
   }
 }

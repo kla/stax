@@ -1,17 +1,17 @@
 import { Command } from 'commander'
 import { list } from './appList.js'
-import app from './app.js'
+import { setup, app } from './app.js'
 
 const program = new Command()
 program.name('n3xus')
 
 program.command('up')
-  .argument('<path>', 'Path to application')
+  .argument('<location>', 'Path to or git repo of application')
   .description('Start/setup an application')
-  .action((path) => app(path).up())
+  .action((location) => setup(location).up())
 
 program.command('down')
-  .argument('<name>', 'Name or path to application')
+  .argument('<name>', 'Name of application')
   .description('Stop an application')
   .action((name) => app(name).down())
 
@@ -28,7 +28,7 @@ program.command('exec')
   .action((name, command) => app(name, { containerMustExist: true }).exec(command))
 
 program.command('rebuild')
-  .argument('<name>', 'Name or path to application')
+  .argument('<name>', 'Name of application')
   .description('Rebuild an application')
   .action((name) => app(name).rebuild())
 
