@@ -1,7 +1,7 @@
 import { exit } from './utils.js'
 import { directoryExists, fileExists, run, runCapture } from './shell.js'
 
-const DEFAULT_PROJECT_NAME = 'n3x'
+const DEFAULT_PROJECT_NAME = 'stax'
 
 function parseContainerJson(line) {
   if (!line)
@@ -45,7 +45,7 @@ function findDockerComposeFile(paths) {
   )
 }
 
-function compose(command, container, options={}) {
+function compose(command, path, options={}) {
   let cwd
 
   options = { append: true, ...options, env: { COMPOSE_IGNORE_ORPHANS: "1" } }
@@ -56,7 +56,7 @@ function compose(command, container, options={}) {
     return run(`${command}${options.append ? ` ${path}` : ''}`, options)
 
   // find the docker-compose.yaml file and set cwd to it's directory
-  if ((cwd = findDockerComposeFile([ `${path}/.n3x`, path ])))
+  if ((cwd = findDockerComposeFile([ `${path}/.stax`, path ])))
     return run(command, { ...options, cwd: cwd })
 
   if (options.exit)

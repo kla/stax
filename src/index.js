@@ -3,7 +3,7 @@ import { list } from './appList.js'
 import { setup, app } from './app.js'
 
 const program = new Command()
-program.name('n3xus')
+program.name('stax')
 
 program.command('up')
   .argument('<location>', 'Path to or git repo of application')
