@@ -1,5 +1,6 @@
+import { dirname } from 'path'
 import { exit } from './utils'
-import { directoryExists, fileExists, run, runCapture } from './shell'
+import { fileExists, run, runCapture } from './shell'
 
 const DEFAULT_PROJECT_NAME = 'stax'
 
@@ -40,7 +41,7 @@ export function findContainer(container, options={}) {
 
 export function findDockerComposeFile(location) {
   if (location.endsWith('.yml') || location.endsWith('.yaml'))
-    return location.split('/').slice(0, -1).join('/')
+    return dirname(location)
 
   const files = [
     `${location}/docker-compose.yaml`,
