@@ -43,8 +43,6 @@ export function findDockerComposeFile(location) {
     return location.split('/').slice(0, -1).join('/')
 
   const files = [
-    `${location}/.stax/docker-compose.yaml`,
-    `${location}/.stax/docker-compose.yml`,
     `${location}/docker-compose.yaml`,
     `${location}/docker-compose.yml`
   ]
