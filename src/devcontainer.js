@@ -7,7 +7,6 @@ class DevContainer {
   constructor(configFile) {
     this.configFile = configFile
     this.config = this.loadConfig(configFile)
-    console.log(this.config)
   }
 
   get path() {

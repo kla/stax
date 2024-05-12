@@ -30,7 +30,7 @@ export function containers() {
 }
 
 export function findContainer(container, options={}) {
-  const c = containers().find((container) => container.Names == container)
+  const c = containers().find(c => c.Names == container)
 
   if (!c && options.warn)
     console.warn(`🤷 Container '${container}' not found`)
@@ -38,11 +38,17 @@ export function findContainer(container, options={}) {
   return c
 }
 
-function findDockerComposeFile(paths) {
-  paths = typeof(paths) == 'string' ? [ paths ] : paths
-  return paths.find((path) => directoryExists(path) &&
-    (fileExists(`${path}/docker-compose.yaml`) || fileExists(`${path}/docker-compose.yml`))
-  )
+export function findDockerComposeFile(location) {
+  if (location.endsWith('.yml') || location.endsWith('.yaml'))
+    return location.split('/').slice(0, -1).join('/')
+
+  const files = [
+    `${location}/.stax/docker-compose.yaml`,
+    `${location}/.stax/docker-compose.yml`,
+    `${location}/docker-compose.yaml`,
+    `${location}/docker-compose.yml`
+  ]
+  return files.find(file => fileExists(file))
 }
 
 function compose(command, path, options={}) {
@@ -56,7 +62,7 @@ function compose(command, path, options={}) {
     return run(`${command}${options.append ? ` ${path}` : ''}`, options)
 
   // find the docker-compose.yaml file and set cwd to it's directory
-  if ((cwd = findDockerComposeFile([ `${path}/.stax`, path ])))
+  if ((cwd = findDockerComposeFile(path)))
     return run(command, { ...options, cwd: cwd })
 
   if (options.exit)
@@ -75,7 +81,7 @@ export function stop(container) {
 }
 
 export function remove(container) {
-  return compose(`rm --stop --force ${container}`)
+  return compose(`rm --stop --force`, container)
 }
 
 export function exec(container, command) {
