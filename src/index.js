@@ -1,6 +1,6 @@
 import { Command } from 'commander'
-import { list } from './appList.js'
-import { setup, app } from './app.js'
+import { list } from './appList'
+import { setup, app } from './app'
 
 const program = new Command()
 program.name('stax')

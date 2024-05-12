@@ -1,6 +1,6 @@
 import { exit } from 'process'
-import devcontainer from './devcontainer.js'
-import * as docker from './docker.js'
+import devcontainer from './devcontainer'
+import * as docker from './docker'
 
 function verifyContainerExists(name) {
   if (!docker.findContainer(name)) {

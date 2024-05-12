@@ -1,5 +1,5 @@
-import { exit } from './utils.js'
-import { directoryExists, fileExists, run, runCapture } from './shell.js'
+import { exit } from './utils'
+import { directoryExists, fileExists, run, runCapture } from './shell'
 
 const DEFAULT_PROJECT_NAME = 'stax'
 

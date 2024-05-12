@@ -1,7 +1,7 @@
 import { readFileSync } from 'fs'
 import { dirname, resolve } from 'path'
-import { fileExists } from './shell.js'
-import { generateComposeFile } from './composer.js'
+import { fileExists } from './shell'
+import { generateComposeFile } from './composer'
 
 class DevContainer {
   constructor(configFile) {

@@ -1,4 +1,4 @@
-import { containers } from './docker.js'
+import { containers } from './docker'
 
 export function list() {
   containers().forEach((container) => {
