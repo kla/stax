@@ -10,4 +10,4 @@ fi
 
 stax_home=$(dirname "$stax_home")
 stax_home=$(realpath "$stax_home/..")
-bun --cwd $stax_home src/index.js $@
+WORKING_DIRECTORY=$(pwd) bun --cwd $stax_home src/index.js $@

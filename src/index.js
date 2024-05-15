@@ -48,4 +48,5 @@ if (args[2] == 'exec' && process.argv.length > 5) {
   args = args.concat(process.argv.slice(4, 9999).join(' '))
 }
 
+process.chdir(process.env.WORKING_DIRECTORY)
 program.parse(args)

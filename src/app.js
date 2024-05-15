@@ -31,7 +31,7 @@ export function setup(location) {
   return app(location)
 }
 
-export function app(name, options={}) {
+export function app(name) {
   verifyContainerExists(name)
 
   return {

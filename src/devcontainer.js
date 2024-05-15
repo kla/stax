@@ -36,6 +36,6 @@ class DevContainer {
 }
 
 export default function devcontainer(path) {
-  const configFile = `${path}/.devcontainer/devcontainer.json`
+  const configFile = `${resolve(path)}/.devcontainer/devcontainer.json`
   return fileExists(configFile) ? new DevContainer(configFile) : null
 }
