@@ -1,5 +1,8 @@
 #!/bin/sh
 set -e
-echo "==> Installing node"
-nodenv install
-corepack enable
+
+if ! command -v bun &> /dev/null
+then
+  echo "==> Installing bun"
+  npm install -g bun
+fi
