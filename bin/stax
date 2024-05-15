@@ -1,3 +1,13 @@
-#!/bin/sh
+#!/bin/bash
 set -e
-bun src/index.js $@
+
+if [ "$(readlink $0)" != "" ]; then
+  # is a symlink
+  stax_home=$(readlink $0)
+else
+  stax_home="$0"
+fi
+
+stax_home=$(dirname "$stax_home")
+stax_home=$(realpath "$stax_home/..")
+bun --cwd $stax_home src/index.js $@
