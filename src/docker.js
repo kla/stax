@@ -5,7 +5,7 @@ import containers from './containers'
 
 const DEFAULT_PROJECT_NAME = 'stax'
 
-export function findDockerComposeFile(location) {
+function findDockerComposeFile(location) {
   if (location.endsWith('.yml') || location.endsWith('.yaml'))
     return dirname(location)
 
@@ -36,19 +36,9 @@ function compose(command, path, options={}) {
   return null
 }
 
-export function up(path) {
-  const command = containers.find(path) ? 'start' : 'up --detach'
-  return compose(command, path, { exit: true })
+function setup(path) {
+  return compose('up --detach', path, { exit: true })
 }
 
-export function stop(container) {
-  return compose('stop', container)
-}
-
-export function remove(container) {
-  return compose(`rm --stop --force`, container)
-}
-
-export function exec(container, command) {
-  return compose(`exec ${container} ${command}`, container, { append: false })
-}
+const docker = { findDockerComposeFile, setup, compose }
+export default docker
