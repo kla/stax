@@ -41,6 +41,12 @@ program.command('list')
   .description('List applications')
   .action(() => list())
 
+program.command('shell')
+  .alias('sh')
+  .argument('<name>', 'Name of application')
+  .description('Start a shell')
+  .action(async (name) => await app(name).shell())
+
 let args = process.argv
 
 if (args[2] == 'exec' && process.argv.length > 5) {

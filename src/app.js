@@ -40,5 +40,16 @@ export function app(name) {
     remove: () => docker.remove(name),
     exec: (command) => docker.exec(name, command),
     rebuild: () => { docker.stop(name); docker.up(name) },
+    shell: () => {
+      const shells = [ '/bin/bash', '/bin/sh' ]
+      shells.find((shell) => {
+        try {
+          docker.exec(name, shell)
+          return true
+        } catch (e) {
+          return false
+        }
+      })
+    }
   }
 }
