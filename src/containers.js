@@ -38,7 +38,7 @@ class Container {
   }
 
   remove() {
-    docker.compose('rm --stop --force', this.name)
+    docker.compose('rm --stop --force --volumes', this.name)
   }
 
   exec(command) {
