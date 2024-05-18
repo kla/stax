@@ -1,8 +1,8 @@
-import { containers } from './docker'
+import containers from './containers'
 
 export function list() {
-  containers().forEach((container) => {
-    const status = container.State == 'running' ? '🟢' : '⚫'
-    console.log(status, container.Names, container.State, container.Status, container.RunningFor)
+  containers.all().forEach((container) => {
+    const status = container.attributes.State == 'running' ? '🟢' : '⚫'
+    console.log(status, container.name, container.attributes.State, container.attributes.Status, container.attributes.RunningFor)
   })
 }

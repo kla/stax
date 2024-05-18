@@ -2,14 +2,8 @@ import { readFileSync } from 'fs'
 import { exit } from 'process'
 import { load } from 'js-yaml'
 import devcontainer from './devcontainer'
+import containers from './containers'
 import * as docker from './docker'
-
-function verifyContainerExists(name) {
-  if (!docker.findContainer(name)) {
-    console.error(`👿 '${name}' is not a valid container name`)
-    exit(1)
-  }
-}
 
 export function setup(location) {
   const dc = devcontainer(location)
@@ -27,12 +21,12 @@ export function setup(location) {
       exit(1, `👿 No container_name found in ${location}`)
   }
 
-  verifyContainerExists(location)
+  containers.verify(location)
   return app(location)
 }
 
 export function app(name) {
-  verifyContainerExists(name)
+  containers.verify(name)
 
   return {
     up: () => docker.up(name),
