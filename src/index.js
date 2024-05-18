@@ -38,6 +38,7 @@ program.command('rebuild')
   .action((name) => app(name).rebuild())
 
 program.command('list')
+  .alias('ls').alias('l')
   .description('List applications')
   .action(() => list())
 
