@@ -2,8 +2,6 @@ import { exit } from 'process'
 import { runCapture } from './shell'
 import docker from './docker'
 
-const DEFAULT_PROJECT_NAME = 'stax'
-
 class Container {
   constructor(attributes) {
     this.attributes = attributes
@@ -30,19 +28,19 @@ class Container {
   }
 
   down() {
-    docker.compose('stop', this.name)
+    docker.compose(this.projectName, 'stop', this.name)
   }
 
   up() {
-    docker.compose('start', this.name, { exit: true })
+    docker.compose(this.projectName, 'start', this.name, { exit: true })
   }
 
   remove() {
-    docker.compose('rm --stop --force --volumes', this.name)
+    docker.compose(this.projectName, 'rm --stop --force --volumes', this.name)
   }
 
   exec(command) {
-    docker.compose(`exec ${this.name} ${command}`, this.name, { append: false })
+    docker.compose(this.projectName, `exec ${this.name} ${command}`, this.name, { append: false })
   }
 
   shell() {
@@ -58,16 +56,16 @@ class Container {
   }
 }
 
-function all(options={}) {
+function all(contextName, options={}) {
   return runCapture(`docker ps --all --format json`, { silent: true })
     .stdout
     .split("\n")
     .map(attributes => new Container(JSON.parse(attributes)))
-    .filter(container => container.projectName === DEFAULT_PROJECT_NAME)
+    .filter(container => container.projectName === contextName)
 }
 
-function find(name, options={}) {
-  const c = all(options).find(c => c.name == name)
+function find(contextName, name, options={}) {
+  const c = all(contextName, options).find(c => c.name == name)
 
   if (!c) {
     if (options.warn)

@@ -5,7 +5,7 @@ import devcontainer from './devcontainer'
 import containers from './containers'
 import docker from './docker'
 
-export function setup(location) {
+export function setup(contextName, location) {
   const original = location
   const dc = devcontainer(location)
 
@@ -13,7 +13,7 @@ export function setup(location) {
     location = dc.generate()
 
   if (location = docker.findDockerComposeFile(location)) {
-    docker.setup(location)
+    docker.setup(contextName, location)
 
     const yaml = load(readFileSync(location))
 
@@ -23,9 +23,9 @@ export function setup(location) {
   } else
     exit(1, `👿 Couldn't setup a container for '${original}'`)
 
-  return app(location)
+  return app(contextName, location)
 }
 
-export function app(name) {
-  return containers.find(name, { fresh: true, mustExist: true })
+export function app(contextName, name) {
+  return containers.find(contextName, name, { fresh: true, mustExist: true })
 }

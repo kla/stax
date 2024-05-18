@@ -3,8 +3,6 @@ import { exit } from './utils'
 import { fileExists, run, runCapture } from './shell'
 import containers from './containers'
 
-const DEFAULT_PROJECT_NAME = 'stax'
-
 function findDockerComposeFile(location) {
   if (location.endsWith('.yml') || location.endsWith('.yaml'))
     return dirname(location)
@@ -16,14 +14,14 @@ function findDockerComposeFile(location) {
   return files.find(file => fileExists(file))
 }
 
-function compose(command, path, options={}) {
+function compose(contextName, command, path, options={}) {
   let cwd
 
   options = { append: true, ...options, env: { COMPOSE_IGNORE_ORPHANS: "1" } }
-  command = `docker compose --project-name ${DEFAULT_PROJECT_NAME} ${command}`
+  command = `docker compose --project-name ${contextName} ${command}`
 
   // is path is actually a container name?
-  if (containers.find(path))
+  if (containers.find(contextName, path))
     return run(`${command}${options.append ? ` ${path}` : ''}`, options)
 
   // find the docker-compose.yaml file and set cwd to it's directory
@@ -36,8 +34,8 @@ function compose(command, path, options={}) {
   return null
 }
 
-function setup(path) {
-  return compose('up --detach', path, { exit: true })
+function setup(contextName, path) {
+  return compose(contextName, 'up --detach', path, { exit: true })
 }
 
 const docker = { findDockerComposeFile, setup, compose }
