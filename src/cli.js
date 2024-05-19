@@ -11,29 +11,29 @@ program.command('setup')
   .action(location => stax.setup(location))
 
 program.command('up')
-  .argument('<app_name>', 'app_name of application')
+  .argument('<app_name>', 'Name of application')
   .description('Start an application')
   .action(app_name => stax.find(app_name).up())
 
 program.command('down')
-  .argument('<app_name>', 'app_name of application')
+  .argument('<app_name>', 'Name of application')
   .description('Stop an application')
   .action(app_name => stax.find(app_name).down())
 
 program.command('remove')
   .alias('rm')
-  .argument('<app_name>', 'app_name of application')
+  .argument('<app_name>', 'Name of application')
   .description('Remove application')
   .action(app_name => stax.find(app_name).remove())
 
 program.command('exec')
-  .argument('<app_name>', 'app_name of application')
+  .argument('<app_name>', 'Name of application')
   .argument('<command>', 'Command to execute')
   .description('Execute a command in a running application')
   .action((app_name, command) => stax.find(app_name).exec(command))
 
 program.command('rebuild')
-  .argument('<app_name>', 'app_name of application')
+  .argument('<app_name>', 'Name of application')
   .description('Rebuild an application')
   .action(app_name => stax.find(app_name).rebuild())
 
@@ -44,7 +44,7 @@ program.command('list')
 
 program.command('shell')
   .alias('sh')
-  .argument('<app_name>', 'app_name of application')
+  .argument('<app_name>', 'Name of application')
   .description('Start a shell')
   .action(app_name => stax.find(app_name).shell())
 
