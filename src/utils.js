@@ -1,3 +1,5 @@
+import { statSync } from 'fs'
+
 // Parses a CSV string into a key/value object (e.g. "a=b,c=d" => { a: "b", c: "d" })
 export function csvKeyValuePairs(csv = '') {
   return (csv || '').trim().split(',').sort().reduce((labels, label) => {
@@ -12,4 +14,12 @@ export function exit(code, message=null) {
     console.error(message)
 
   process.exit(code)
+}
+
+export function isFile(path) {
+  try {
+    return statSync(path).isFile()
+  } catch (err) {
+    return false
+  }
 }

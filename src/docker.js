@@ -1,11 +1,10 @@
-import { dirname } from 'path'
-import { exit } from './utils'
+import { exit, isFile } from './utils'
 import { fileExists, run, runCapture } from './shell'
 import Container from './container'
 
 function findDockerComposeFile(location) {
-  if (location.endsWith('.yml') || location.endsWith('.yaml'))
-    return dirname(location)
+  if (isFile(location))
+    return location
 
   const files = [
     `${location}/docker-compose.yaml`,
@@ -15,18 +14,17 @@ function findDockerComposeFile(location) {
 }
 
 function compose(contextName, command, path, options={}) {
-  let cwd
+  let file
+  const base = `docker compose --project-name ${contextName}`
 
   options = { append: true, ...options, env: { COMPOSE_IGNORE_ORPHANS: "1" } }
-  command = `docker compose --project-name ${contextName} ${command}`
 
   // is path is actually a container name?
   if (Container.find(contextName, path))
-    return run(`${command}${options.append ? ` ${path}` : ''}`, options)
+    return run(`${base} ${command}${options.append ? ` ${path}` : ''}`, options)
 
-  // find the docker-compose.yaml file and set cwd to it's directory
-  if ((cwd = findDockerComposeFile(path)))
-    return run(command, { ...options, cwd: cwd })
+  if ((file = findDockerComposeFile(path)))
+    return run(`${base} -f ${file} ${command}`, options)
 
   if (options.exit)
     exit(1, `👿 '${path}' is not a valid container name or application directory`)

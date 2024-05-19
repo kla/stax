@@ -30,6 +30,8 @@ export default class App {
       location = dc.generate()
 
     if (location = docker.findDockerComposeFile(location)) {
+      const container = Container.find(contextName, location)
+      console.log('setup', contextName, location, container)
       docker.setup(contextName, location)
 
       const yaml = load(readFileSync(location))
@@ -66,5 +68,12 @@ export default class App {
 
   shell() {
     this.primary.shell()
+  }
+
+  rebuild() {
+    this.containers.forEach((container) => {
+      console.log(container.workingDirectory)
+      App.setup(container.projectName, container.workingDirectory)
+    })
   }
 }

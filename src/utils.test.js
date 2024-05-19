@@ -1,4 +1,4 @@
-import { csvKeyValuePairs } from './utils'
+import { csvKeyValuePairs, isFile } from './utils'
 
 describe('csvKeyValuePairs', () => {
   it('returns an empty object for an empty string', () => {
@@ -37,5 +37,23 @@ describe('csvKeyValuePairs', () => {
       key1: 'value1',
       key2: 'value2',
     })
+  })
+})
+
+describe('isFile', () => {
+  it('returns true for an existing file', () => {
+    expect(isFile(__filename)).toBe(true)
+  })
+
+  it('returns false for a non-existing file', () => {
+    expect(isFile('/path/to/non-existing/file.txt')).toBe(false)
+  })
+
+  it('returns false for a directory', () => {
+    expect(isFile('/path/to/directory')).toBe(false)
+  })
+
+  it('returns false for an invalid path', () => {
+    expect(isFile('/invalid/path')).toBe(false)
   })
 })

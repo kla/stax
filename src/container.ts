@@ -31,6 +31,10 @@ export default class Container {
    return parseInt(this.labels['com.docker.compose.container-number'], 10)
   }
 
+  get workingDirectory(): string {
+    return this.labels['com.docker.compose.project.working_dir']
+  }
+
   static all(contextName: string): Container[] {
     return docker.ps()
       .map(attributes => new Container(JSON.parse(attributes)))
