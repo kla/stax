@@ -1,6 +1,11 @@
 import { exit } from 'process'
-import { runCapture } from './shell'
+import { csvKeyValuePairs } from './utils'
 import docker from './docker'
+
+interface FindOptions {
+  warn?: boolean
+  mustExist?: boolean
+}
 
 export default class Container {
   public attributes: Record<string, any>
@@ -10,48 +15,37 @@ export default class Container {
     this.attributes = attributes
   }
 
-  get name() {
+  get name(): string {
     return this.attributes.Names
   }
 
-  get labels() {
-    return this._labels ? this._labels : (this._labels = this.parseLabels(this.attributes.Labels))
+  get labels(): Record<string, string> {
+    return this._labels ? this._labels : (this._labels = csvKeyValuePairs(this.attributes.Labels))
   }
 
-  get projectName() {
+  get projectName(): string{
     return this.labels['com.docker.compose.project']
   }
 
-  static all(contextName: string, options: any = {}) {
-    return runCapture(`docker ps --all --format json`, { silent: true })
-      .stdout
-      .split("\n")
+  static all(contextName: string) {
+    return docker.ps()
       .map(attributes => new Container(JSON.parse(attributes)))
       .filter(container => container.projectName === contextName)
   }
 
-  static find(contextName, name, options={}) {
-    const c = this.all(contextName, options).find(c => c.name == name)
+  static find(contextName: string, name: string, options: FindOptions={}): Container | undefined {
+    const c = this.all(contextName).find(c => c.name == name)
 
     if (!c) {
       if (options.warn)
-        console.warn(`🤷 Container '${container}' not found`)
+        console.warn(`🤷 Container '${name}@${contextName}' not found`)
       else if (options.mustExist) {
-        console.error(`👿 '${name}' is not a valid container name`)
+        console.error(`👿 '${name}@${contextName}' is not a valid container name`)
         exit(1)
       }
     }
 
     return c
-  }
-
-
-  parseLabels(labels: Record<string, string>) {
-    return (labels || []).split(',').sort().reduce((labels, label) => {
-      const [key, value] = label.split('=', 2);
-      labels[key] = value;
-      return labels;
-    }, {})
   }
 
   down() {

@@ -1,6 +1,6 @@
 import { dirname } from 'path'
 import { exit } from './utils'
-import { fileExists, run } from './shell'
+import { fileExists, run, runCapture } from './shell'
 import Container from './container'
 
 function findDockerComposeFile(location) {
@@ -38,5 +38,11 @@ function setup(contextName, path) {
   return compose(contextName, 'up --detach', path, { exit: true })
 }
 
-const docker = { findDockerComposeFile, setup, compose }
+function ps()  {
+  return runCapture('docker ps --all --format json', { silent: true })
+    .stdout
+    .split("\n")
+}
+
+const docker = { findDockerComposeFile, setup, compose, ps }
 export default docker
