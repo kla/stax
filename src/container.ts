@@ -27,7 +27,11 @@ export default class Container {
     return this.labels['com.docker.compose.project']
   }
 
-  static all(contextName: string) {
+  get number(): number {
+   return parseInt(this.labels['com.docker.compose.container-number'], 10)
+  }
+
+  static all(contextName: string): Container[] {
     return docker.ps()
       .map(attributes => new Container(JSON.parse(attributes)))
       .filter(container => container.projectName === contextName)

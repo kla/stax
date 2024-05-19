@@ -11,7 +11,7 @@ export default class App {
 
   constructor(name: string, containers: Container[]) {
     this.name = name
-    this.containers = containers
+    this.containers = containers.sort((a, b) => a.number - b.number)
   }
 
   get status() {

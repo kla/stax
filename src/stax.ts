@@ -22,8 +22,8 @@ export default class Stax {
     App.setup(this.name, location)
   }
 
-  find(name: string) {
-    return App.find(this.name, name)
+  find(name: string): App | undefined {
+    return this.apps().find(app => app.name == name)
   }
 
   apps(): App[] {
