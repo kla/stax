@@ -38,7 +38,7 @@ program.command('rebuild')
   .action(app_name => stax.find(app_name).rebuild())
 
 program.command('list')
-  .alias('ps')
+  .alias('ps').alias('ls')
   .description('List applications')
     .action(() => stax.list())
 

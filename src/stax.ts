@@ -12,9 +12,9 @@ export default class Stax {
   }
 
   list() {
-    Container.all(this.name).forEach((container) => {
-      const status = container.attributes.State == 'running' ? '🟢' : '⚫'
-      console.log(status, container.name, container.attributes.State, container.attributes.Status, container.attributes.RunningFor)
+    this.apps().forEach((app) => {
+      const status = app.status == 'running' ? '🟢' : '⚫'
+      console.log(status, app.name, app.primary.attributes.State, app.primary.attributes.Status, app.primary.attributes.RunningFor)
     })
   }
 
@@ -24,5 +24,10 @@ export default class Stax {
 
   find(name: string) {
     return App.find(this.name, name)
+  }
+
+  apps(): App[] {
+    return Container.all(this.name)
+      .map(container => App.find(this.name, container.name))
   }
 }
