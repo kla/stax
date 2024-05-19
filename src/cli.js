@@ -48,6 +48,11 @@ program.command('shell')
   .description('Start a shell')
   .action(app_name => stax.find(app_name).shell())
 
+program.command('inspect')
+  .argument('<app_name>', 'Name of application')
+  .description('Inspect an application')
+  .action(app_name => console.log(stax.find(app_name).containers))
+
 let args = process.argv
 
 if (args[2] == 'exec' && process.argv.length > 5) {
