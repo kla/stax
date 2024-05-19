@@ -1,7 +1,7 @@
 import { dirname } from 'path'
 import { exit } from './utils'
-import { fileExists, run, runCapture } from './shell'
-import containers from './containers'
+import { fileExists, run } from './shell'
+import Container from './container'
 
 function findDockerComposeFile(location) {
   if (location.endsWith('.yml') || location.endsWith('.yaml'))
@@ -21,7 +21,7 @@ function compose(contextName, command, path, options={}) {
   command = `docker compose --project-name ${contextName} ${command}`
 
   // is path is actually a container name?
-  if (containers.find(contextName, path))
+  if (Container.find(contextName, path))
     return run(`${command}${options.append ? ` ${path}` : ''}`, options)
 
   // find the docker-compose.yaml file and set cwd to it's directory

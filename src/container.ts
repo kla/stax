@@ -2,7 +2,10 @@ import { exit } from 'process'
 import { runCapture } from './shell'
 import docker from './docker'
 
-class Container {
+export default class Container {
+  public attributes: Record<string, any>
+  private _labels: Record<string, string>
+
   constructor(attributes) {
     this.attributes = attributes
   }
@@ -19,7 +22,31 @@ class Container {
     return this.labels['com.docker.compose.project']
   }
 
-  parseLabels(labels) {
+  static all(contextName: string, options: any = {}) {
+    return runCapture(`docker ps --all --format json`, { silent: true })
+      .stdout
+      .split("\n")
+      .map(attributes => new Container(JSON.parse(attributes)))
+      .filter(container => container.projectName === contextName)
+  }
+
+  static find(contextName, name, options={}) {
+    const c = this.all(contextName, options).find(c => c.name == name)
+
+    if (!c) {
+      if (options.warn)
+        console.warn(`🤷 Container '${container}' not found`)
+      else if (options.mustExist) {
+        console.error(`👿 '${name}' is not a valid container name`)
+        exit(1)
+      }
+    }
+
+    return c
+  }
+
+
+  parseLabels(labels: Record<string, string>) {
     return (labels || []).split(',').sort().reduce((labels, label) => {
       const [key, value] = label.split('=', 2);
       labels[key] = value;
@@ -55,29 +82,3 @@ class Container {
     })
   }
 }
-
-function all(contextName, options={}) {
-  return runCapture(`docker ps --all --format json`, { silent: true })
-    .stdout
-    .split("\n")
-    .map(attributes => new Container(JSON.parse(attributes)))
-    .filter(container => container.projectName === contextName)
-}
-
-function find(contextName, name, options={}) {
-  const c = all(contextName, options).find(c => c.name == name)
-
-  if (!c) {
-    if (options.warn)
-      console.warn(`🤷 Container '${container}' not found`)
-    else if (options.mustExist) {
-      console.error(`👿 '${name}' is not a valid container name`)
-      exit(1)
-    }
-  }
-
-  return c
-}
-
-const containers = { all, find }
-export default containers

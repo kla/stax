@@ -1,8 +1,8 @@
 import { readFileSync } from 'fs'
 import { load } from 'js-yaml'
 import { exit } from './utils'
+import Container from './container'
 import devcontainer from './devcontainer'
-import containers from './containers'
 import docker from './docker'
 
 export default class App {
@@ -28,6 +28,6 @@ export default class App {
   }
 
   static find(contextName, name): Container {
-    return containers.find(contextName, name, { fresh: true, mustExist: true })
+    return Container.find(contextName, name, { fresh: true, mustExist: true })
   }
 }
