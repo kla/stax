@@ -27,7 +27,7 @@ export default class App {
     return this.find(contextName, location)
   }
 
-  static find(contextName, name) {
+  static find(contextName, name): Container {
     return containers.find(contextName, name, { fresh: true, mustExist: true })
   }
 }

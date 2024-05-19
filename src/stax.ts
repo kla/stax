@@ -5,7 +5,9 @@ import containers from './containers'
 const CONFIG_DIRECTORY = resolve(`${process.env.HOME}/.stax`)
 
 export default class Stax {
-  constructor(name) {
+  public name: string
+
+  constructor(name: string) {
     this.name = name
   }
 
@@ -16,11 +18,11 @@ export default class Stax {
     })
   }
 
-  setup(location) {
+  setup(location: string) {
     App.setup(this.name, location)
   }
 
-  find(name) {
+  find(name: string) {
     return App.find(this.name, name)
   }
 }
