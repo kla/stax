@@ -1,5 +1,5 @@
 import { exit } from 'process'
-import { csvKeyValuePairs } from './utils'
+import { csvKeyValuePairs } from './utils.ts'
 import docker from './docker'
 
 interface FindOptions {
@@ -28,7 +28,7 @@ export default class Container {
   }
 
   get number(): number {
-   return parseInt(this.labels['com.docker.compose.container-number'], 10)
+    return parseInt(this.labels['com.docker.compose.container-number'], 10)
   }
 
   get workingDirectory(): string {
@@ -70,6 +70,10 @@ export default class Container {
 
   exec(command) {
     docker.compose(this.projectName, `exec ${this.name} ${command}`, this.name, { append: false })
+  }
+
+  rebuild() {
+    docker.compose(this.projectName, `up --detach --force-recreate ${this.name}`, this.workingDirectory, { exit: true })
   }
 
   shell() {

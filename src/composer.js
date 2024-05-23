@@ -1,5 +1,5 @@
 import { writeFileSync, mkdirSync } from 'fs'
-import { csvKeyValuePairs } from './utils'
+import { csvKeyValuePairs } from './utils.ts'
 import * as yaml from 'js-yaml'
 
 export function generateComposeFile(config) {

@@ -1,4 +1,4 @@
-import { exit, isFile } from './utils'
+import { exit, isFile } from './utils.ts'
 import { fileExists, run, runCapture } from './shell'
 import Container from './container'
 

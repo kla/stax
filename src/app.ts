@@ -48,9 +48,6 @@ export default class App {
   }
 
   rebuild() {
-    this.containers.forEach((container) => {
-      console.log(container.workingDirectory)
-      setup(container.projectName, container.workingDirectory)
-    })
+    this.containers.forEach(container => container.rebuild())
   }
 }
