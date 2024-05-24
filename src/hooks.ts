@@ -8,7 +8,9 @@ export default class Hooks {
   }
 
   onPostBuild() {
-    this.log('onPostBuild', 'features:', this.container.features.map(f => f.name).join(','))
+    this.container.features.forEach((feature) => {
+      this.log('[onPostBuild]', 'Installing', feature.name)
+    })
   }
 
   log(message: string, ...args: any[]) {

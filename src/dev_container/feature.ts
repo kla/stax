@@ -6,4 +6,8 @@ export default class Feature {
     this.name = name
     this.options = options
   }
+
+  install() {
+    console.log(`🚀 Installing ${this.name} feature...`)
+  }
 }
