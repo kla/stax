@@ -6,7 +6,7 @@ import Container from './container'
 import devcontainer from './devcontainer'
 import docker from './docker'
 
-function findDockerComposeFile(location) {
+function findDockerComposeFile(location: string): string | undefined {
   if (isFile(location))
     return location
 
@@ -17,9 +17,28 @@ function findDockerComposeFile(location) {
   return files.find(file => fileExists(file))
 }
 
+function getContainerName(dockerComposeFile: string): string {
+  const yaml = load(readFileSync(dockerComposeFile))
+  const service = yaml.services[Object.keys(yaml.services)]
+
+  // TODO: handle multiple services
+  if (!service?.container_name)
+    exit(1, `👿 No container_name found in ${dockerComposeFile}`)
+
+  return service.container_name
+}
+
+/**
+ * Sets up a container for the specified context and location.
+ *
+ * @param contextName - The name of the stax context.
+ * @param location - Path of application to setup.
+ * @returns The corresponding App if the container is set up successfully.
+ */
 export default function setup(contextName: string, location: string) {
   const original: string = location
   const container: Container | undefined = Container.find(contextName, location)
+  let composeFile: string | undefined
 
   if (container)
     return exit(1, `👿 Container '${location}@${contextName}' has already been setup. Use 'rebuild' if you want to rebuild it.`)
@@ -29,16 +48,9 @@ export default function setup(contextName: string, location: string) {
   if (dc)
     location = dc.generate()
 
-  if (!(location = findDockerComposeFile(location)))
-    exit(1, `👿 Couldn't setup a container for '${original}'`)
+  if (!(composeFile = findDockerComposeFile(location)))
+    return exit(1, `👿 Couldn't setup a container for '${original}'`)
 
-  docker.compose(contextName, 'up --detach', location, { exit: true })
-
-  const yaml = load(readFileSync(location))
-
-  // TODO: handle multiple services
-  if (!(location = yaml.services[Object.keys(yaml.services)[0]].container_name))
-    exit(1, `👿 No container_name found in ${location}`)
-
-  return App.find(contextName, location)
+  docker.compose(contextName, 'up --detach', composeFile, { exit: true })
+  return App.find(contextName, getContainerName(composeFile))
 }
