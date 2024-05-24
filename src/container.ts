@@ -1,7 +1,8 @@
 import { csvKeyValuePairs, exit } from './utils'
 import docker from './docker'
+import Hooks from './hooks'
 import DevContainer from './dev_container'
-import lifecycle from './lifecycle'
+import Feature from './dev_container/feature'
 
 interface FindOptions {
   warn?: boolean
@@ -10,10 +11,14 @@ interface FindOptions {
 
 export default class Container {
   public attributes: Record<string, any>
+  public devContainer: DevContainer | null
   private _labels: Record<string, string>
+  private hooks: Hooks
 
   constructor(attributes: Record<string, any>) {
     this.attributes = attributes
+    this.hooks = new Hooks(this)
+    this.devContainer = this.devContainerConfigFile ? new DevContainer(this.devContainerConfigFile) : null
   }
 
   get name(): string {
@@ -49,6 +54,10 @@ export default class Container {
    */
   get configFile(): string {
     return this.labels['com.docker.compose.project.config_files']
+  }
+
+  get features(): Feature[] {
+    return this.devContainer?.features || []
   }
 
   static all(contextName: string): Container[] {
@@ -91,6 +100,7 @@ export default class Container {
       new DevContainer(this.devContainerConfigFile).generate()
 
     docker.compose(this.projectName, `up --detach --force-recreate ${this.name}`, this.configFile, { exit: true })
+    this.hooks.onPostBuild()
   }
 
   shell() {
