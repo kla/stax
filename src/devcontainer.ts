@@ -1,12 +1,16 @@
-import { readFileSync } from 'fs'
+import { readFileSync, writeFileSync, mkdirSync } from 'fs'
 import { dirname, resolve } from 'path'
-import { fileExists } from './utils'
-import { generateComposeFile } from './composer'
+import { fileExists, csvKeyValuePairs } from './utils'
+import * as yaml from 'js-yaml'
 
 class DevContainer {
+  public configFile: string
+  public config: Record<string, any>
+
   constructor(configFile) {
     this.configFile = configFile
     this.config = this.loadConfig(configFile)
+    console.log(this.config)
   }
 
   get path() {
@@ -30,8 +34,25 @@ class DevContainer {
   }
 
   generate() {
-    generateComposeFile(this.config)
+    this.generateComposeFile(this.config)
     return this.path
+  }
+
+  generateComposeFile(config) {
+    const compose = { services: {} }
+
+    compose.services[config.name] = {
+      image: config.image,
+      container_name: config.name,
+      command: 'sleep infinity',
+      volumes: [ config.workspaceMount.includes(',') ? csvKeyValuePairs(config.workspaceMount) : config.workspaceMount ],
+      labels: {
+        'stax.dev.devcontainer': this.configFile,
+      },
+    }
+
+    mkdirSync(config.local.workingDirectory, { recursive: true })
+    writeFileSync(`${config.local.workingDirectory}/docker-compose.yaml`, yaml.dump(compose))
   }
 }
 
