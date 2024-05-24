@@ -1,6 +1,7 @@
-import { csvKeyValuePairs, exit } from './utils.ts'
+import { csvKeyValuePairs, exit } from './utils'
 import docker from './docker'
-import DevContainer from './devcontainer.ts'
+import DevContainer from './dev_container'
+import lifecycle from './lifecycle'
 
 interface FindOptions {
   warn?: boolean

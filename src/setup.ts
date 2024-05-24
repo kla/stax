@@ -3,7 +3,7 @@ import { load } from 'js-yaml'
 import { exit, isFile, fileExists } from './utils'
 import App from './app'
 import Container from './container'
-import DevContainer from './devcontainer'
+import DevContainer from './dev_container'
 import docker from './docker'
 
 function findDockerComposeFile(location: string): string | undefined {
