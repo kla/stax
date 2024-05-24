@@ -9,7 +9,7 @@ export default class DevContainer {
   public dockerComposeFile: string
 
   constructor(configFile: string) {
-    this.configFile = `${resolve(configFile)}/.devcontainer/devcontainer.json`
+    this.configFile = resolve(configFile)
     this.config = this.loadConfig()
 
     if (this.config.local)

@@ -43,7 +43,7 @@ export default function setup(contextName: string, location: string) {
   if (container)
     return exit(1, `👿 Container '${location}@${contextName}' has already been setup. Use 'rebuild' if you want to rebuild it.`)
 
-  const dc = new DevContainer(location)
+  const dc = new DevContainer(`${location}/.devcontainer/devcontainer.json`)
 
   if (dc.generate())
     location = dc.dockerComposeFile

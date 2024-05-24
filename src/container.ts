@@ -1,5 +1,6 @@
 import { csvKeyValuePairs, exit } from './utils.ts'
 import docker from './docker'
+import DevContainer from './devcontainer.ts'
 
 interface FindOptions {
   warn?: boolean
@@ -85,6 +86,9 @@ export default class Container {
   }
 
   rebuild() {
+    if (this.devContainerConfigFile)
+      new DevContainer(this.devContainerConfigFile).generate()
+
     docker.compose(this.projectName, `up --detach --force-recreate ${this.name}`, this.configFile, { exit: true })
   }
 
