@@ -3,21 +3,28 @@ import { dirname, resolve } from 'path'
 import { fileExists, csvKeyValuePairs } from './utils'
 import * as yaml from 'js-yaml'
 
-class DevContainer {
+export default class DevContainer {
   public configFile: string
   public config: Record<string, any>
+  public dockerComposeFile: string
 
   constructor(configFile: string) {
-    this.configFile = configFile
+    this.configFile = `${resolve(configFile)}/.devcontainer/devcontainer.json`
     this.config = this.loadConfig()
+
+    if (this.config.local)
+      this.dockerComposeFile = `${this.config.local.workingDirectory}/docker-compose.yaml`
   }
 
-  get path() {
-    return this.config.local.workingDirectory
+  isValid(): boolean {
+    return fileExists(this.configFile)
   }
 
   loadConfig(): Record<string,any> {
-    const config = JSON.parse(readFileSync(this.configFile))
+    if (!this.isValid())
+      return {}
+
+    const config = JSON.parse(readFileSync(this.configFile).toString())
     const base = resolve(dirname(this.configFile) + '/..')
 
     config.name ||= base.split('/').pop()
@@ -32,30 +39,24 @@ class DevContainer {
     return config
   }
 
-  generate(): string {
-    this.generateComposeFile(this.config)
-    return this.path
-  }
-
-  generateComposeFile(config: Record<string,any>): void {
+  generate(): boolean {
     const compose = { services: {} }
 
-    compose.services[config.name] = {
-      image: config.image,
-      container_name: config.name,
+    if (!this.isValid())
+      return false
+
+    compose.services[this.config.name] = {
+      image: this.config.image,
+      container_name: this.config.name,
       command: 'sleep infinity',
-      volumes: [ config.workspaceMount.includes(',') ? csvKeyValuePairs(config.workspaceMount) : config.workspaceMount ],
+      volumes: [ this.config.workspaceMount.includes(',') ? csvKeyValuePairs(this.config.workspaceMount) : this.config.workspaceMount ],
       labels: {
         'stax.dev.devcontainer': this.configFile,
       },
     }
 
-    mkdirSync(config.local.workingDirectory, { recursive: true })
-    writeFileSync(`${config.local.workingDirectory}/docker-compose.yaml`, yaml.dump(compose))
+    mkdirSync(this.config.local.workingDirectory, { recursive: true })
+    writeFileSync(this.dockerComposeFile, yaml.dump(compose))
+    return true
   }
-}
-
-export default function devcontainer(path: string): DevContainer | null {
-  const configFile = `${resolve(path)}/.devcontainer/devcontainer.json`
-  return fileExists(configFile) ? new DevContainer(configFile) : null
 }
