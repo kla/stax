@@ -1,6 +1,6 @@
 import { readFileSync } from 'fs'
 import { dirname, resolve } from 'path'
-import { fileExists } from './shell'
+import { fileExists } from './utils'
 import { generateComposeFile } from './composer'
 
 class DevContainer {

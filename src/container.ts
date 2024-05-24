@@ -35,6 +35,14 @@ export default class Container {
     return this.labels['com.docker.compose.project.working_dir']
   }
 
+  /**
+   * Returns the docker compose configuration file for the container.
+   * @returns The configuration file path.
+   */
+  get configFile(): string {
+    return this.labels['com.docker.compose.project.config_files']
+  }
+
   static all(contextName: string): Container[] {
     return docker.ps()
       .map(attributes => new Container(JSON.parse(attributes)))
@@ -73,7 +81,7 @@ export default class Container {
   }
 
   rebuild() {
-    docker.compose(this.projectName, `up --detach --force-recreate ${this.name}`, this.workingDirectory, { exit: true })
+    docker.compose(this.projectName, `up --detach --force-recreate ${this.name}`, this.configFile, { exit: true })
   }
 
   shell() {

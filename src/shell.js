@@ -1,13 +1,8 @@
-import { existsSync, statSync } from 'fs'
 import { execaSync } from 'execa'
 import chalk from 'chalk'
 
 export function directoryExists(path) {
   return existsSync(path) && statSync(path).isDirectory();
-}
-
-export function fileExists(file) {
-  return existsSync(file)
 }
 
 function checkRunOptions(options) {

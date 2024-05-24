@@ -1,4 +1,4 @@
-import { statSync } from 'fs'
+import { existsSync, statSync } from 'fs'
 
 // Parses a CSV string into a key/value object (e.g. "a=b,c=d" => { a: "b", c: "d" })
 export function csvKeyValuePairs(csv: string = '') {
@@ -22,4 +22,8 @@ export function isFile(path: string) {
   } catch (err) {
     return false
   }
+}
+
+export function fileExists(file) {
+  return existsSync(file)
 }
