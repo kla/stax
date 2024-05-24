@@ -9,7 +9,7 @@ export function csvKeyValuePairs(csv: string = '') {
   }, {})
 }
 
-export function exit(code: number, message: string | undefined=undefined) {
+export function exit(code: number, message: string | undefined=undefined): undefined {
   if (message)
     console.error(message)
 

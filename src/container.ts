@@ -10,7 +10,7 @@ export default class Container {
   public attributes: Record<string, any>
   private _labels: Record<string, string>
 
-  constructor(attributes) {
+  constructor(attributes: Record<string, any>) {
     this.attributes = attributes
   }
 
@@ -35,6 +35,13 @@ export default class Container {
   }
 
   /**
+   * Returns the path to the devcontainer configuration file for the container if there is one.
+   */
+  get devContainerConfigFile(): string {
+    return this.labels['stax.dev.devcontainer']
+  }
+
+  /**
    * Returns the docker compose configuration file for the container.
    * @returns The configuration file path.
    */
@@ -54,10 +61,8 @@ export default class Container {
     if (!c) {
       if (options.warn)
         console.warn(`🤷 Container '${name}@${contextName}' not found`)
-      else if (options.mustExist) {
-        exit(1, `👿 '${name}@${contextName}' is not a valid container name`)
-        return
-      }
+      else if (options.mustExist)
+        return exit(1, `👿 '${name}@${contextName}' is not a valid container name`)
     }
 
     return c

@@ -7,17 +7,16 @@ class DevContainer {
   public configFile: string
   public config: Record<string, any>
 
-  constructor(configFile) {
+  constructor(configFile: string) {
     this.configFile = configFile
-    this.config = this.loadConfig(configFile)
-    console.log(this.config)
+    this.config = this.loadConfig()
   }
 
   get path() {
     return this.config.local.workingDirectory
   }
 
-  loadConfig() {
+  loadConfig(): Record<string,any> {
     const config = JSON.parse(readFileSync(this.configFile))
     const base = resolve(dirname(this.configFile) + '/..')
 
@@ -33,12 +32,12 @@ class DevContainer {
     return config
   }
 
-  generate() {
+  generate(): string {
     this.generateComposeFile(this.config)
     return this.path
   }
 
-  generateComposeFile(config) {
+  generateComposeFile(config: Record<string,any>): void {
     const compose = { services: {} }
 
     compose.services[config.name] = {
@@ -56,7 +55,7 @@ class DevContainer {
   }
 }
 
-export default function devcontainer(path) {
+export default function devcontainer(path: string): DevContainer | null {
   const configFile = `${resolve(path)}/.devcontainer/devcontainer.json`
   return fileExists(configFile) ? new DevContainer(configFile) : null
 }
