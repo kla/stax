@@ -76,8 +76,8 @@ export default class Container {
     docker.compose(this.projectName, 'rm --stop --force --volumes', this.name)
   }
 
-  exec(command) {
-    docker.compose(this.projectName, `exec ${this.name} ${command}`, this.name, { append: false })
+  exec(command: string) {
+    docker.compose(this.projectName, `exec -it ${this.name} ${command}`, this.name, { append: false })
   }
 
   rebuild() {
