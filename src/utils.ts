@@ -27,3 +27,7 @@ export function isFile(path: string) {
 export function fileExists(file) {
   return existsSync(file)
 }
+
+export function directoryExists(path: string): boolean {
+  return existsSync(path) && statSync(path).isDirectory();
+}

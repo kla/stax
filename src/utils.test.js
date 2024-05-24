@@ -1,4 +1,4 @@
-import { csvKeyValuePairs, isFile } from './utils'
+import { csvKeyValuePairs, directoryExists, isFile } from './utils'
 
 describe('csvKeyValuePairs', () => {
   it('returns an empty object for an empty string', () => {
@@ -55,5 +55,15 @@ describe('isFile', () => {
 
   it('returns false for an invalid path', () => {
     expect(isFile('/invalid/path')).toBe(false)
+  })
+})
+
+describe('directoryExists', () => {
+  it('should return true if the directory exists', () => {
+    expect(directoryExists(__dirname)).toBe(true)
+  })
+
+  it('should return false if the directory does not exist', () => {
+    expect(directoryExists('/path/to/nonexistent/directory')).toBe(false)
   })
 })
