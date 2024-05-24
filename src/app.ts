@@ -22,8 +22,14 @@ export default class App {
     return setup(contextName, location)
   }
 
-  static find(contextName: string, name: string): App {
+  static find(contextName: string, name: string): App | null{
     const container = Container.find(contextName, name, { mustExist: true })
+
+    if (!container) {
+      console.warn(`🤷 App '${name}@${contextName}' not found`)
+      return null
+    }
+
     return new App(name, [container])
   }
 

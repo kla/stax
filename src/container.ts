@@ -1,5 +1,4 @@
-import { exit } from 'process'
-import { csvKeyValuePairs } from './utils.ts'
+import { csvKeyValuePairs, exit } from './utils.ts'
 import docker from './docker'
 
 interface FindOptions {
@@ -56,8 +55,8 @@ export default class Container {
       if (options.warn)
         console.warn(`🤷 Container '${name}@${contextName}' not found`)
       else if (options.mustExist) {
-        console.error(`👿 '${name}@${contextName}' is not a valid container name`)
-        exit(1)
+        exit(1, `👿 '${name}@${contextName}' is not a valid container name`)
+        return
       }
     }
 
