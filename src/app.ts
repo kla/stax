@@ -18,7 +18,7 @@ export default class App {
     return this.containers[0]
   }
 
-  static setup(contextName: string, location: string) {
+  static async setup(contextName: string, location: string) {
     return setup(contextName, location)
   }
 

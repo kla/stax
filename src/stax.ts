@@ -18,7 +18,7 @@ export default class Stax {
     })
   }
 
-  setup(location: string) {
+  async setup(location: string) {
     App.setup(this.name, location)
   }
 

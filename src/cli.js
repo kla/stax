@@ -8,7 +8,7 @@ program.name('stax')
 program.command('setup')
   .argument('<location>', 'Path to or git repo of application')
   .description('Setup an applicaiton')
-  .action(location => stax.setup(location))
+  .action(async location => await stax.setup(location))
 
 program.command('up')
   .argument('<app_name>', 'Name of application')

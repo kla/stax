@@ -1,5 +1,5 @@
 import { exit, fileExists } from './utils'
-import { run, runCapture } from './shell'
+import { run, runAsync, runCapture } from './shell'
 import Container from './container'
 
 /**
@@ -26,6 +26,21 @@ function compose(contextName: string, command: string, path: string, options: Re
   return run(`${base} -f ${path} ${command}`, options)
 }
 
+async function composeAsync(contextName: string, command: string, path: string, options: Record<string,any> = {}) {
+  const base = `docker compose --project-name ${contextName}`
+
+  options = { append: true, ...options, env: { COMPOSE_IGNORE_ORPHANS: "1" } }
+
+  // See if  path is actually a container name
+  if (Container.find(contextName, path))
+    return runAsync(`${base} ${command}${options.append ? ` ${path}` : ''}`, options)
+
+  if (options.exit && !fileExists(path))
+    exit(1, `👿 '${path}' must point to a valid docker-compose yaml file`)
+
+  return runAsync(`${base} -f ${path} ${command}`, options)
+}
+
 /**
  * Returns a list of all Docker containers.
  * @returns An array of strings representing the Docker containers.
@@ -34,5 +49,5 @@ function ps(): Array<string> {
   return runCapture('docker ps --all --format json', { silent: true }).stdout.split("\n")
 }
 
-const docker = { compose, ps }
+const docker = { compose, composeAsync, ps }
 export default docker

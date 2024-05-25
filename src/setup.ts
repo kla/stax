@@ -35,7 +35,7 @@ function getContainerName(dockerComposeFile: string): string {
  * @param location - Path of application to setup.
  * @returns The corresponding App if the container is set up successfully.
  */
-export default function setup(contextName: string, location: string) {
+export default async function setup(contextName: string, location: string) {
   const original: string = location
   const container: Container | undefined = Container.find(contextName, location)
   let composeFile: string | undefined
@@ -51,6 +51,6 @@ export default function setup(contextName: string, location: string) {
   if (!(composeFile = findDockerComposeFile(location)))
     return exit(1, `👿 Couldn't setup a container for '${original}'`)
 
-  docker.compose(contextName, 'up --detach', composeFile, { exit: true })
+  await docker.composeAsync(contextName, 'up --detach', composeFile, { exit: true })
   return App.find(contextName, getContainerName(composeFile))
 }
