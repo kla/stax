@@ -19,14 +19,11 @@ interface RunOptions {
    * Specifies whether the command should be executed silently.
    */
   silent?: boolean
-}
 
-function checkRunOptions(options: RunOptions | null): RunOptions | null {
-  if (options?.cwd && !directoryExists(options?.cwd)) {
-    console.error(`${options.cmd} does not exist`)
-    return null
-  }
-  return options
+  /**
+   * The standard input/output streams for the command.
+   */
+  stdio?: 'inherit' | 'pipe' | 'ignore' | 'ipc' | (number | null | undefined)
 }
 
 function outputCommand(command: string, { cwd, silent }: RunOptions): void {
@@ -39,19 +36,14 @@ function outputCommand(command: string, { cwd, silent }: RunOptions): void {
 }
 
 export function run(command: string, options: RunOptions | null = {}) {
-  if (!(options = checkRunOptions(options)))
-    return { stdout: null, stderr: null, code: -99 }
-
+  options =  { ...options, stdio: 'inherit' }
   outputCommand(command, options)
 
   const parts = command.split(' ')
-  return execaSync(parts.shift(), parts, { ...options, stdio: 'inherit' })
+  return execaSync(parts.shift(), parts, options)
 }
 
 export function runCapture(command: string, options: RunOptions = {}) {
-  if (!checkRunOptions(options))
-    return null
-
   outputCommand(command, options)
 
   const parts = command.split(' ')
