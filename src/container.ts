@@ -80,26 +80,26 @@ export default class Container {
   }
 
   async down() {
-    return docker.composeAsync(this.projectName, 'stop', this.name)
+    return docker.compose(this.projectName, 'stop', this.name)
   }
 
   async up() {
-    return docker.composeAsync(this.projectName, 'start', this.name, { exit: true })
+    return docker.compose(this.projectName, 'start', this.name, { exit: true })
   }
 
   async remove() {
-    return docker.composeAsync(this.projectName, 'rm --stop --force --volumes', this.name)
+    return docker.compose(this.projectName, 'rm --stop --force --volumes', this.name)
   }
 
   async exec(command: string) {
-    return docker.composeAsync(this.projectName, `exec -it ${this.name} ${command}`, this.name, { append: false })
+    return docker.compose(this.projectName, `exec -it ${this.name} ${command}`, this.name, { append: false })
   }
 
   async rebuild() {
     if (this.devContainerConfigFile)
       new DevContainer(this.devContainerConfigFile).generate()
 
-    await docker.composeAsync(this.projectName, `up --detach --force-recreate ${this.name}`, this.configFile, { exit: true })
+    await docker.compose(this.projectName, `up --detach --force-recreate ${this.name}`, this.configFile, { exit: true })
     this.hooks.onPostBuild()
   }
 

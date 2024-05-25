@@ -51,6 +51,6 @@ export default async function setup(contextName: string, location: string) {
   if (!(composeFile = findDockerComposeFile(location)))
     return exit(1, `👿 Couldn't setup a container for '${original}'`)
 
-  await docker.composeAsync(contextName, 'up --detach', composeFile, { exit: true })
+  await docker.compose(contextName, 'up --detach', composeFile, { exit: true })
   return App.find(contextName, getContainerName(composeFile))
 }
