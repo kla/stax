@@ -79,35 +79,35 @@ export default class Container {
     return c
   }
 
-  down() {
-    docker.compose(this.projectName, 'stop', this.name)
+  async down() {
+    return docker.composeAsync(this.projectName, 'stop', this.name)
   }
 
-  up() {
-    docker.compose(this.projectName, 'start', this.name, { exit: true })
+  async up() {
+    return docker.composeAsync(this.projectName, 'start', this.name, { exit: true })
   }
 
-  remove() {
-    docker.compose(this.projectName, 'rm --stop --force --volumes', this.name)
+  async remove() {
+    return docker.composeAsync(this.projectName, 'rm --stop --force --volumes', this.name)
   }
 
-  exec(command: string) {
-    docker.compose(this.projectName, `exec -it ${this.name} ${command}`, this.name, { append: false })
+  async exec(command: string) {
+    return docker.composeAsync(this.projectName, `exec -it ${this.name} ${command}`, this.name, { append: false })
   }
 
-  rebuild() {
+  async rebuild() {
     if (this.devContainerConfigFile)
       new DevContainer(this.devContainerConfigFile).generate()
 
-    docker.compose(this.projectName, `up --detach --force-recreate ${this.name}`, this.configFile, { exit: true })
+    await docker.composeAsync(this.projectName, `up --detach --force-recreate ${this.name}`, this.configFile, { exit: true })
     this.hooks.onPostBuild()
   }
 
-  shell() {
+  async shell() {
     const shells = [ '/bin/bash', '/bin/sh' ]
-    shells.find((shell) => {
+    shells.find(async (shell) => {
       try {
-        this.exec(shell)
+        await this.exec(shell)
         return true
       } catch (e) {
         return false

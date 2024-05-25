@@ -33,27 +33,27 @@ export default class App {
     return new App(name, [container])
   }
 
-  down() {
-    this.containers.forEach(container => container.down())
+  async down() {
+    return Promise.all(this.containers.map(container => container.down()))
   }
 
-  up() {
-    this.containers.forEach(container => container.up())
+  async up() {
+    return Promise.all(this.containers.map(container => container.up()))
   }
 
-  remove() {
-    this.containers.forEach(container => container.remove())
+  async remove() {
+    return Promise.all(this.containers.map(container => container.remove()))
   }
 
-  exec(command: string) {
-    this.primary.exec(command)
+  async exec(command: string) {
+    return this.primary.exec(command)
   }
 
-  shell() {
-    this.primary.shell()
+  async shell() {
+    return this.primary.shell()
   }
 
-  rebuild() {
-    this.containers.forEach(container => container.rebuild())
+  async rebuild() {
+    return Promise.all(this.containers.map(container => container.rebuild()))
   }
 }
