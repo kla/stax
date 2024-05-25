@@ -1,0 +1,7 @@
+{
+  "image": "ubuntu:latest",
+  "features": {
+    "ghcr.io/devcontainers/features/git": {},
+    "ghcr.io/devcontainers/features/ruby": { "version": "3.3.0-preview3" }
+  }
+}
