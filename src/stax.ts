@@ -1,4 +1,5 @@
 import { resolve } from 'path'
+import { exit } from './utils'
 import App from './app'
 import Container from './container'
 
@@ -23,7 +24,12 @@ export default class Stax {
   }
 
   find(name: string): App | undefined {
-    return this.apps().find(app => app.name == name)
+    const app = this.apps().find(app => app.name == name)
+
+    if (!app)
+      return exit(1, `No app named '${name}@${this.name}' was found.`)
+
+    return app
   }
 
   apps(): App[] {
