@@ -1,5 +1,5 @@
 import { exit, fileExists } from './utils'
-import { run, runAsync, runCapture } from './shell'
+import { runAsync, capture } from './shell'
 import Container from './container'
 
 /**
@@ -46,7 +46,7 @@ async function composeAsync(contextName: string, command: string, path: string, 
  * @returns An array of strings representing the Docker containers.
  */
 function ps(): Array<string> {
-  return runCapture('docker ps --all --format json', { silent: true }).stdout.split("\n")
+  return capture('docker ps --all --format json').split("\n")
 }
 
 const docker = { compose, composeAsync, ps }

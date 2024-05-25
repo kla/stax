@@ -1,5 +1,4 @@
-import { execa, execaSync } from 'execa'
-import { spawn } from 'child_process'
+import { execSync, spawn } from 'child_process'
 import chalk from 'chalk'
 
 /**
@@ -36,19 +35,8 @@ function outputCommand(command: string, { cwd, silent }: RunOptions): void {
   console.log(command)
 }
 
-export function run(command: string, options: RunOptions | null = {}) {
-  options =  { ...options, stdio: 'inherit' }
-  outputCommand(command, options)
-
-  const parts = command.split(' ')
-  return execaSync(parts.shift(), parts, options)
-}
-
-export function runCapture(command: string, options: RunOptions = {}) {
-  outputCommand(command, options)
-
-  const parts = command.split(' ')
-  return execaSync(parts.shift(), parts, options)
+export function capture(command: string) {
+  return execSync(command, { encoding: 'utf-8' }).trim()
 }
 
 export async function runAsync(command: string, { env } = {}) {
