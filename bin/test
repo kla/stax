@@ -1,2 +1,14 @@
 #!/bin/sh
-bun test test $@
+
+args=()
+
+for arg in "$@"
+do
+  if [ "$arg" = "-w" ]; then
+    args+=("--watch")
+  else
+    args+=("$arg")
+  fi
+done
+
+bun test "${args[@]}"
