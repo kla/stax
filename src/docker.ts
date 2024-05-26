@@ -21,8 +21,8 @@ async function compose(contextName: string, command: string, path: string, optio
  * Returns a list of all Docker containers.
  * @returns An array of strings representing the Docker containers.
  */
-function ps(): Array<string> {
-  return capture('docker ps --all --format json').split("\n")
+function ps(): Array<Record<string,any>> {
+  return capture('docker ps --all --format json').split("\n").map(attributes => JSON.parse(attributes))
 }
 
 const docker = { compose, ps }

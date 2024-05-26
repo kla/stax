@@ -62,7 +62,7 @@ export default class Container {
 
   static all(contextName: string): Container[] {
     return docker.ps()
-      .map(attributes => new Container(JSON.parse(attributes)))
+      .map(attributes => new Container(attributes))
       .filter(container => container.projectName === contextName)
   }
 
