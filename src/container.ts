@@ -1,8 +1,8 @@
-import { csvKeyValuePairs, exit } from './utils'
-import docker from './docker'
-import Hooks from './hooks'
-import DevContainer from './dev_container'
-import Feature from './dev_container/feature'
+import { csvKeyValuePairs, exit } from '~/utils'
+import docker from '~/docker'
+import Hooks from '~/hooks'
+import DevContainer from '~/dev_container'
+import Feature from '~/dev_container/feature'
 
 interface FindOptions {
   warn?: boolean

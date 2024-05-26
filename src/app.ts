@@ -1,5 +1,5 @@
-import Container from './container'
-import setup from './setup'
+import Container from '~/container'
+import setup from '~/setup'
 
 export default class App {
   public name: string

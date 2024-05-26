@@ -1,7 +1,7 @@
 import { resolve } from 'path'
-import { exit } from './utils'
-import App from './app'
-import Container from './container'
+import { exit } from '~/utils'
+import App from '~/app'
+import Container from '~/container'
 
 const CONFIG_DIRECTORY = resolve(`${process.env.HOME}/.stax`)
 

@@ -1,8 +1,8 @@
 import { readFileSync, writeFileSync, mkdirSync } from 'fs'
 import { dirname, resolve } from 'path'
-import { fileExists, csvKeyValuePairs } from '../utils'
+import { fileExists, csvKeyValuePairs } from '~/utils'
 import * as yaml from 'js-yaml'
-import Feature from './feature'
+import Feature from '~/dev_container/feature'
 
 export default class DevContainer {
   public configFile: string

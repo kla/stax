@@ -1,5 +1,5 @@
 import { Command } from 'commander'
-import Stax from './stax'
+import Stax from '~/stax'
 
 const stax = new Stax('stax')
 const program = new Command()

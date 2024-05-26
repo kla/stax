@@ -1,6 +1,6 @@
-import { exit, fileExists } from './utils'
-import { run, capture } from './shell'
-import Container from './container'
+import { exit, fileExists } from '~/utils'
+import { run, capture } from '~/shell'
+import Container from '~/container'
 
 async function compose(contextName: string, command: string, path: string, options: Record<string,any> = {}) {
   const base = `docker compose --project-name ${contextName}`

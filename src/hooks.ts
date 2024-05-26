@@ -1,4 +1,4 @@
-import Container from './container'
+import Container from '~/container'
 
 export default class Hooks {
   public container: Container

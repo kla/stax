@@ -1,4 +1,4 @@
-import { csvKeyValuePairs, directoryExists, isFile } from './utils'
+import { csvKeyValuePairs, directoryExists, isFile } from '~/utils'
 
 describe('csvKeyValuePairs', () => {
   it('returns an empty object for an empty string', () => {
