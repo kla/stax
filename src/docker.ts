@@ -1,5 +1,5 @@
 import { exit, fileExists } from './utils'
-import { runAsync, capture } from './shell'
+import { run, capture } from './shell'
 import Container from './container'
 
 async function compose(contextName: string, command: string, path: string, options: Record<string,any> = {}) {
@@ -9,12 +9,12 @@ async function compose(contextName: string, command: string, path: string, optio
 
   // See if  path is actually a container name
   if (Container.find(contextName, path))
-    return runAsync(`${base} ${command}${options.append ? ` ${path}` : ''}`, options)
+    return run(`${base} ${command}${options.append ? ` ${path}` : ''}`, options)
 
   if (options.exit && !fileExists(path))
     exit(1, `👿 '${path}' must point to a valid docker-compose yaml file`)
 
-  return runAsync(`${base} -f ${path} ${command}`, options)
+  return run(`${base} -f ${path} ${command}`, options)
 }
 
 /**

@@ -39,7 +39,7 @@ export function capture(command: string) {
   return execSync(command, { encoding: 'utf-8' }).trim()
 }
 
-export async function runAsync(command: string, { env } = {}) {
+export async function run(command: string, { env } = {}) {
   const args = command.split(' ')
   const executable = args.shift()
   const options: any = { stdio: 'inherit', tty: true }
