@@ -2,7 +2,6 @@ import { readFileSync, writeFileSync, mkdirSync } from 'fs'
 import { dirname, resolve } from 'path'
 import { fileExists, csvKeyValuePairs } from '~/utils'
 import * as yaml from 'js-yaml'
-import Feature from '~/dev_container/feature'
 
 export default class DevContainer {
   public configFile: string
@@ -15,10 +14,6 @@ export default class DevContainer {
 
     if (this.config.local)
       this.dockerComposeFile = `${this.config.local.workingDirectory}/docker-compose.yaml`
-  }
-
-  get features(): Feature[] {
-    return Object.keys(this.config.features).map((name: string) => new Feature(name, this.config.features[name]))
   }
 
   isValid(): boolean {

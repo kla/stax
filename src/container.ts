@@ -2,7 +2,6 @@ import { csvKeyValuePairs, exit } from '~/utils'
 import docker from '~/docker'
 import Hooks from '~/hooks'
 import DevContainer from '~/dev_container'
-import Feature from '~/dev_container/feature'
 
 interface FindOptions {
   warn?: boolean
@@ -54,10 +53,6 @@ export default class Container {
    */
   get configFile(): string {
     return this.labels['com.docker.compose.project.config_files']
-  }
-
-  get features(): Feature[] {
-    return this.devContainer?.features || []
   }
 
   static all(contextName: string): Container[] {

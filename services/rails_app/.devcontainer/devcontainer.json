@@ -1,7 +1,10 @@
 {
-  "image": "ubuntu:latest",
+  "name": "rails_app",
+  "service": "rails_app",
+  "dockerComposeFile": "docker-compose.yaml",
   "features": {
     "ghcr.io/devcontainers/features/git": {},
-    "ghcr.io/devcontainers/features/ruby": { "version": "3.3.0-preview3" }
+    "ghcr.io/devcontainers/features/ruby": {},
+    "ghcr.io/devcontainers/features/sshd": {}
   }
 }
