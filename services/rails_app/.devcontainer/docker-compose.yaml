@@ -1,7 +1,0 @@
-services:
-  rails_app:
-    image: ubuntu:latest
-    command: sleep infinity
-    container_name: rails_app
-    volumes:
-      - ./:/workspaces/rails_app

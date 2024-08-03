@@ -2,7 +2,6 @@ import { describe, it, expect, beforeEach, afterEach } from 'bun:test'
 import { vi } from 'vitest'
 import docker from '~/docker'
 import Hooks from '~/hooks'
-import DevContainer from '~/dev_container'
 import Container from '~/container'
 
 describe('Container', () => {
@@ -21,12 +20,11 @@ describe('Container', () => {
     it('creates a Container instance with the provided attributes', () => {
       const attributes = {
         Names: 'test-container',
-        Labels: 'com.docker.compose.project=test-project,stax.dev.devcontainer=/path/to/devcontainer.json',
+        Labels: 'com.docker.compose.project=test-project',
       }
       const container = new Container(attributes)
       expect(container.attributes).toBe(attributes)
       expect(container.hooks).toBeInstanceOf(Hooks)
-      expect(container.devContainer).toBeInstanceOf(DevContainer)
     })
   })
 

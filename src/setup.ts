@@ -3,7 +3,6 @@ import { load } from 'js-yaml'
 import { exit, isFile, fileExists } from '~/utils'
 import App from '~/app'
 import Container from '~/container'
-import DevContainer from '~/dev_container'
 import docker from '~/docker'
 
 function findDockerComposeFile(location: string): string | undefined {
@@ -42,11 +41,6 @@ export default async function setup(contextName: string, location: string) {
 
   if (container)
     return exit(1, `👿 Container '${location}@${contextName}' has already been setup. Use 'rebuild' if you want to rebuild it.`)
-
-  const dc = new DevContainer(`${location}/.devcontainer/devcontainer.json`)
-
-  if (dc.generate())
-    location = dc.dockerComposeFile
 
   if (!(composeFile = findDockerComposeFile(location)))
     return exit(1, `👿 Couldn't setup a container for '${original}'`)
