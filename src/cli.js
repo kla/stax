@@ -1,9 +1,17 @@
 import { Command } from 'commander'
 import Stax from '~/stax'
+import Compiler from '~/staxfile/compiler'
 
 const stax = new Stax('stax')
 const program = new Command()
 program.name('stax')
+
+program.command('compile')
+  .argument('<location>', 'Path to a Staxfile or directory with one')
+  .description('Compile a Staxfile')
+  .action(async location => {
+    new Compiler(location).compile()
+  })
 
 program.command('setup')
   .argument('<location>', 'Path to or git repo of application')
