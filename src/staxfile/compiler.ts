@@ -83,12 +83,12 @@ export default class Compiler {
     })
   }
 
-  private envVarComments(): string {
-    return Object.entries(this.data.build.args).map(([name, value]) => `# ${name}=${value}\n`).join('')
+  private args(): string {
+    return Object.entries(this.data.build.args).map(([name, value]) => `ARG ${name}="${value}"\n`).join('')
   }
 
   private parseBase(file: string, includes: Record<string, string>) {
-    let text = this.envVarComments()
+    let text = ""
 
     if (!fileExists(file))
       exit(1, `File not found: ${file}`)
@@ -101,7 +101,10 @@ export default class Compiler {
       else
         text += line + "\n"
     })
-    return this.substituteVariables(text)
+
+    text = this.substituteVariables(text)
+    text = text.replaceAll('# $stax.section args', this.args())
+    return text
   }
 
   private substituteVariables(dockerfile: string): string {
