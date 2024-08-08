@@ -28,24 +28,24 @@ export default class Compiler {
   }
 
   private createDockerfile() {
-    const includes = this.loadIncludes()
-    const base = this.parseBase(this.data.build.base, includes)
+    const modules = this.loadModules()
+    const base = this.parseBase(this.data.build.base, modules)
     console.log(base)
   }
 
-  private loadIncludes(): Record<string, string> {
-    if (!this.data.build.includes)
+  private loadModules(): Record<string, string> {
+    if (!this.data.build.modules)
       return {}
 
     const dir = path.resolve(path.dirname(this.data.build.base))
-    const includes: Record<string, string> = {}
-    this.data.build.includes.forEach(item => this.parseIncludeFile(`${dir}/${item}`, includes))
-    return includes
+    const modules: Record<string, string> = {}
+    this.data.build.modules.forEach(item => this.parseModuleFile(`${dir}/${item}`, modules))
+    return modules
   }
 
-  private parseIncludeFile(file: string, includes: Record<string, string>) {
+  private parseModuleFile(file: string, modules: Record<string, string>) {
     if (!fileExists(file))
-      exit(1, `Include file not found: ${file}`)
+      exit(1, `Module file not found: ${file}`)
 
     const contents = readFileSync(file, 'utf-8')
     let sectionName: string
@@ -53,20 +53,20 @@ export default class Compiler {
     this.verifyVariables(file, contents)
 
     if (!contents.includes('# $stax.append_to'))
-      exit(1, `Must specify at least one "# $stax.append_to" directive in include file: ${file}`)
+      exit(1, `Must specify at least one "# $stax.append_to" directive in module: ${file}`)
 
     contents.split("\n").forEach((line) => {
       let matches = line.match(/# \$stax\.append_to (.*?)$/)
 
       if (matches && matches[1]) {
         sectionName = matches[1]
-        includes[sectionName] ||= ''
-        if (includes[sectionName] != '') includes[sectionName] += '\n'
-        includes[sectionName] += `# ${sectionName}: ${file}`
+        modules[sectionName] ||= ''
+        if (modules[sectionName] != '') modules[sectionName] += '\n'
+        modules[sectionName] += `# ${sectionName}: ${file}`
       } else if (sectionName)
-        includes[sectionName] += `\n${line}`
+        modules[sectionName] += `\n${line}`
     })
-    return includes
+    return modules
   }
 
   private verifyVariables(file: string, contents: string) {
@@ -87,7 +87,7 @@ export default class Compiler {
     return Object.entries(this.data.build.args).map(([name, value]) => `ARG ${name}="${value}"\n`).join('')
   }
 
-  private parseBase(file: string, includes: Record<string, string>) {
+  private parseBase(file: string, modules: Record<string, string>) {
     let text = ""
 
     if (!fileExists(file))
@@ -96,8 +96,8 @@ export default class Compiler {
     readFileSync(this.data.build.base, 'utf-8').split("\n").forEach((line) => {
       const matches = line.trim().match(/# \$stax\.section +(.*?)$/)
 
-      if (matches && matches[1] && includes[matches[1]])
-        text += includes[matches[1]]
+      if (matches && matches[1] && modules[matches[1]])
+        text += modules[matches[1]]
       else
         text += line + "\n"
     })
