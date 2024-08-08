@@ -29,7 +29,7 @@ export default class Compiler {
 
   private createDockerfile() {
     const modules = this.loadModules()
-    const base = this.parseBase(this.data.build.base, modules)
+    const base = this.parseBase(this.data.build.dockerfile, modules)
     console.log(base)
   }
 
@@ -37,9 +37,9 @@ export default class Compiler {
     if (!this.data.build.modules)
       return {}
 
-    const dir = path.resolve(path.dirname(this.data.build.base))
+    const dir = path.resolve(path.dirname(this.data.build.dockerfile))
     const modules: Record<string, string> = {}
-    this.data.build.modules.forEach(item => this.parseModuleFile(`${dir}/${item}`, modules))
+    this.data.build.modules.forEach(item => this.parseModuleFile(`${dir}/modules/${item}`, modules))
     return modules
   }
 
@@ -93,7 +93,7 @@ export default class Compiler {
     if (!fileExists(file))
       exit(1, `File not found: ${file}`)
 
-    readFileSync(this.data.build.base, 'utf-8').split("\n").forEach((line) => {
+    readFileSync(this.data.build.dockerfile, 'utf-8').split("\n").forEach((line) => {
       const matches = line.trim().match(/# \$stax\.section +(.*?)$/)
 
       if (matches && matches[1] && modules[matches[1]])
