@@ -1,7 +1,8 @@
-import { readFileSync } from 'fs'
+import { readFileSync, writeFileSync } from 'fs'
 import { load } from 'js-yaml'
 import { exit, fileExists } from '~/utils'
 import path from 'path'
+import tmp from 'tmp'
 import Dockerfile from './dockerfilex'
 
 export default class Compiler {
@@ -16,14 +17,18 @@ export default class Compiler {
     this.staxfile = staxfile
     this.config = load(readFileSync(this.staxfile, 'utf-8'))
     this.baseDir = path.dirname(path.resolve(this.staxfile))
+
+    tmp.setGracefulCleanup()
   }
 
   public compile() {
-    this.insideBaseDir(() => {
-      const dockerfile = new Dockerfile(this.config.defaults.build).compile()
+    const files = { dockerfile: undefined, compose: undefined }
 
-      console.log(dockerfile)
+    this.insideBaseDir(() => {
+      files.dockerfile = this.compileDockerfile()
     })
+    console.log(files)
+    return files
   }
 
   private insideBaseDir(callback) {
@@ -31,9 +36,17 @@ export default class Compiler {
 
     try {
       process.chdir(this.baseDir)
-      callback()
+      return callback()
     } finally {
       process.chdir(cwd)
     }
+  }
+
+  private compileDockerfile(): string {
+    const dockerfile = new Dockerfile(this.config.defaults.build).compile()
+    const file = tmp.fileSync({ tmpdir: this.baseDir, postfix: 'dockerfile' })
+
+    writeFileSync(file.name, dockerfile)
+    return file.name
   }
 }
