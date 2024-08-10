@@ -2,7 +2,7 @@ import { readFileSync } from 'fs'
 import { load } from 'js-yaml'
 import { exit, fileExists } from '~/utils'
 import path from 'path'
-import DockerfileCompiler from './dockerfile_compiler'
+import Dockerfile from './dockerfilex'
 
 export default class Compiler {
   public staxfile: string
@@ -23,7 +23,7 @@ export default class Compiler {
 
     try {
       process.chdir(this.baseDir)
-      const dockerfile = new DockerfileCompiler(this.config.defaults.build).compile()
+      const dockerfile = new Dockerfile(this.config.defaults.build).compile()
       console.log(dockerfile)
     } finally {
       process.chdir(cwd)

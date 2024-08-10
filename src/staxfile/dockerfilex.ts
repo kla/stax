@@ -8,7 +8,7 @@ interface BuildOptions {
   modules: string[];
 }
 
-export default class DockerfileCompiler {
+export default class Dockerfile {
   public build: BuildOptions
 
   constructor(options: BuildOptions) {
