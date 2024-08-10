@@ -16,7 +16,6 @@ export default class DockerfileCompiler {
   }
 
   public compile() {
-    const contents: string = readFileSync(this.build.dockerfile, 'utf-8')
     const base = this.parse()
     console.log(base)
   }
