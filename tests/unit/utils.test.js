@@ -1,4 +1,4 @@
-import { csvKeyValuePairs, directoryExists, isFile } from '~/utils'
+import { csvKeyValuePairs, deepRemoveKeys, directoryExists, isFile } from '~/utils'
 
 describe('csvKeyValuePairs', () => {
   it('returns an empty object for an empty string', () => {
@@ -65,5 +65,82 @@ describe('directoryExists', () => {
 
   it('should return false if the directory does not exist', () => {
     expect(directoryExists('/path/to/nonexistent/directory')).toBe(false)
+  })
+})
+
+describe('deepRemoveKeys', () => {
+  it('removes keys from a simple object', () => {
+    const input = { a: 1, b: 2, c: 3 };
+    const result = deepRemoveKeys(input, ['b'])
+    expect(result).toEqual({ a: 1, c: 3 })
+  })
+
+  it('removes multiple keys from a simple object', () => {
+    const input = { a: 1, b: 2, c: 3, d: 4 };
+    const result = deepRemoveKeys(input, ['b', 'd'])
+    expect(result).toEqual({ a: 1, c: 3 })
+  })
+
+  it('removes keys from nested objects', () => {
+    const input = {
+      a: 1,
+      b: {
+        c: 2,
+        d: {
+          e: 3,
+          f: 4
+        }
+      },
+      g: 5
+    };
+    const result = deepRemoveKeys(input, ['c', 'f'])
+    expect(result).toEqual({
+      a: 1,
+      b: {
+        d: {
+          e: 3
+        }
+      },
+      g: 5
+    })
+  })
+
+  it('removes keys from arrays of objects', () => {
+    const input = [
+      { a: 1, b: 2 },
+      { c: 3, d: 4 }
+    ];
+    const result = deepRemoveKeys(input, ['b', 'c'])
+    expect(result).toEqual([
+      { a: 1 },
+      { d: 4 }
+    ])
+  })
+
+  describe('handling edge cases', () => {
+    it('handles non-object inputs', () => {
+      expect(deepRemoveKeys(5, ['a'])).toBe(5)
+      expect(deepRemoveKeys('string', ['a'])).toBe('string')
+      expect(deepRemoveKeys(null, ['a'])).toBe(null)
+    })
+
+    it('does not modify the original object', () => {
+      const input = { a: 1, b: { c: 2, d: 3 } };
+      const result = deepRemoveKeys(input, ['c'])
+      expect(input).toEqual({ a: 1, b: { c: 2, d: 3 } })
+      expect(result).toEqual({ a: 1, b: { d: 3 } })
+    })
+
+    it('handles empty array of keys to remove', () => {
+      const input = { a: 1, b: 2 };
+      const result = deepRemoveKeys(input, [])
+      expect(result).toEqual({ a: 1, b: 2 })
+    })
+
+    it('handles keys that do not exist in the object', () => {
+      const input = { a: 1, b: 2 };
+      const result = deepRemoveKeys(input, ['c', 'd'])
+      expect(result).toEqual({ a: 1, b: 2 })
+    })
   })
 })

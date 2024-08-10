@@ -31,3 +31,17 @@ export function fileExists(file) {
 export function directoryExists(path: string): boolean {
   return existsSync(path) && statSync(path).isDirectory();
 }
+
+export function deepRemoveKeys(obj, keysToRemove) {
+  if (typeof obj !== 'object' || obj === null)
+    return obj
+
+  if (Array.isArray(obj))
+    return obj.map(item => deepRemoveKeys(item, keysToRemove))
+
+  return Object.fromEntries(
+    Object.entries(obj)
+      .filter(([key]) => !keysToRemove.includes(key))
+      .map(([key, value]) => [key, deepRemoveKeys(value, keysToRemove)])
+  )
+}
