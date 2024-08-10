@@ -19,12 +19,19 @@ export default class Compiler {
   }
 
   public compile() {
+    this.insideBaseDir(() => {
+      const dockerfile = new Dockerfile(this.config.defaults.build).compile()
+
+      console.log(dockerfile)
+    })
+  }
+
+  private insideBaseDir(callback) {
     const cwd = process.cwd()
 
     try {
       process.chdir(this.baseDir)
-      const dockerfile = new Dockerfile(this.config.defaults.build).compile()
-      console.log(dockerfile)
+      callback()
     } finally {
       process.chdir(cwd)
     }
