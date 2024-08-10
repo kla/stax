@@ -23,7 +23,8 @@ export default class Compiler {
 
     try {
       process.chdir(this.baseDir)
-      new DockerfileCompiler(this.config.defaults.build).compile()
+      const dockerfile = new DockerfileCompiler(this.config.defaults.build).compile()
+      console.log(dockerfile)
     } finally {
       process.chdir(cwd)
     }

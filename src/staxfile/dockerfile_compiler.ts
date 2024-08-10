@@ -15,16 +15,7 @@ export default class DockerfileCompiler {
     this.build = options
   }
 
-  public compile() {
-    const base = this.parse()
-    console.log(base)
-  }
-
-  private args(): string {
-    return Object.entries(this.build.args).map(([name, value]) => `ARG ${name}="${value}"\n`).join('')
-  }
-
-  private parse() {
+  compile() {
     const modules = this.loadModules()
     let text = ""
 
@@ -42,6 +33,10 @@ export default class DockerfileCompiler {
 
     text = text.replaceAll('# $stax.section args', this.args())
     return text
+  }
+
+  private args(): string {
+    return Object.entries(this.build.args).map(([name, value]) => `ARG ${name}="${value}"\n`).join('')
   }
 
   private loadModules(): Record<string, string> {
