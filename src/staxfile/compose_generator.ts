@@ -2,14 +2,23 @@ import yaml from 'js-yaml'
 import { writeFileSync } from 'fs'
 import { deepRemoveKeys } from "~/utils"
 
+interface ComposeOptions {
+  staxfile?: string
+  dockerfile?: string
+}
+
 export default class ComposeGenerator {
   public config: any
+  public options: ComposeOptions
 
-  constructor(config: any, dockerfile: string | undefined = undefined) {
+  constructor(config: any, options: ComposeOptions = undefined) {
     this.config = structuredClone(config)
+    this.options = options
 
-    if (dockerfile)
-      this.config.defaults.build.dockerfile = dockerfile
+    if (options?.dockerfile)
+      this.config.defaults.build.dockerfile = options.dockerfile
+
+    this.addLabels()
   }
 
   compile(outputFile: string | undefined): string {
@@ -20,5 +29,16 @@ export default class ComposeGenerator {
       return outputFile
     }
     return config
+  }
+
+  private addLabels() {
+    for (const name in this.config.services) {
+      const service = this.config.services[name]
+
+      service.labels = service.labels || {}
+
+      if (this.options.staxfile)
+        service.labels['dev.stax.staxfile'] = this.options.staxfile
+    }
   }
 }

@@ -14,7 +14,7 @@ export default class Compiler {
     if (!fileExists(staxfile))
       exit(1, `Staxfile not found: ${staxfile}`)
 
-    this.staxfile = staxfile
+    this.staxfile = path.resolve(staxfile)
     this.config = yaml.load(readFileSync(this.staxfile, 'utf-8'))
     this.baseDir = path.dirname(path.resolve(this.staxfile))
   }
@@ -25,7 +25,7 @@ export default class Compiler {
     this.insideBaseDir(() => {
       files.dockerFile = new DockerfileCompiler(this.config.defaults.build)
         .compile(this.tempFile('dockerfile'))
-      files.composeFile = new ComposeGenerator(this.config, files.dockerFile)
+      files.composeFile = new ComposeGenerator(this.config, { staxfile: this.staxfile, dockerfile: files.dockerFile })
         .compile(this.tempFile('compose'))
     })
     return files
