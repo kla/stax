@@ -3,6 +3,7 @@ import { load } from 'js-yaml'
 import { exit, isFile, fileExists } from '~/utils'
 import App from '~/app'
 import Container from '~/container'
+import Compiler from '~/staxfile/compiler'
 import docker from '~/docker'
 
 function findDockerComposeFile(location: string): string | undefined {
@@ -41,6 +42,9 @@ export default async function setup(contextName: string, location: string) {
 
   if (container)
     return exit(1, `👿 Container '${location}@${contextName}' has already been setup. Use 'rebuild' if you want to rebuild it.`)
+
+  if (fileExists(`${location}/Staxfile`))
+    location = new Compiler(`${location}/Staxfile`).compile().composeFile
 
   if (!(composeFile = findDockerComposeFile(location)))
     return exit(1, `👿 Couldn't setup a container for '${original}'`)

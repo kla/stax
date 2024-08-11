@@ -1,9 +1,10 @@
 import { readFileSync, writeFileSync } from 'fs'
-import { load } from 'js-yaml'
 import { exit, fileExists } from '~/utils'
 import path from 'path'
 import tmp from 'tmp'
+import yaml from 'js-yaml'
 import Dockerfile from './dockerfilex'
+import Compose from './compose'
 
 export default class Compiler {
   public staxfile: string
@@ -15,19 +16,19 @@ export default class Compiler {
       exit(1, `Staxfile not found: ${staxfile}`)
 
     this.staxfile = staxfile
-    this.config = load(readFileSync(this.staxfile, 'utf-8'))
+    this.config = yaml.load(readFileSync(this.staxfile, 'utf-8'))
     this.baseDir = path.dirname(path.resolve(this.staxfile))
 
     tmp.setGracefulCleanup()
   }
 
   public compile() {
-    const files = { dockerfile: undefined, compose: undefined }
+    const files = { dockerFile: undefined, composeFile: undefined }
 
     this.insideBaseDir(() => {
-      files.dockerfile = this.compileDockerfile()
+      files.dockerFile = this.compileDockerfile()
+      files.composeFile = this.compileCompose()
     })
-    console.log(files)
     return files
   }
 
@@ -43,10 +44,15 @@ export default class Compiler {
   }
 
   private compileDockerfile(): string {
-    const dockerfile = new Dockerfile(this.config.defaults.build).compile()
     const file = tmp.fileSync({ tmpdir: this.baseDir, postfix: 'dockerfile' })
-
-    writeFileSync(file.name, dockerfile)
+    const dockerfile = new Dockerfile(this.config.defaults.build).compile({ outputFile: file.name})
+    this.config.defaults.build.dockerfile = file.name
     return file.name
+  }
+
+  private compileCompose(): string {
+    const tmpfile = tmp.fileSync({ tmpdir: this.baseDir, postfix: 'compose' })
+    const yaml = new Compose(this.config).compile({ outputFile: tmpfile.name })
+    return tmpfile.name
   }
 }

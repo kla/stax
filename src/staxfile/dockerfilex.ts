@@ -1,11 +1,15 @@
 import path from 'path'
-import { readFileSync } from 'fs'
+import { readFileSync, writeFileSync } from 'fs'
 import { exit, fileExists } from '~/utils'
 
 interface BuildOptions {
   dockerfile: string;
   args: Record<string, string>;
   modules: string[];
+}
+
+interface CompileOptions {
+  outputFile?: string;
 }
 
 export default class Dockerfile {
@@ -15,7 +19,7 @@ export default class Dockerfile {
     this.build = options
   }
 
-  compile() {
+  compile(options: CompileOptions): string {
     const modules = this.loadModules()
     let text = ""
 
@@ -32,6 +36,10 @@ export default class Dockerfile {
     })
 
     text = text.replaceAll('# $stax.section args', this.args())
+
+    if (options?.outputFile)
+      writeFileSync(options.outputFile, text, 'utf-8')
+
     return text
   }
 
