@@ -1,5 +1,5 @@
 import { readFileSync } from 'fs'
-import { exit, makeTempFile, verifyFile } from '~/utils'
+import { makeTempFile, verifyFile } from '~/utils'
 import path from 'path'
 import yaml from 'js-yaml'
 import DockerfileCompiler from './dockerfile_compiler'
