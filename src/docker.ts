@@ -1,4 +1,4 @@
-import { exit, fileExists } from '~/utils'
+import { exit, verifyFile } from '~/utils'
 import { run, capture } from '~/shell'
 import Container from '~/container'
 
@@ -11,8 +11,7 @@ async function compose(contextName: string, command: string, path: string, optio
   if (Container.find(contextName, path))
     return run(`${base} ${command}${options.append ? ` ${path}` : ''}`, options)
 
-  if (options.exit && !fileExists(path))
-    exit(1, `👿 '${path}' must point to a valid docker-compose yaml file`)
+  options.exit && verifyFile(path)
 
   return run(`${base} -f ${path} ${command}`, options)
 }

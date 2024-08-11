@@ -29,6 +29,12 @@ export function fileExists(file) {
   return existsSync(file)
 }
 
+export function verifyFile(file: string, message: string = undefined): boolean {
+  if (!fileExists(file))
+    exit(1, (message || 'File not found') + `: ${file}`)
+  return true
+}
+
 export function directoryExists(path: string): boolean {
   return existsSync(path) && statSync(path).isDirectory();
 }

@@ -1,6 +1,6 @@
 import path from 'path'
 import { readFileSync, writeFileSync } from 'fs'
-import { exit, fileExists } from '~/utils'
+import { exit, verifyFile } from '~/utils'
 
 interface BuildOptions {
   dockerfile: string;
@@ -19,9 +19,7 @@ export default class DockerfileCompiler {
     const modules = this.loadModules()
     let text = ""
 
-    if (!fileExists(this.build.dockerfile))
-      exit(1, `File not found: ${this.build.dockerfile}`)
-
+    verifyFile(this.build.dockerfile, 'Dockerfile not found')
     readFileSync(this.build.dockerfile, 'utf-8').split("\n").forEach((line) => {
       const matches = line.trim().match(/# \$stax\.section +(.*?)$/)
 
@@ -55,8 +53,7 @@ export default class DockerfileCompiler {
   }
 
   private parseModuleFile(file: string, modules: Record<string, string>) {
-    if (!fileExists(file))
-      exit(1, `Module file not found: ${file}`)
+    verifyFile(file, 'Module file not found')
 
     const contents = readFileSync(file, 'utf-8')
     let sectionName: string

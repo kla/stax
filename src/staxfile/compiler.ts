@@ -1,5 +1,5 @@
 import { readFileSync } from 'fs'
-import { exit, fileExists, makeTempFile } from '~/utils'
+import { exit, makeTempFile, verifyFile } from '~/utils'
 import path from 'path'
 import yaml from 'js-yaml'
 import DockerfileCompiler from './dockerfile_compiler'
@@ -11,8 +11,7 @@ export default class Compiler {
   public baseDir: string
 
   constructor(staxfile: string) {
-    if (!fileExists(staxfile))
-      exit(1, `Staxfile not found: ${staxfile}`)
+    verifyFile(staxfile, 'Staxfile not found')
 
     this.staxfile = path.resolve(staxfile)
     this.config = yaml.load(readFileSync(this.staxfile, 'utf-8'))
