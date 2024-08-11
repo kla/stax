@@ -36,6 +36,7 @@ export default class ComposeGenerator {
       const service = this.config.services[name]
 
       service.labels = service.labels || {}
+      service.labels['dev.stax.app'] = process.cwd().split("/").pop() // TODO: probably need a better way to do this later
 
       if (this.options.staxfile)
         service.labels['dev.stax.staxfile'] = this.options.staxfile
