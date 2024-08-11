@@ -1,5 +1,6 @@
 import { resolve } from 'path'
 import { exit } from '~/utils'
+import tmp from 'tmp'
 import App from '~/app'
 import Container from '~/container'
 
@@ -10,6 +11,7 @@ export default class Stax {
 
   constructor(name: string) {
     this.name = name
+    tmp.setGracefulCleanup()
   }
 
   list() {

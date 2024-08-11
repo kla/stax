@@ -1,4 +1,5 @@
 import { existsSync, statSync } from 'fs'
+import tmp from 'tmp'
 
 // Parses a CSV string into a key/value object (e.g. "a=b,c=d" => { a: "b", c: "d" })
 export function csvKeyValuePairs(csv: string = '') {
@@ -44,4 +45,8 @@ export function deepRemoveKeys(obj, keysToRemove) {
       .filter(([key]) => !keysToRemove.includes(key))
       .map(([key, value]) => [key, deepRemoveKeys(value, keysToRemove)])
   )
+}
+
+export function makeTempFile(dir, postfix): string {
+  return tmp.fileSync({ tmpdir: dir, postfix }).name
 }

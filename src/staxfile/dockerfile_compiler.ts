@@ -8,18 +8,14 @@ interface BuildOptions {
   modules: string[];
 }
 
-interface CompileOptions {
-  outputFile?: string;
-}
-
-export default class Dockerfile {
+export default class DockerfileCompiler {
   public build: BuildOptions
 
   constructor(options: BuildOptions) {
     this.build = options
   }
 
-  compile(options: CompileOptions): string {
+  compile(outputFile: string | undefined): string {
     const modules = this.loadModules()
     let text = ""
 
@@ -37,9 +33,10 @@ export default class Dockerfile {
 
     text = text.replaceAll('# $stax.section args', this.args())
 
-    if (options?.outputFile)
-      writeFileSync(options.outputFile, text, 'utf-8')
-
+    if (outputFile) {
+      writeFileSync(outputFile, text, 'utf-8')
+      return outputFile
+    }
     return text
   }
 
