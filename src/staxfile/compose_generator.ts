@@ -6,7 +6,7 @@ interface CompileOptions {
   outputFile?: string
 }
 
-export default class Compose {
+export default class ComposeGenerator {
   public config: any
 
   constructor(config: any) {

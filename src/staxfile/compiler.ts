@@ -3,8 +3,8 @@ import { exit, fileExists } from '~/utils'
 import path from 'path'
 import tmp from 'tmp'
 import yaml from 'js-yaml'
-import Dockerfile from './dockerfilex'
-import Compose from './compose'
+import DockerfileCompiler from './dockerfile_compiler'
+import ComposeGenerator from './compose_generator'
 
 export default class Compiler {
   public staxfile: string
@@ -45,14 +45,14 @@ export default class Compiler {
 
   private compileDockerfile(): string {
     const file = tmp.fileSync({ tmpdir: this.baseDir, postfix: 'dockerfile' })
-    const dockerfile = new Dockerfile(this.config.defaults.build).compile({ outputFile: file.name})
+    const dockerfile = new DockerfileCompiler(this.config.defaults.build).compile({ outputFile: file.name})
     this.config.defaults.build.dockerfile = file.name
     return file.name
   }
 
   private compileCompose(): string {
     const tmpfile = tmp.fileSync({ tmpdir: this.baseDir, postfix: 'compose' })
-    const yaml = new Compose(this.config).compile({ outputFile: tmpfile.name })
+    const yaml = new ComposeGenerator(this.config).compile({ outputFile: tmpfile.name })
     return tmpfile.name
   }
 }
