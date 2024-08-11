@@ -18,7 +18,7 @@ export default class Compiler {
     this.baseDir = path.dirname(path.resolve(this.staxfile))
   }
 
-  public compile() {
+  public compile(print: boolean = false) {
     const files = { dockerFile: undefined, composeFile: undefined }
 
     this.insideBaseDir(() => {
@@ -27,6 +27,13 @@ export default class Compiler {
       files.composeFile = new ComposeGenerator(this.config, { staxfile: this.staxfile, dockerfile: files.dockerFile })
         .compile(this.tempFile('compose'))
     })
+
+    if (print) {
+      console.log('# Dockerfile')
+      console.log(readFileSync(files.dockerFile, 'utf-8'))
+      console.log('# compose.yaml')
+      console.log(readFileSync(files.composeFile, 'utf-8'))
+    }
     return files
   }
 

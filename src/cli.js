@@ -10,7 +10,7 @@ program.command('compile')
   .argument('<location>', 'Path to a Staxfile or directory with one')
   .description('Compile a Staxfile')
   .action(async location => {
-    new Compiler(location).compile()
+    new Compiler(location).compile(true)
   })
 
 program.command('setup')
