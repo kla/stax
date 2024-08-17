@@ -1,6 +1,6 @@
 import { Command } from 'commander'
 import Stax from '~/stax'
-import Compiler from '~/staxfile/compiler'
+import Staxfile from '~/staxfile'
 
 const stax = new Stax('stax')
 const program = new Command()
@@ -10,7 +10,7 @@ program.command('compile')
   .argument('<location>', 'Path to a Staxfile or directory with one')
   .description('Compile a Staxfile')
   .action(async location => {
-    new Compiler(location).compile(true)
+    new Staxfile(location).compile(true)
   })
 
 program.command('setup')

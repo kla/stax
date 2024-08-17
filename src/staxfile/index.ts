@@ -5,7 +5,7 @@ import yaml from 'js-yaml'
 import DockerfileCompiler from './dockerfile_compiler'
 import ComposeGenerator from './compose_generator'
 
-export default class Compiler {
+export default class Staxfile {
   public staxfile: string
   public config: any
   public baseDir: string
