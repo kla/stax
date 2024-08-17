@@ -14,6 +14,6 @@ export default class Hooks {
     if (args?.length > 0)
       message = `${message} ${args.join(' ')}`
 
-    console.log(`[${this.container.name}@${this.container.projectName}] ${message}`)
+    console.log(`[${this.container.name}@${this.container.contextName}] ${message}`)
   }
 }

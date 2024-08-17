@@ -11,13 +11,15 @@ export default class Stax {
 
   constructor(name: string) {
     this.name = name
-    // tmp.setGracefulCleanup()
+    tmp.setGracefulCleanup()
   }
 
   list() {
     this.apps().forEach((app) => {
-      const status = app.status == 'running' ? '🟢' : '⚫'
-      console.log(status, app.name, app.primary.attributes.State, app.primary.attributes.Status, app.primary.attributes.RunningFor)
+      app.containers.forEach((container) => {
+        const icon = container.state == 'running' ? '🟢' : '⚫'
+        console.log(icon, container.name, container.state, container.uptime, container.id)
+      })
     })
   }
 

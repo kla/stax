@@ -17,15 +17,27 @@ export default class Container {
     this.hooks = new Hooks(this)
   }
 
-  get name(): string {
-    return this.attributes.Names
-  }
-
   get labels(): Record<string, string> {
     return this._labels ? this._labels : (this._labels = csvKeyValuePairs(this.attributes.Labels))
   }
 
-  get projectName(): string{
+  get id(): string {
+    return this.attributes.ID
+  }
+
+  get app(): string {
+    return this.labels['dev.stax.app']
+  }
+
+  get service(): string {
+    return this.labels['com.docker.compose.service']
+  }
+
+  get name(): string {
+    return `${this.contextName}-${this.app}-${this.service}`
+  }
+
+  get contextName(): string{
     return this.labels['com.docker.compose.project']
   }
 
@@ -37,6 +49,14 @@ export default class Container {
     return this.labels['com.docker.compose.project.working_dir']
   }
 
+  get state(): string {
+    return this.attributes.State
+  }
+
+  get uptime(): string {
+    return this.attributes.RunningFor
+  }
+
   /**
    * Returns the docker compose configuration file for the container.
    * @returns The configuration file path.
@@ -46,9 +66,9 @@ export default class Container {
   }
 
   static all(contextName: string): Container[] {
-    return docker.ps()
+    return docker.ps(contextName)
       .map(attributes => new Container(attributes))
-      .filter(container => container.projectName === contextName)
+      .filter(container => container.contextName === contextName)
   }
 
   static find(contextName: string, name: string, options: FindOptions={}): Container | undefined {
@@ -65,23 +85,23 @@ export default class Container {
   }
 
   async down() {
-    return docker.compose(this.projectName, 'stop', this.name)
+    return docker.compose(this.contextName, 'stop', this.name)
   }
 
   async up() {
-    return docker.compose(this.projectName, 'start', this.name, { exit: true })
+    return docker.compose(this.contextName, 'start', this.name, { exit: true })
   }
 
   async remove() {
-    return docker.compose(this.projectName, 'rm --stop --force --volumes', this.name)
+    return docker.compose(this.contextName, 'rm --stop --force --volumes', this.name)
   }
 
   async exec(command: string) {
-    return docker.compose(this.projectName, `exec -it ${this.name} ${command}`, this.name, { append: false })
+    return docker.compose(this.contextName, `exec -it ${this.name} ${command}`, this.name, { append: false })
   }
 
   async rebuild() {
-    await docker.compose(this.projectName, `up --detach --force-recreate ${this.name}`, this.configFile, { exit: true })
+    await docker.compose(this.contextName, `up --detach --force-recreate ${this.name}`, this.configFile, { exit: true })
     this.hooks.onPostBuild()
   }
 
