@@ -11,7 +11,7 @@ export default class Stax {
 
   constructor(name: string) {
     this.name = name
-    tmp.setGracefulCleanup()
+    // tmp.setGracefulCleanup()
   }
 
   list() {

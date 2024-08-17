@@ -22,8 +22,11 @@ export default class Staxfile {
     const files = { dockerFile: undefined, composeFile: undefined }
 
     this.insideBaseDir(() => {
-      files.dockerFile = new DockerfileCompiler(this.config.defaults.build)
-        .compile(this.tempFile('dockerfile'))
+      if (this.config.defaults?.build) {
+        files.dockerFile = new DockerfileCompiler(this.config.defaults.build)
+          .compile(this.tempFile('dockerfile'))
+      }
+
       files.composeFile = new ComposeGenerator(this.config, { staxfile: this.staxfile, dockerfile: files.dockerFile })
         .compile(this.tempFile('compose'))
     })

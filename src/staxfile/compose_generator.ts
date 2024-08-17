@@ -38,7 +38,8 @@ export default class ComposeGenerator {
       const service = this.config.services[name] // TODO: probably need a better way to do this later
 
       service.labels = service.labels || {}
-      service.container_name = `${appName}-${name}`
+      service.image ||= `stax-${appName}`
+      service.container_name = `stax-${appName}-${name}`
       service.labels['dev.stax.app'] = appName
 
       if (this.options.staxfile)

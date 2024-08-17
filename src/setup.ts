@@ -6,17 +6,6 @@ import Container from '~/container'
 import Staxfile from '~/staxfile'
 import docker from '~/docker'
 
-function findDockerComposeFile(location: string): string | undefined {
-  if (isFile(location))
-    return location
-
-  const files = [
-    `${location}/docker-compose.yaml`,
-    `${location}/docker-compose.yml`
-  ]
-  return files.find(file => fileExists(file))
-}
-
 function getContainerName(dockerComposeFile: string): string {
   const yaml = load(readFileSync(dockerComposeFile))
   const service = yaml.services[Object.keys(yaml.services)]
@@ -38,15 +27,16 @@ function getContainerName(dockerComposeFile: string): string {
 export default async function setup(contextName: string, location: string) {
   const original: string = location
   const container: Container | undefined = Container.find(contextName, location)
+  const files = [ 'Staxfile', 'compose.yaml', 'docker-compose.yaml', 'docker-compose.yml' ].map(file => `${location}/${file}`)
   let composeFile: string | undefined
 
   if (container)
     return exit(1, `👿 Container '${location}@${contextName}' has already been setup. Use 'rebuild' if you want to rebuild it.`)
 
-  if (fileExists(`${location}/Staxfile`))
-    location = new Staxfile(`${location}/Staxfile`).compile().composeFile
+  if (location = files.find(file => fileExists(file)))
+    composeFile = new Staxfile(location).compile().composeFile
 
-  if (!(composeFile = findDockerComposeFile(location)))
+  if (!composeFile)
     return exit(1, `👿 Couldn't setup a container for '${original}'`)
 
   await docker.compose(contextName, 'up --detach', composeFile, { exit: true })
