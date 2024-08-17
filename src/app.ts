@@ -1,4 +1,5 @@
 import Container from '~/container'
+import Staxfile from '~/staxfile'
 import setup from '~/setup'
 
 export default class App {
@@ -22,6 +23,17 @@ export default class App {
     return setup(contextName, location)
   }
 
+  static all(contextName: string): App[] {
+    const containers = {}
+
+    Container.all(contextName).forEach((container) => {
+      if (!containers[container.app]) containers[container.app] = []
+      containers[container.app].push(container)
+    })
+
+    return Object.keys(containers).map((name) => new App(name, containers[name]))
+  }
+
   static find(contextName: string, name: string): App | null{
     const container = Container.find(contextName, name, { mustExist: true })
 
@@ -29,7 +41,6 @@ export default class App {
       console.warn(`🤷 App '${name}@${contextName}' not found`)
       return null
     }
-
     return new App(name, [container])
   }
 

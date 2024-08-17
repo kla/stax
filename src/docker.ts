@@ -16,6 +16,10 @@ async function compose(contextName: string, command: string, path: string, optio
   return run(`${base} -f ${path} ${command}`, options)
 }
 
+async function container(command: string) {
+  return run(`docker container ${command}`)
+}
+
 /**
  * Returns a list of all Docker containers.
  * @returns An array of strings representing the Docker containers.
@@ -24,5 +28,5 @@ function ps(contextName: string): Array<Record<string,any>> {
   return capture('docker ps --all --format json').split("\n").map(attributes => JSON.parse(attributes))
 }
 
-const docker = { compose, ps }
+const docker = { compose, container, ps }
 export default docker

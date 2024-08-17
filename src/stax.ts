@@ -27,17 +27,16 @@ export default class Stax {
     App.setup(this.name, location)
   }
 
-  find(name: string): App | undefined {
-    const app = this.apps().find(app => app.name == name)
+  find(appName: string): App | undefined {
+    const app = this.apps().find(app => app.name == appName)
 
     if (!app)
-      return exit(1, `No app named '${name}@${this.name}' was found.`)
+      return exit(1, `No app named '${appName}@${this.name}' was found.`)
 
     return app
   }
 
   apps(): App[] {
-    return Container.all(this.name)
-      .map(container => App.find(this.name, container.name))
+    return App.all(this.name)
   }
 }

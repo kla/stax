@@ -97,7 +97,7 @@ export default class Container {
   }
 
   async exec(command: string) {
-    return docker.compose(this.contextName, `exec -it ${this.name} ${command}`, this.name, { append: false })
+    return docker.container(`exec -it ${this.name} ${command}`)
   }
 
   async rebuild() {
