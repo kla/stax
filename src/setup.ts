@@ -1,8 +1,7 @@
 import { readFileSync } from 'fs'
 import { load } from 'js-yaml'
-import { exit, isDirectory, fileExists, isFile } from '~/utils'
+import { exit, isDirectory, fileExists } from '~/utils'
 import App from '~/app'
-import Container from '~/container'
 import Staxfile from '~/staxfile'
 import docker from '~/docker'
 

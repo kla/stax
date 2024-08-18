@@ -1,6 +1,8 @@
 import { csvKeyValuePairs, exit } from '~/utils'
 import docker from '~/docker'
+import setup from '~/setup'
 import Hooks from '~/hooks'
+import Staxfile from '~/staxfile'
 
 interface FindOptions {
   warn?: boolean
@@ -10,6 +12,7 @@ interface FindOptions {
 export default class Container {
   public attributes: Record<string, any>
   private _labels: Record<string, string>
+  private _composeFile: string
   private hooks: Hooks
 
   constructor(attributes: Record<string, any>) {
@@ -23,6 +26,10 @@ export default class Container {
 
   get id(): string {
     return this.attributes.ID
+  }
+
+  get staxfile(): string {
+    return this.labels['dev.stax.staxfile']
   }
 
   get app(): string {
@@ -65,6 +72,11 @@ export default class Container {
     return this.labels['com.docker.compose.project.config_files']
   }
 
+  get composeFile(): string {
+    this._composeFile ||= new Staxfile(this.staxfile).compile().composeFile
+    return this._composeFile
+  }
+
   static all(contextName: string): Container[] {
     return docker.ps(contextName)
       .map(attributes => new Container(attributes))
@@ -85,15 +97,15 @@ export default class Container {
   }
 
   async down() {
-    return docker.compose(this.contextName, 'stop', this.name)
+    return docker.compose(this.contextName, 'stop', this.composeFile)
   }
 
   async up() {
-    return docker.compose(this.contextName, 'start', this.name, { exit: true })
+    return docker.compose(this.contextName, 'start', this.composeFile, { exit: true })
   }
 
   async remove() {
-    return docker.compose(this.contextName, 'rm --stop --force --volumes', this.name)
+    return docker.compose(this.contextName, 'rm --stop --force --volumes', this.composeFile)
   }
 
   async exec(command: string) {
@@ -101,7 +113,7 @@ export default class Container {
   }
 
   async rebuild() {
-    await docker.compose(this.contextName, `up --detach --force-recreate ${this.name}`, this.configFile, { exit: true })
+    setup(this.contextName, this.staxfile)
     this.hooks.onPostBuild()
   }
 

@@ -1,19 +1,13 @@
-import { exit, verifyFile } from '~/utils'
+import { verifyFile } from '~/utils'
 import { run, capture } from '~/shell'
-import Container from '~/container'
 
-async function compose(contextName: string, command: string, path: string, options: Record<string,any> = {}) {
+async function compose(contextName: string, command: string, composeFile: string, options: Record<string,any> = {}) {
   const base = `docker compose --project-name ${contextName}`
 
   options = { append: true, ...options, env: { COMPOSE_IGNORE_ORPHANS: "1" } }
+  options.exit && verifyFile(composeFile)
 
-  // See if  path is actually a container name
-  if (Container.find(contextName, path))
-    return run(`${base} ${command}${options.append ? ` ${path}` : ''}`, options)
-
-  options.exit && verifyFile(path)
-
-  return run(`${base} -f ${path} ${command}`, options)
+  return run(`${base} -f ${composeFile} ${command}`, options)
 }
 
 async function container(command: string) {
