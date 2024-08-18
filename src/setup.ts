@@ -1,6 +1,6 @@
 import { readFileSync } from 'fs'
 import { load } from 'js-yaml'
-import { exit, isFile, fileExists } from '~/utils'
+import { exit, isDirectory, fileExists, isFile } from '~/utils'
 import App from '~/app'
 import Container from '~/container'
 import Staxfile from '~/staxfile'
@@ -17,6 +17,16 @@ function getContainerName(dockerComposeFile: string): string {
   return service.container_name
 }
 
+function findStaxfile(path): string {
+  if (isDirectory(path)) {
+    const files = [ 'Staxfile', 'compose.yaml', 'compose.yml', 'docker-compose.yaml', 'docker-compose.yml' ].map(file => `${path}/${file}`)
+
+    if (path = files.find(file => fileExists(file)))
+      return path
+  }
+  return path
+}
+
 /**
  * Sets up a container for the specified context and location.
  *
@@ -26,15 +36,8 @@ function getContainerName(dockerComposeFile: string): string {
  */
 export default async function setup(contextName: string, location: string) {
   const original: string = location
-  // const container: Container | undefined = Container.find(contextName, location)
-  const files = [ 'Staxfile', 'compose.yaml', 'docker-compose.yaml', 'docker-compose.yml' ].map(file => `${location}/${file}`)
-  let composeFile: string | undefined
-
-  // if (container)
-  //   return exit(1, `👿 Container '${location}@${contextName}' has already been setup. Use 'rebuild' if you want to rebuild it.`)
-
-  if (location = files.find(file => fileExists(file)))
-    composeFile = new Staxfile(location).compile().composeFile
+  const staxfile = findStaxfile(location)
+  const { composeFile } = new Staxfile(staxfile).compile()
 
   if (!composeFile)
     return exit(1, `👿 Couldn't setup a container for '${original}'`)

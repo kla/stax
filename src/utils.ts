@@ -17,6 +17,10 @@ export function exit(code: number, message: string | undefined=undefined): undef
   process.exit(code)
 }
 
+export function isDirectory(path: string) {
+  return directoryExists(path)
+}
+
 export function isFile(path: string) {
   try {
     return statSync(path).isFile()
