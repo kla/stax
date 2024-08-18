@@ -20,10 +20,12 @@ function getContainerName(dockerComposeFile: string): string {
 function findStaxfile(path): string {
   if (isDirectory(path)) {
     const files = [ 'Staxfile', 'compose.yaml', 'compose.yml', 'docker-compose.yaml', 'docker-compose.yml' ].map(file => `${path}/${file}`)
-
-    if (path = files.find(file => fileExists(file)))
-      return path
+    path = files.find(file => fileExists(file))
   }
+
+  if (!fileExists(path))
+    exit(1, `👿 Couldn't find a Staxfile in ${path}`)
+
   return path
 }
 
