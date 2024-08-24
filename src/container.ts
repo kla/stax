@@ -77,7 +77,7 @@ export default class Container {
   }
 
   get composeFile(): string {
-    this._composeFile ||= new Staxfile(this.staxfile).compile().composeFile
+    this._composeFile ||= new Staxfile(this.contextName, this.staxfile).compile().composeFile
     return this._composeFile
   }
 

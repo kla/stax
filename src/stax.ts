@@ -1,16 +1,12 @@
-import { resolve } from 'path'
 import { exit } from '~/utils'
 import tmp from 'tmp'
 import App from '~/app'
-import Container from '~/container'
-
-const CONFIG_DIRECTORY = resolve(`${process.env.HOME}/.stax`)
 
 export default class Stax {
-  public name: string
+  public contextName: string
 
-  constructor(name: string) {
-    this.name = name
+  constructor(contextName: string) {
+    this.contextName = contextName
     tmp.setGracefulCleanup()
   }
 
@@ -24,19 +20,19 @@ export default class Stax {
   }
 
   async setup(location: string) {
-    App.setup(this.name, location)
+    App.setup(this.contextName, location)
   }
 
   find(appName: string): App | undefined {
     const app = this.apps().find(app => app.name == appName)
 
     if (!app)
-      return exit(1, `No app named '${appName}@${this.name}' was found.`)
+      return exit(1, `No app named '${appName}@${this.contextName}' was found.`)
 
     return app
   }
 
   apps(): App[] {
-    return App.all(this.name)
+    return App.all(this.contextName)
   }
 }

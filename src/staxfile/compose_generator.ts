@@ -8,11 +8,13 @@ interface ComposeOptions {
 }
 
 export default class ComposeGenerator {
+  public contextName: string
   public appName: string
   public config: any
   public options: ComposeOptions
 
-  constructor(appName: string, config: any, options: ComposeOptions = undefined) {
+  constructor(contextName: string, appName: string, config: any, options: ComposeOptions = undefined) {
+    this.contextName = contextName
     this.appName = appName
     this.config = structuredClone(config)
     this.options = options
@@ -37,9 +39,9 @@ export default class ComposeGenerator {
     const services = {}
 
     for (const [name, service] of Object.entries(this.config.services)) {
-      service.image ||= `stax-${this.appName}`
-      service.container_name = `stax-${this.appName}-${name}`
-      service.hostname ||= `stax-${this.appName}-${name}`
+      service.image ||= `${this.contextName}-${this.appName}`
+      service.container_name = `${this.contextName}-${this.appName}-${name}`
+      service.hostname ||= `${this.appName}-${name}`
       this.addLabels(name, service)
       services[`${this.appName}-${name}`] = service
     }

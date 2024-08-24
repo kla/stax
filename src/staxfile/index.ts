@@ -7,14 +7,16 @@ import ComposeGenerator from './compose_generator'
 
 export default class Staxfile {
   public staxfile: string
+  public contextName: string
   public appName: string
   public config: any
   public baseDir: string
 
-  constructor(staxfile: string) {
+  constructor(contextName: string, staxfile: string) {
     verifyFile(staxfile, 'Staxfile not found')
 
     this.staxfile = path.resolve(staxfile)
+    this.contextName = contextName
     this.baseDir = path.dirname(path.resolve(this.staxfile))
     this.loadConfig()
   }
@@ -28,7 +30,7 @@ export default class Staxfile {
           .compile(this.tempFile('dockerfile'))
       }
 
-      files.composeFile = new ComposeGenerator(this.appName, this.config, { staxfile: this.staxfile, dockerfile: files.dockerFile })
+      files.composeFile = new ComposeGenerator(this.contextName, this.appName, this.config, { staxfile: this.staxfile, dockerfile: files.dockerFile })
         .compile(this.tempFile('compose'))
     })
 
