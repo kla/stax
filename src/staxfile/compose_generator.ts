@@ -8,17 +8,19 @@ interface ComposeOptions {
 }
 
 export default class ComposeGenerator {
+  public appName: string
   public config: any
   public options: ComposeOptions
 
-  constructor(config: any, options: ComposeOptions = undefined) {
+  constructor(appName: string, config: any, options: ComposeOptions = undefined) {
+    this.appName = appName
     this.config = structuredClone(config)
     this.options = options
 
     if (options?.dockerfile)
       this.config.defaults.build.dockerfile = options.dockerfile
 
-    this.addLabels()
+    this.updateServices()
   }
 
   compile(outputFile: string | undefined): string {
@@ -31,19 +33,25 @@ export default class ComposeGenerator {
     return config
   }
 
-  private addLabels() {
-    const appName = process.cwd().split("/").pop()
+  private updateServices() {
+    const services = {}
 
-    for (const name in this.config.services) {
-      const service = this.config.services[name] // TODO: probably need a better way to do this later
-
-      service.labels = service.labels || {}
-      service.image ||= `stax-${appName}`
-      service.container_name = `stax-${appName}-${name}`
-      service.labels['dev.stax.app'] = appName
-
-      if (this.options.staxfile)
-        service.labels['dev.stax.staxfile'] = this.options.staxfile
+    for (const [name, service] of Object.entries(this.config.services)) {
+      service.image ||= `stax-${this.appName}`
+      service.container_name = `stax-${this.appName}-${name}`
+      service.hostname ||= `stax-${this.appName}-${name}`
+      this.addLabels(name, service)
+      services[`${this.appName}-${name}`] = service
     }
+
+    this.config.services = services
+  }
+
+  private addLabels(name, service) {
+    service.labels = service.labels || {}
+    service.labels['dev.stax.app'] = this.appName
+
+    if (this.options.staxfile)
+      service.labels['dev.stax.staxfile'] = this.options.staxfile
   }
 }

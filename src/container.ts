@@ -41,7 +41,11 @@ export default class Container {
   }
 
   get name(): string {
-    return `${this.contextName}-${this.app}-${this.service}`
+    return this.service
+  }
+
+  get containerName(): string {
+    return this.attributes.Names
   }
 
   get contextName(): string{
@@ -83,8 +87,8 @@ export default class Container {
       .filter(container => container.contextName === contextName)
   }
 
-  static find(contextName: string, name: string, options: FindOptions={}): Container | undefined {
-    const c = this.all(contextName).find(c => c.name == name)
+  static find(contextName: string, containerName: string, options: FindOptions={}): Container | undefined {
+    const c = this.all(contextName).find(c => c.containerName == containerName)
 
     if (!c) {
       if (options.warn)
@@ -109,7 +113,7 @@ export default class Container {
   }
 
   async exec(command: string) {
-    return docker.container(`exec -it ${this.name} ${command}`)
+    return docker.container(`exec -it ${this.containerName} ${command}`)
   }
 
   async rebuild() {

@@ -28,13 +28,16 @@ export default class Staxfile {
           .compile(this.tempFile('dockerfile'))
       }
 
-      files.composeFile = new ComposeGenerator(this.config, { staxfile: this.staxfile, dockerfile: files.dockerFile })
+      files.composeFile = new ComposeGenerator(this.appName, this.config, { staxfile: this.staxfile, dockerfile: files.dockerFile })
         .compile(this.tempFile('compose'))
     })
 
     if (print) {
-      console.log('# Dockerfile')
-      console.log(readFileSync(files.dockerFile, 'utf-8'))
+      if (files.dockerFile) {
+        console.log('# Dockerfile')
+        console.log(readFileSync(files.dockerFile, 'utf-8'))
+      }
+
       console.log('# compose.yaml')
       console.log(readFileSync(files.composeFile, 'utf-8'))
     }
