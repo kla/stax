@@ -1,5 +1,5 @@
 import { readFileSync } from 'fs'
-import { makeTempFile, verifyFile } from '~/utils'
+import { exit, makeTempFile, verifyFile } from '~/utils'
 import path from 'path'
 import yaml from 'js-yaml'
 import DockerfileCompiler from './dockerfile_compiler'
@@ -7,6 +7,7 @@ import ComposeGenerator from './compose_generator'
 
 export default class Staxfile {
   public staxfile: string
+  public appName: string
   public config: any
   public baseDir: string
 
@@ -14,8 +15,8 @@ export default class Staxfile {
     verifyFile(staxfile, 'Staxfile not found')
 
     this.staxfile = path.resolve(staxfile)
-    this.config = yaml.load(readFileSync(this.staxfile, 'utf-8'))
     this.baseDir = path.dirname(path.resolve(this.staxfile))
+    this.loadConfig()
   }
 
   public compile(print: boolean = false) {
@@ -38,6 +39,16 @@ export default class Staxfile {
       console.log(readFileSync(files.composeFile, 'utf-8'))
     }
     return files
+  }
+
+  private loadConfig(): any {
+    this.config = yaml.load(readFileSync(this.staxfile, 'utf-8'))
+    this.appName = this.config.app
+
+    if (!this.appName)
+      exit(1, 'Staxfile must specify the apps name in "app"')
+
+    delete this.config.app
   }
 
   private insideBaseDir(callback) {
