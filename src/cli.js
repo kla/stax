@@ -2,7 +2,9 @@ import { Command } from 'commander'
 import Stax from '~/stax'
 import Staxfile from '~/staxfile'
 
-const stax = new Stax('stax')
+const DEFAULT_CONTEXT_NAME = 'stax'
+
+const stax = new Stax(DEFAULT_CONTEXT_NAME)
 const program = new Command()
 program.name('stax')
 
