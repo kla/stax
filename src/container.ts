@@ -85,6 +85,7 @@ export default class Container {
     return docker.ps(contextName)
       .map(attributes => new Container(attributes))
       .filter(container => container.contextName === contextName)
+      .sort((a, b) => a.name.localeCompare(b.name))
   }
 
   static find(contextName: string, containerName: string, options: FindOptions={}): Container | undefined {
