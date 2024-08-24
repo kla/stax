@@ -64,6 +64,10 @@ export default class App {
     return this.primary.shell()
   }
 
+  async logs(options: { follow?: boolean, tail?: number } = {}) {
+    return this.primary.logs(options)
+  }
+
   async rebuild() {
     return Promise.all(this.containers.map(container => container.rebuild()))
   }

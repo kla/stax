@@ -61,6 +61,17 @@ program.command('inspect')
   .description('Inspect an application')
   .action(app_name => console.log(stax.find(app_name).containers))
 
+program.command('logs')
+  .argument('<app_name>', 'Name of application')
+  .option('-f, --follow', 'Follow log output')
+  .option('-t, --tail <number>', 'Number of lines to show from the end of the logs')
+  .description('Tail logs for an application')
+  .action(async (app_name, options) => {
+    const follow = options.follow || false;
+    const tail = options.tail ? parseInt(options.tail) : undefined;
+    await stax.find(app_name).logs({ follow, tail });
+  })
+
 let args = process.argv
 
 if (args[2] == 'exec' && process.argv.length > 5) {

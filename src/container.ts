@@ -128,4 +128,11 @@ export default class Container {
       }
     })
   }
+
+  async logs(options: { follow?: boolean, tail?: number } = {}) {
+    let command = `logs ${this.service}`
+    if (options.follow) command += ' --follow'
+    if (options.tail) command += ` --tail=${options.tail}`
+    return docker.compose(this.contextName, command, this.composeFile)
+  }
 }
