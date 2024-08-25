@@ -38,7 +38,7 @@ function findStaxfile(path): string {
 export default async function setup(contextName: string, location: string) {
   const original: string = location
   const staxfile = findStaxfile(location)
-  const { composeFile } = new Staxfile(contextName, staxfile).compile()
+  const composeFile = new Staxfile(contextName, staxfile).compile()
 
   if (!composeFile)
     return exit(1, `👿 Couldn't setup a container for '${original}'`)

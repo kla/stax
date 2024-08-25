@@ -12,9 +12,7 @@ program.name('stax')
 program.command('compile')
   .argument('<location>', 'Path to a Staxfile or directory with one')
   .description('Compile a Staxfile')
-  .action(async location => {
-    new Staxfile(stax.contextName, location).compile(true)
-  })
+  .action(async location => new Staxfile(stax.contextName, location).compile(true))
 
 program.command('setup')
   .argument('<location>', 'Path to or git repo of application')
