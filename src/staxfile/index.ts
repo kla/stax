@@ -1,5 +1,5 @@
 import { readFileSync, writeFileSync } from 'fs'
-import { exit, makeTempFile, verifyFile } from '~/utils'
+import { exit, flattenObject, makeTempFile, verifyFile } from '~/utils'
 import path from 'path'
 import yaml from 'js-yaml'
 import DockerfileCompiler from './dockerfile_compiler'
@@ -94,10 +94,7 @@ export default class Staxfile {
 
       service.environment ||= {}
       service.environment.STAX_APP_NAME = this.appName
-
-      service.labels = service.labels || {}
-      service.labels['stax.app'] = this.appName
-      service.labels['stax.staxfile'] = this.staxfile
+      service.labels = this.makeLabels(service.labels)
 
       if (service.build?.dockerfile)
         service.build = this.compileBuild(service.build)
@@ -106,6 +103,16 @@ export default class Staxfile {
     }
 
     this.compose.services = services
+  }
+
+  private makeLabels(labels) {
+    labels = structuredClone(labels || {})
+    labels['stax.staxfile'] = this.staxfile
+
+    for (const [key, value] of Object.entries(flattenObject(this.stax)))
+      labels[`stax.${key}`] = value.toString()
+
+    return labels
   }
 
   private compileBuild(build) {

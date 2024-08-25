@@ -1,4 +1,4 @@
-import { csvKeyValuePairs, deepRemoveKeys, directoryExists, isFile } from '~/utils'
+import { csvKeyValuePairs, deepRemoveKeys, directoryExists, flattenObject, isFile } from '~/utils'
 
 describe('csvKeyValuePairs', () => {
   it('returns an empty object for an empty string', () => {
@@ -70,13 +70,13 @@ describe('directoryExists', () => {
 
 describe('deepRemoveKeys', () => {
   it('removes keys from a simple object', () => {
-    const input = { a: 1, b: 2, c: 3 };
+    const input = { a: 1, b: 2, c: 3 }
     const result = deepRemoveKeys(input, ['b'])
     expect(result).toEqual({ a: 1, c: 3 })
   })
 
   it('removes multiple keys from a simple object', () => {
-    const input = { a: 1, b: 2, c: 3, d: 4 };
+    const input = { a: 1, b: 2, c: 3, d: 4 }
     const result = deepRemoveKeys(input, ['b', 'd'])
     expect(result).toEqual({ a: 1, c: 3 })
   })
@@ -92,7 +92,7 @@ describe('deepRemoveKeys', () => {
         }
       },
       g: 5
-    };
+    }
     const result = deepRemoveKeys(input, ['c', 'f'])
     expect(result).toEqual({
       a: 1,
@@ -109,7 +109,7 @@ describe('deepRemoveKeys', () => {
     const input = [
       { a: 1, b: 2 },
       { c: 3, d: 4 }
-    ];
+    ]
     const result = deepRemoveKeys(input, ['b', 'c'])
     expect(result).toEqual([
       { a: 1 },
@@ -125,22 +125,66 @@ describe('deepRemoveKeys', () => {
     })
 
     it('does not modify the original object', () => {
-      const input = { a: 1, b: { c: 2, d: 3 } };
+      const input = { a: 1, b: { c: 2, d: 3 } }
       const result = deepRemoveKeys(input, ['c'])
       expect(input).toEqual({ a: 1, b: { c: 2, d: 3 } })
       expect(result).toEqual({ a: 1, b: { d: 3 } })
     })
 
     it('handles empty array of keys to remove', () => {
-      const input = { a: 1, b: 2 };
+      const input = { a: 1, b: 2 }
       const result = deepRemoveKeys(input, [])
       expect(result).toEqual({ a: 1, b: 2 })
     })
 
     it('handles keys that do not exist in the object', () => {
-      const input = { a: 1, b: 2 };
+      const input = { a: 1, b: 2 }
       const result = deepRemoveKeys(input, ['c', 'd'])
       expect(result).toEqual({ a: 1, b: 2 })
     })
+  })
+})
+
+describe('flattenObject', () => {
+  it('should flatten a simple object', () => {
+    const input = { a: 1, b: 2 }
+    const expected = { a: 1, b: 2 }
+    expect(flattenObject(input)).toEqual(expected)
+  })
+
+  it('should flatten a nested object', () => {
+    const input = { a: 1, b: { c: 2, d: 3 } }
+    const expected = { a: 1, 'b.c': 2, 'b.d': 3 }
+    expect(flattenObject(input)).toEqual(expected)
+  })
+
+  it('should flatten a deeply nested object', () => {
+    const input = { a: 1, b: { c: { d: 2 } }, e: 3 }
+    const expected = { a: 1, 'b.c.d': 2, e: 3 }
+    expect(flattenObject(input)).toEqual(expected)
+  })
+
+  it('should handle arrays', () => {
+    const input = { a: [1, 2, 3], b: { c: [4, 5] } }
+    const expected = { a: [1, 2, 3], 'b.c': [4, 5] }
+    expect(flattenObject(input)).toEqual(expected)
+  })
+
+  it('should handle null values', () => {
+    const input = { a: null, b: { c: null } }
+    const expected = { a: null, 'b.c': null }
+    expect(flattenObject(input)).toEqual(expected)
+  })
+
+  it('should handle empty objects', () => {
+    const input = { a: {}, b: { c: {} } }
+    const expected = {}
+    expect(flattenObject(input)).toEqual(expected)
+  })
+
+  it('should use custom prefix', () => {
+    const input = { a: 1, b: { c: 2 } }
+    const expected = { 'prefix.a': 1, 'prefix.b.c': 2 }
+    expect(flattenObject(input, 'prefix')).toEqual(expected)
   })
 })
