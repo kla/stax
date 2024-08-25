@@ -26,6 +26,9 @@ export default class Staxfile {
 
     this.insideBaseDir(() => {
       if (this.config.defaults?.build) {
+        this.config.defaults.build.args ||= {}
+        this.config.defaults.build.args.STAX_APP_NAME = this.appName
+
         files.dockerFile = new DockerfileCompiler(this.config.defaults.build)
           .compile(this.tempFile('dockerfile'))
       }

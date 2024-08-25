@@ -16,7 +16,7 @@ export default class ComposeGenerator {
   constructor(contextName: string, appName: string, config: any, options: ComposeOptions = undefined) {
     this.contextName = contextName
     this.appName = appName
-    this.config = structuredClone(config)
+    this.config = yaml.load(yaml.dump(config).replaceAll('${STAX_APP_NAME}', this.appName))
     this.options = options
 
     if (options?.dockerfile)
@@ -42,6 +42,14 @@ export default class ComposeGenerator {
       service.image ||= `${this.contextName}-${this.appName}`
       service.container_name = `${this.contextName}-${this.appName}-${name}`
       service.hostname ||= `${this.appName}-${name}`
+      service.environment ||= {}
+      service.environment.STAX_APP_NAME = this.appName
+
+      if (service.build) {
+        service.build.args ||= {}
+        service.build.args.STAX_APP_NAME = this.appName
+      }
+
       this.addLabels(name, service)
       services[`${this.appName}-${name}`] = service
     }
