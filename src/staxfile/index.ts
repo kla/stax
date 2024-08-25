@@ -96,8 +96,8 @@ export default class Staxfile {
       service.environment.STAX_APP_NAME = this.appName
 
       service.labels = service.labels || {}
-      service.labels['dev.stax.app'] = this.appName
-      service.labels['dev.stax.staxfile'] = this.staxfile
+      service.labels['stax.app'] = this.appName
+      service.labels['stax.staxfile'] = this.staxfile
 
       if (service.build?.dockerfile)
         service.build = this.compileBuild(service.build)

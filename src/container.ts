@@ -29,11 +29,11 @@ export default class Container {
   }
 
   get staxfile(): string {
-    return this.labels['dev.stax.staxfile']
+    return this.labels['stax.staxfile']
   }
 
   get app(): string {
-    return this.labels['dev.stax.app']
+    return this.labels['stax.app']
   }
 
   get service(): string {
