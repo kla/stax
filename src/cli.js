@@ -1,6 +1,7 @@
 import { Command } from 'commander'
 import Stax from '~/stax'
 import Staxfile from '~/staxfile'
+import tmp from 'tmp'
 
 const DEFAULT_CONTEXT_NAME = 'stax'
 
@@ -86,5 +87,7 @@ if (args[2] == 'exec' && process.argv.length > 5) {
   args = args.concat(process.argv.slice(4, 9999).join(' '))
 }
 
+tmp.setGracefulCleanup()
+process.on('SIGINT', () => tmp.setGracefulCleanup() && process.exit())
 process.chdir(process.env.WORKING_DIRECTORY)
 program.parse(args)

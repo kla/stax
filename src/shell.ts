@@ -61,7 +61,7 @@ export async function run(command: string, { env } = {}) {
 
     child.on('close', (code) => {
       if (code !== 0)
-        reject(new Error(`Command exited with code ${code}`))
+        process.exit(code)
       else
         resolve(code)
     })
