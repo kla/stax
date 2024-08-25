@@ -68,11 +68,11 @@ export default class Staxfile {
     this.stax = this.compose.stax
     delete this.compose.stax
 
-    this.substituteVars()
+    this.interpolate()
     this.updateServices()
   }
 
-  private substituteVars() {
+  private interpolate() {
     let dump = yaml.dump(this.compose)
 
     dump = dump.replace(/\${{[\s]*stax\.([\w]+)[\s]*}}/g, (name, key) => {
