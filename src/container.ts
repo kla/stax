@@ -140,4 +140,8 @@ export default class Container {
     if (options.tail) command += ` --tail=${options.tail}`
     return docker.compose(this.contextName, command, this.composeFile)
   }
+
+  async restart() {
+    return docker.compose(this.contextName, `restart ${this.service}`, this.composeFile)
+  }
 }

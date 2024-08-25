@@ -71,4 +71,8 @@ export default class App {
   async rebuild() {
     return Promise.all(this.containers.map(container => container.rebuild()))
   }
+
+  async restart() {
+    return Promise.all(this.containers.map(container => container.restart()))
+  }
 }

@@ -21,31 +21,31 @@ program.command('setup')
   .action(async location => stax.setup(location))
 
 program.command('up')
-  .argument('<app_name>', 'Name of application')
+  .argument('<appName>', 'Name of application')
   .description('Start an application')
-  .action(async app_name => stax.find(app_name).up())
+  .action(async appName => stax.find(appName).up())
 
 program.command('down')
-  .argument('<app_name>', 'Name of application')
+  .argument('<appName>', 'Name of application')
   .description('Stop an application')
-  .action(async app_name => stax.find(app_name).down())
+  .action(async appName => stax.find(appName).down())
 
 program.command('remove')
   .alias('rm')
-  .argument('<app_name>', 'Name of application')
+  .argument('<appName>', 'Name of application')
   .description('Remove application')
-  .action(async app_name => stax.find(app_name).remove())
+  .action(async appName => stax.find(appName).remove())
 
 program.command('exec')
-  .argument('<app_name>', 'Name of application')
+  .argument('<appName>', 'Name of application')
   .argument('<command>', 'Command to execute')
   .description('Execute a command in a running application')
-  .action(async (app_name, command) => stax.find(app_name).exec(command))
+  .action(async (appName, command) => stax.find(appName).exec(command))
 
 program.command('rebuild')
-  .argument('<app_name>', 'Name of application')
+  .argument('<appName>', 'Name of application')
   .description('Rebuild an application')
-  .action(app_name => stax.find(app_name).rebuild())
+  .action(appName => stax.find(appName).rebuild())
 
 program.command('list')
   .alias('ps').alias('ls')
@@ -54,25 +54,30 @@ program.command('list')
 
 program.command('shell')
   .alias('sh')
-  .argument('<app_name>', 'Name of application')
+  .argument('<appName>', 'Name of application')
   .description('Start a shell')
-  .action(async app_name => stax.find(app_name).shell())
+  .action(async appName => stax.find(appName).shell())
 
 program.command('inspect')
-  .argument('<app_name>', 'Name of application')
+  .argument('<appName>', 'Name of application')
   .description('Inspect an application')
-  .action(app_name => console.log(stax.find(app_name).containers))
+  .action(appName => console.log(stax.find(appName).containers))
 
 program.command('logs')
-  .argument('<app_name>', 'Name of application')
+  .argument('<appName>', 'Name of application')
   .option('-f, --follow', 'Follow log output')
   .option('-t, --tail <number>', 'Number of lines to show from the end of the logs')
   .description('Tail logs for an application')
-  .action(async (app_name, options) => {
+  .action(async (appName, options) => {
     const follow = options.follow || false;
     const tail = options.tail ? parseInt(options.tail) : undefined;
-    await stax.find(app_name).logs({ follow, tail });
+    await stax.find(appName).logs({ follow, tail });
   })
+
+program
+  .command('restart <app>')
+  .description('Restart an app')
+  .action(async appName => stax.find(appName).restart())
 
 let args = process.argv
 
