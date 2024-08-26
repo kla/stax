@@ -8,7 +8,6 @@ export default class Staxfile {
   public staxfile: string
   public contextName: string
   public baseDir: string
-  public stax: Record<string, any>
   public compose: Record<string, any>
   private buildsCompiled: Record<string, string> = {}
 
@@ -21,7 +20,7 @@ export default class Staxfile {
   }
 
   get appName(): string {
-    return this.stax.app
+    return this.compose.stax.app
   }
 
   public compile(print: boolean = false): string {
@@ -61,27 +60,25 @@ export default class Staxfile {
 
   private load() {
     this.compose = yaml.load(readFileSync(this.staxfile))
-
-    if (!this.compose.stax?.app)
-      exit(1, "A 'stax.app' value must be defined!")
-
-    this.stax = this.compose.stax
-    delete this.compose.stax
-
-    this.interpolate()
+    this.compose.stax ||= {}
+    this.compose.stax.app ||= path.basename(this.baseDir)
+    this.compose = this.interpolate(this.compose)
     this.updateServices()
   }
 
-  private interpolate() {
-    let dump = yaml.dump(this.compose)
+  private interpolate(compose) {
+    const regex = /\${{[\s]*stax\.([\w]+)[\s]*}}/g
+    let dump = yaml.dump(compose, { lineWidth: -1 })
 
-    dump = dump.replace(/\${{[\s]*stax\.([\w]+)[\s]*}}/g, (name, key) => {
-      if (!this.stax.hasOwnProperty(key))
+    dump = dump.replace(regex, (name, key) => {
+      if (!compose.stax.hasOwnProperty(key))
         exit(1, `Undefined reference to '${name}'`)
 
-      return this.stax[key]
+      return compose.stax[key]
     })
-    this.compose = yaml.load(dump)
+
+    compose = yaml.load(dump)
+    return dump.match(regex) ? this.interpolate(compose) : compose
   }
 
   private updateServices() {
@@ -109,7 +106,7 @@ export default class Staxfile {
     labels = structuredClone(labels || {})
     labels['stax.staxfile'] = this.staxfile
 
-    for (const [key, value] of Object.entries(flattenObject(this.stax)))
+    for (const [key, value] of Object.entries(flattenObject(this.compose.stax)))
       labels[`stax.${key}`] = value.toString()
 
     return labels
@@ -131,7 +128,7 @@ export default class Staxfile {
   }
 
   private normalizedYaml(): string {
-    const validTopLevelKeys = [ 'stax', 'version', 'services', 'networks', 'volumes', 'configs', 'secrets' ]
+    const validTopLevelKeys = [ 'version', 'services', 'networks', 'volumes', 'configs', 'secrets' ]
     const normalizedCompose = Object.entries(this.compose)
       .filter(([key]) => validTopLevelKeys.includes(key))
       .reduce((acc, [key, value]) => {
