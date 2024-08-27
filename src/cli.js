@@ -12,9 +12,7 @@ program.command('setup')
   .argument('<location>', 'Path to or git repo of application')
   .option('--staxfile <staxfile>', 'Staxfile to use for setup')
   .description('Setup an application')
-  .action(async (location, options) => {
-    stax.setup(({ source: location, ...options }))
-  })
+  .action(async (location, options) => stax.setup(({ source: location, ...options })))
 
 program.command('up')
   .argument('<appName>', 'Name of application')

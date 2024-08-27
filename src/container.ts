@@ -2,6 +2,7 @@ import { csvKeyValuePairs, exit } from '~/utils'
 import docker from '~/docker'
 import Hooks from '~/hooks'
 import Staxfile from '~/staxfile'
+import App from './app'
 
 interface FindOptions {
   warn?: boolean
@@ -67,6 +68,10 @@ export default class Container {
     return this.attributes.RunningFor
   }
 
+  get source(): string {
+    return this.labels['stax.source']
+  }
+
   /**
    * Returns the docker compose configuration file for the container.
    * @returns The configuration file path.
@@ -117,8 +122,7 @@ export default class Container {
   }
 
   async rebuild() {
-    exit(1, 'fixme')
-    // setup(this.contextName, this.staxfile)
+    App.setup({ contextName: this.contextName, source: this.source, staxfile: this.staxfile, appName: this.app })
     this.hooks.onPostBuild()
   }
 
