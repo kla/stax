@@ -1,26 +1,37 @@
 import { readFileSync, writeFileSync } from 'fs'
-import { exit, flattenObject, makeTempFile, verifyFile } from '~/utils'
+import { exit, isDirectory, fileExists, flattenObject, makeTempFile, verifyFile } from '~/utils'
 import path from 'path'
 import yaml from 'js-yaml'
 import DockerfileCompiler from './dockerfile_compiler'
 
+export interface StaxfileOptions {
+  contextName: string
+  source: string
+  staxfile?: string
+  appName?: string
+}
+
 export default class Staxfile {
   public staxfile: string
   public contextName: string
-  public baseDir: string
+  public appName: string
+  public source: string
   public compose: Record<string, any>
   private buildsCompiled: Record<string, string> = {}
 
-  constructor(contextName: string, staxfile: string) {
-    verifyFile(staxfile, 'Staxfile not found')
+  constructor(options: StaxfileOptions) {
+    this.contextName = options.contextName
+    this.source = options.source
+    this.staxfile = options.staxfile || this.findStaxfile(this.source)
+    this.appName = options?.appName || path.basename(this.source)
 
-    this.staxfile = path.resolve(staxfile)
-    this.contextName = contextName
-    this.baseDir = path.dirname(path.resolve(this.staxfile))
+    verifyFile(this.staxfile, `Staxfile not found: ${this.staxfile}`)
+    this.source = path.resolve(this.source)
+    this.staxfile = path.resolve(this.staxfile)
   }
 
-  get appName(): string {
-    return this.compose.stax.app
+  get baseDir(): string {
+    return path.dirname(path.resolve(this.staxfile))
   }
 
   public compile(print: boolean = false): string {
@@ -43,6 +54,13 @@ export default class Staxfile {
     return composeFile
   }
 
+  private findStaxfile(path): string {
+    if (isDirectory(path)) {
+      const files = [ 'Staxfile', 'compose.yaml', 'compose.yml', 'docker-compose.yaml', 'docker-compose.yml' ].map(file => `${path}/${file}`)
+      path = files.find(file => fileExists(file))
+    }
+    return path
+  }
   private insideBaseDir(callback) {
     const cwd = process.cwd()
 
@@ -61,7 +79,8 @@ export default class Staxfile {
   private load() {
     this.compose = yaml.load(readFileSync(this.staxfile))
     this.compose.stax ||= {}
-    this.compose.stax.app ||= path.basename(this.baseDir)
+    this.compose.stax.app ||= path.basename(this.source)
+    this.compose.stax.source = this.source
     this.compose = this.interpolate(this.compose)
     this.updateServices()
   }

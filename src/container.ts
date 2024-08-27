@@ -1,6 +1,5 @@
 import { csvKeyValuePairs, exit } from '~/utils'
 import docker from '~/docker'
-import setup from '~/setup'
 import Hooks from '~/hooks'
 import Staxfile from '~/staxfile'
 
@@ -118,7 +117,8 @@ export default class Container {
   }
 
   async rebuild() {
-    setup(this.contextName, this.staxfile)
+    exit(1, 'fixme')
+    // setup(this.contextName, this.staxfile)
     this.hooks.onPostBuild()
   }
 

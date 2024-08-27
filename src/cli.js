@@ -1,6 +1,5 @@
 import { Command } from 'commander'
 import Stax from '~/stax'
-import Staxfile from '~/staxfile'
 import tmp from 'tmp'
 
 const DEFAULT_CONTEXT_NAME = 'stax'
@@ -9,15 +8,13 @@ const stax = new Stax(DEFAULT_CONTEXT_NAME)
 const program = new Command()
 program.name('stax')
 
-program.command('compile')
-  .argument('<location>', 'Path to a Staxfile or directory with one')
-  .description('Compile a Staxfile')
-  .action(async location => new Staxfile(stax.contextName, location).compile(true))
-
 program.command('setup')
   .argument('<location>', 'Path to or git repo of application')
-  .description('Setup an applicaiton')
-  .action(async location => stax.setup(location))
+  .option('--staxfile <staxfile>', 'Staxfile to use for setup')
+  .description('Setup an application')
+  .action(async (location, options) => {
+    stax.setup(({ source: location, ...options }))
+  })
 
 program.command('up')
   .argument('<appName>', 'Name of application')

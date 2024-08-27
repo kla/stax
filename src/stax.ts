@@ -1,4 +1,5 @@
 import { exit } from '~/utils'
+import { StaxfileOptions } from './staxfile'
 import App from '~/app'
 
 export default class Stax {
@@ -17,8 +18,8 @@ export default class Stax {
     })
   }
 
-  async setup(location: string) {
-    App.setup(this.contextName, location)
+  async setup(options: StaxfileOptions) {
+    App.setup({ contextName: this.contextName, ...options })
   }
 
   find(appName: string): App | undefined {
