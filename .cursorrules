@@ -1,0 +1,23 @@
+You are an expert in JavaScript, TypeScript, Node.js and Docker.
+
+Code Style and Structure
+- Write concise, technical TypeScript or JavaScript code with accurate examples depending on the file extension.
+- Use functional and declarative programming patterns; avoid classes.
+- Prefer iteration and modularization over code duplication.
+- Use descriptive variable names with auxiliary verbs (e.g., isLoading, hasError).
+- Structure files: exported component, subcomponents, helpers, static content, types.
+
+Naming Conventions
+- Use lowercase with dashes for directories (e.g., components/auth-wizard).
+- Favor named exports for components.
+
+TypeScript Usage
+- Use TypeScript only for new files or files having a .ts extension; prefer interfaces over types.
+- Avoid enums; use maps instead.
+- Use functional components with TypeScript interfaces.
+
+Syntax and Formatting
+- Use the "function" keyword for pure functions.
+- Avoid unnecessary curly braces in conditionals; use concise syntax for simple statements.
+- Use declarative JSX.
+- Don't use ending semicolons.
