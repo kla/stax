@@ -1,8 +1,7 @@
 import { Command } from 'commander'
+import { readFileSync } from 'fs'
 import Stax from '~/stax'
 import tmp from 'tmp'
-import { readFileSync } from 'fs'
-import path from 'path'
 
 const DEFAULT_CONTEXT_NAME = 'stax'
 
@@ -12,7 +11,7 @@ program.name('stax')
 
 program.command('setup')
   .argument('<location>', 'Path to or git repo of application')
-  .option('--staxfile <staxfile>', 'Staxfile to use for setup')
+  .option('-s', '--staxfile <staxfile>', 'Staxfile to use for setup')
   .description('Setup an application')
   .action(async (location, options) => stax.setup(({ source: location, ...options })))
 
@@ -74,7 +73,6 @@ program
   .command('restart <app>')
   .description('Restart an app')
   .action(async appName => stax.find(appName).restart())
-
 
 program.command('view')
   .argument('<appName>', 'Name of application')
