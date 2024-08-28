@@ -29,11 +29,11 @@ export default class Container {
   }
 
   get staxfile(): string {
-    return this.labels['stax.staxfile']
+    return this.vars.staxfile
   }
 
   get app(): string {
-    return this.labels['stax.app']
+    return this.vars.app
   }
 
   get service(): string {
@@ -69,7 +69,19 @@ export default class Container {
   }
 
   get source(): string {
-    return this.labels['stax.source']
+    return this.vars.source
+  }
+
+  private _vars: Record<string, string> | null = null
+  get vars(): Record<string, string> {
+    if (this._vars === null) {
+      this._vars = {}
+      for (const [key, value] of Object.entries(this.labels)) {
+        if (key.startsWith('stax.'))
+          this._vars[key.substring(5)] = value
+      }
+    }
+    return this._vars
   }
 
   /**

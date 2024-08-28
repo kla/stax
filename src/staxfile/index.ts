@@ -9,6 +9,7 @@ export interface StaxfileOptions {
   source: string
   staxfile?: string
   appName?: string
+  options?: Record<string, any>
 }
 
 export default class Staxfile {
