@@ -22,7 +22,7 @@ export default class App {
   get primary(): Container {
     return this.containers[0]
   }
-  
+
   static all(contextName: string): App[] {
     const containers = {}
 
@@ -58,14 +58,14 @@ export default class App {
   static getContainerName(dockerComposeFile: string): string {
     const yaml = load(readFileSync(dockerComposeFile))
     const service = yaml.services[Object.keys(yaml.services)]
-  
+
     // TODO: handle multiple services
     if (!service?.container_name)
       exit(1, `👿 No container_name found in ${dockerComposeFile}`)
-  
+
     return service.container_name
   }
-  
+
   async down() {
     return Promise.all(this.containers.map(container => container.down()))
   }
@@ -90,8 +90,8 @@ export default class App {
     return this.primary.logs(options)
   }
 
-  async rebuild() {
-    return Promise.all(this.containers.map(container => container.rebuild()))
+  async rebuild({ vars = {} }: { vars?: Record<string, string> } = {}) {
+    return Promise.all(this.containers.map(container => container.rebuild({ vars })))
   }
 
   async restart() {

@@ -73,3 +73,16 @@ export function flattenObject(obj, prefix = '') {
     return acc
   }, {})
 }
+
+export function parseAndRemoveWildcardOptions(args: string[], startsWith: string): [string[], Record<string, string>] {
+  const staxVars: Record<string, string> = {}
+  const filteredArgs = args.filter(arg => {
+    if (arg.startsWith(startsWith)) {
+      const [key, value] = arg.slice(startsWith.length).split('=')
+      staxVars[key] = value
+      return false
+    }
+    return true
+  } )
+  return [ filteredArgs, staxVars]
+}

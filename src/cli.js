@@ -1,6 +1,7 @@
 import { Command } from 'commander'
 import { readFileSync } from 'fs'
 import { run } from '~/shell'
+import { parseAndRemoveWildcardOptions } from '~/utils'
 import Stax from '~/stax'
 import tmp from 'tmp'
 
@@ -14,7 +15,7 @@ program.command('setup')
   .argument('<location>', 'Path to or git repo of application')
   .option('-s, --staxfile <staxfile>', 'Staxfile to use for setup')
   .description('Setup an application')
-  .action(async (location, options) => stax.setup(({ source: location, ...options })))
+  .action(async (location, options) => stax.setup({ source: location, ...options, vars: staxVars }))
 
 program.command('up')
   .argument('<appName>', 'Name of application')
@@ -41,7 +42,8 @@ program.command('exec')
 program.command('rebuild')
   .argument('<appName>', 'Name of application')
   .description('Rebuild an application')
-  .action(appName => stax.find(appName).rebuild())
+  .allowUnknownOption()
+  .action((appName) => stax.find(appName).rebuild({ vars: staxVars }))
 
 program.command('list')
   .alias('ps').alias('ls')
@@ -89,7 +91,7 @@ program
   .description('Restart an app')
   .action(async appName => stax.find(appName).restart())
 
-let args = process.argv
+let [ args, staxVars ] = parseAndRemoveWildcardOptions(process.argv, '--stax.')
 
 if (args[2] == 'exec' && process.argv.length > 5) {
   args = process.argv.slice(0, 4)

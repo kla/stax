@@ -9,7 +9,7 @@ export interface StaxfileOptions {
   source: string
   staxfile?: string
   appName?: string
-  options?: Record<string, any>
+  vars?: Record<string, any>
 }
 
 export default class Staxfile {
@@ -18,6 +18,7 @@ export default class Staxfile {
   public appName: string
   public source: string
   public compose: Record<string, any>
+  public vars: Record<string, string>
   private buildsCompiled: Record<string, string> = {}
 
   constructor(options: StaxfileOptions) {
@@ -25,6 +26,7 @@ export default class Staxfile {
     this.source = options.source
     this.staxfile = options.staxfile || this.findStaxfile(this.source)
     this.appName = options?.appName || path.basename(this.source)
+    this.vars = options.vars || {}
 
     verifyFile(this.staxfile, `Staxfile not found: ${this.staxfile}`)
     this.source = path.resolve(this.source)
@@ -82,6 +84,7 @@ export default class Staxfile {
     this.compose.stax ||= {}
     this.compose.stax.app ||= path.basename(this.source)
     this.compose.stax.source = this.source
+    this.compose.stax = { ...this.compose.stax, ...this.vars }
     this.compose = this.interpolate(this.compose)
     this.updateServices()
   }

@@ -132,8 +132,8 @@ export default class Container {
     return docker.container(`exec -it ${this.containerName} ${command}`)
   }
 
-  async rebuild() {
-    App.setup({ contextName: this.contextName, source: this.source, staxfile: this.staxfile, appName: this.app })
+  async rebuild({ vars = {} }: { vars?: Record<string, string> } = {}) {
+    App.setup({ contextName: this.contextName, source: this.source, staxfile: this.staxfile, appName: this.app, vars: vars })
     this.hooks.onPostBuild()
   }
 
