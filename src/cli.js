@@ -1,6 +1,8 @@
 import { Command } from 'commander'
 import Stax from '~/stax'
 import tmp from 'tmp'
+import { readFileSync } from 'fs'
+import path from 'path'
 
 const DEFAULT_CONTEXT_NAME = 'stax'
 
@@ -72,6 +74,12 @@ program
   .command('restart <app>')
   .description('Restart an app')
   .action(async appName => stax.find(appName).restart())
+
+
+program.command('view')
+  .argument('<appName>', 'Name of application')
+  .description('View the compiled compose file for an application')
+  .action(async appName => console.log(readFileSync(stax.find(appName).primary.composeFile, 'utf-8')))
 
 let args = process.argv
 

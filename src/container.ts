@@ -81,8 +81,7 @@ export default class Container {
   }
 
   get composeFile(): string {
-    this._composeFile ||= new Staxfile(this.contextName, this.staxfile).compile()
-    return this._composeFile
+    return this._composeFile ||= new Staxfile({ contextName: this.contextName, source: this.source, staxfile: this.staxfile, appName: this.app }).compile()
   }
 
   static all(contextName: string): Container[] {
