@@ -1,5 +1,6 @@
 import { Command } from 'commander'
 import { readFileSync } from 'fs'
+import { run } from '~/shell'
 import Stax from '~/stax'
 import tmp from 'tmp'
 
@@ -11,7 +12,7 @@ program.name('stax')
 
 program.command('setup')
   .argument('<location>', 'Path to or git repo of application')
-  .option('-s', '--staxfile <staxfile>', 'Staxfile to use for setup')
+  .option('-s, --staxfile <staxfile>', 'Staxfile to use for setup')
   .description('Setup an application')
   .action(async (location, options) => stax.setup(({ source: location, ...options })))
 
@@ -55,8 +56,19 @@ program.command('shell')
 
 program.command('inspect')
   .argument('<appName>', 'Name of application')
-  .description('Inspect an application')
-  .action(appName => console.log(stax.find(appName).containers))
+  .option('-c, --compose', 'Show the compose file')
+  .option('-d, --dockerfile', 'Show the Dockerfile build (if any)')
+  .description('Inspect the container and/or configuration files.')
+  .action((appName, options) => {
+    const app = stax.find(appName)
+
+    if (options.compose)
+      console.log(readFileSync(stax.find(appName).primary.composeFile, 'utf-8'))
+    else if (options.dockerfile)
+      console.log('TODO')
+    else
+      run(`docker inspect ${app.primary.containerName}`)
+  })
 
 program.command('logs')
   .argument('<appName>', 'Name of application')
@@ -73,11 +85,6 @@ program
   .command('restart <app>')
   .description('Restart an app')
   .action(async appName => stax.find(appName).restart())
-
-program.command('view')
-  .argument('<appName>', 'Name of application')
-  .description('View the compiled compose file for an application')
-  .action(async appName => console.log(readFileSync(stax.find(appName).primary.composeFile, 'utf-8')))
 
 let args = process.argv
 
