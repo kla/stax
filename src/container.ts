@@ -142,7 +142,13 @@ export default class Container {
   }
 
   async rebuild(config: StaxfileConfig) {
-    App.setup({ ...config, context: this.context, source: this.source, staxfile: this.staxfile, app: this.app })
+    config = {
+      ...this.config,
+      ...config,
+      // can't change following on a rebuild
+      context: this.context, source: this.source, staxfile: this.staxfile, app: this.app
+    }
+    App.setup(config)
     this.hooks.onPostBuild()
   }
 
