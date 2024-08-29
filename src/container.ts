@@ -65,6 +65,10 @@ export default class Container {
     return this.attributes.State
   }
 
+  get running(): boolean {
+    return this.state == 'running'
+  }
+
   get uptime(): string {
     return this.attributes.RunningFor
   }
@@ -130,7 +134,11 @@ export default class Container {
   }
 
   async exec(command: string) {
-    return docker.container(`exec -it ${this.containerName} ${command}`)
+    return docker.container(`exec --interactive --tty ${this.containerName} ${command}`)
+  }
+
+  async run(command: string) {
+    return docker.compose(this.context, `run --rm ${this.name} ${command}`, this.composeFile)
   }
 
   async rebuild(config: StaxfileConfig) {
@@ -142,7 +150,7 @@ export default class Container {
     const shells = [ '/bin/bash', '/bin/sh' ]
     shells.find(async (shell) => {
       try {
-        await this.exec(shell)
+        await this[this.running ? 'exec' : 'run'](shell)
         return true
       } catch (e) {
         return false
