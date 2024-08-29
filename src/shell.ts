@@ -1,30 +1,6 @@
 import { execSync, spawn } from 'child_process'
+import { RunOptions } from '~/types'
 import chalk from 'chalk'
-
-/**
- * Represents the options for running a command.
- */
-interface RunOptions {
-  /**
-   * The current working directory for the command.
-   */
-  cwd?: string
-
-  /**
-   * The command to be executed.
-   */
-  cmd?: string
-
-  /**
-   * Specifies whether the command should be executed silently.
-   */
-  silent?: boolean
-
-  /**
-   * The standard input/output streams for the command.
-   */
-  stdio?: 'inherit' | 'pipe' | 'ignore' | 'ipc' | (number | null | undefined)
-}
 
 function outputCommand(command: string, { cwd, silent }: RunOptions): void {
   if (silent)

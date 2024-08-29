@@ -1,12 +1,7 @@
-import path from 'path'
 import { readFileSync, writeFileSync } from 'fs'
 import { exit, verifyFile } from '~/utils'
-
-interface BuildOptions {
-  dockerfile: string;
-  args: Record<string, string>;
-  modules: string[];
-}
+import { BuildOptions } from '~/types'
+import path from 'path'
 
 export default class DockerfileCompiler {
   public build: BuildOptions

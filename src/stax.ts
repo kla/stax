@@ -1,5 +1,5 @@
 import { exit } from '~/utils'
-import { StaxfileOptions } from './staxfile'
+import { StaxfileOptions } from '~/types'
 import App from '~/app'
 
 export default class Stax {

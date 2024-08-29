@@ -1,7 +1,7 @@
 import { readFileSync } from 'fs'
 import { load } from 'js-yaml'
 import { exit } from '~/utils'
-import { StaxfileConfig  } from '~/staxfile'
+import { StaxfileOptions } from '~/types'
 import Staxfile from '~/staxfile'
 import docker from '~/docker'
 import Container from '~/container'
@@ -44,7 +44,7 @@ export default class App {
     return new App(name, [container])
   }
 
-  static async setup(config: StaxfileConfig) {
+  static async setup(config: StaxfileOptions) {
     const staxfile = new Staxfile(config)
     const composeFile = staxfile.compile()
 
@@ -90,7 +90,7 @@ export default class App {
     return this.primary.logs(options)
   }
 
-  async rebuild(config: StaxfileConfig) {
+  async rebuild(config: StaxfileOptions) {
     return Promise.all(this.containers.map(container => container.rebuild(config)))
   }
 

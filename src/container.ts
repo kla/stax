@@ -1,14 +1,9 @@
 import { csvKeyValuePairs, exit } from '~/utils'
-import { StaxfileConfig } from '~/staxfile'
+import { FindOptions, StaxfileOptions } from '~/types'
 import docker from '~/docker'
 import Hooks from '~/hooks'
 import Staxfile from '~/staxfile'
 import App from './app'
-
-interface FindOptions {
-  warn?: boolean
-  mustExist?: boolean
-}
 
 export default class Container {
   public attributes: Record<string, any>
@@ -141,7 +136,7 @@ export default class Container {
     return docker.compose(this.context, `run --rm ${this.name} ${command}`, this.composeFile)
   }
 
-  async rebuild(config: StaxfileConfig) {
+  async rebuild(config: StaxfileOptions) {
     config = {
       ...this.config,
       ...config,

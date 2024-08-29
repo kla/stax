@@ -1,34 +1,18 @@
 import { readFileSync, writeFileSync } from 'fs'
-import { exit, isDirectory, fileExists, flattenObject, makeTempFile, verifyFile } from '~/utils'
+import { exit, flattenObject, makeTempFile } from '~/utils'
+import { StaxfileOptions } from '~/types'
+import Config from './config'
 import path from 'path'
 import yaml from 'js-yaml'
 import DockerfileCompiler from './dockerfile_compiler'
 
-export interface StaxfileConfig {
-  context: string
-  source: string
-  staxfile?: string
-  app?: string
-  [key: string]: any
-}
-
 export default class Staxfile {
-  public config: StaxfileConfig
+  public config: Config
   public compose: Record<string, any>
   private buildsCompiled: Record<string, string> = {}
 
-  constructor(config: StaxfileConfig) {
-    this.config = structuredClone(config)
-
-    if (!this.config.staxfile)
-      this.config.staxfile = this.findStaxfile(this.source)
-
-    if (!this.config.app)
-      this.config.app = path.basename(this.config.source)
-
-    verifyFile(this.staxfile, `Staxfile not found: ${this.staxfile}`)
-    this.config.source = path.resolve(this.config.source)
-    this.config.staxfile = path.resolve(this.config.staxfile)
+  constructor(config: StaxfileOptions) {
+    this.config = new Config(config)
   }
 
   get staxfile(): string { return this.config.staxfile }
@@ -44,26 +28,9 @@ export default class Staxfile {
       this.load()
       writeFileSync(composeFile, this.normalizedYaml())
     })
-
-    if (print) {
-      for (const [serviceName, dockerfilePath] of Object.entries(this.buildsCompiled)) {
-        console.log(`\n# Dockerfile for ${serviceName}:`);
-        console.log(readFileSync(dockerfilePath, 'utf-8'));
-      }
-
-      console.log('# compose.yaml')
-      console.log(readFileSync(composeFile, 'utf-8'))
-    }
     return composeFile
   }
 
-  private findStaxfile(path): string {
-    if (isDirectory(path)) {
-      const files = [ 'Staxfile', 'compose.yaml', 'compose.yml', 'docker-compose.yaml', 'docker-compose.yml' ].map(file => `${path}/${file}`)
-      path = files.find(file => fileExists(file))
-    }
-    return path
-  }
   private insideBaseDir(callback) {
     const cwd = process.cwd()
 
