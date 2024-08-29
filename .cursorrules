@@ -19,5 +19,14 @@ TypeScript Usage
 Syntax and Formatting
 - Use the "function" keyword for pure functions.
 - Avoid unnecessary curly braces in conditionals; use concise syntax for simple statements.
+- Do not use curly braces if the block only has one line.
 - Use declarative JSX.
 - Don't use ending semicolons.
+- Always use one line for function declarations.
+
+Tests
+- Use bun:test for testing
+- Use describe and it syntax
+
+Imports
+- Use ~ for all local imports

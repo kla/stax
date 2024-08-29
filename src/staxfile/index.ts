@@ -1,6 +1,7 @@
 import { readFileSync, writeFileSync } from 'fs'
 import { exit, flattenObject, makeTempFile } from '~/utils'
 import { StaxfileOptions } from '~/types'
+import { renderTemplate } from './template'
 import Config from './config'
 import path from 'path'
 import yaml from 'js-yaml'
@@ -49,23 +50,31 @@ export default class Staxfile {
   private load() {
     this.compose = yaml.load(readFileSync(this.staxfile))
     this.compose.config = { ...this.compose.config, ...this.config }
-    this.compose = this.interpolate(this.compose)
+    this.compose = yaml.load(this.render(yaml.dump(this.compose, { lineWidth: -1 })))
     this.updateServices()
   }
 
-  private interpolate(compose) {
-    const regex = /\${{[\s]*config\.([\w]+)[\s]*}}/g
-    let dump = yaml.dump(compose, { lineWidth: -1 })
+  private render(text) {
+    let matches = 0
 
-    dump = dump.replace(regex, (name, key) => {
-      if (!compose.config.hasOwnProperty(key))
-        exit(1, `Undefined reference to '${name}'`)
+    text = renderTemplate(text, (name, args) => {
+      matches += 1
 
-      return compose.config[key]
+      if (name.startsWith("config.")) {
+        const key = name.slice(7)
+
+        if (!this.compose.config.hasOwnProperty(key))
+          exit(1, `Undefined reference to '${name}'`)
+
+        return this.compose.config[key]
+
+      } else if (name === "read") {
+        const [ file, defaultValue ] = args
+        return defaultValue
+      }
     })
 
-    compose = yaml.load(dump)
-    return dump.match(regex) ? this.interpolate(compose) : compose
+    return matches > 0 ? this.render(text) : text
   }
 
   private updateServices() {
