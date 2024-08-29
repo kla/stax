@@ -4,38 +4,38 @@ import path from 'path'
 import yaml from 'js-yaml'
 import DockerfileCompiler from './dockerfile_compiler'
 
-export interface StaxfileOptions {
-  contextName: string
+export interface StaxfileConfig {
+  context: string
   source: string
   staxfile?: string
-  appName?: string
-  vars?: Record<string, any>
+  app?: string
+  [key: string]: any
 }
 
 export default class Staxfile {
-  public staxfile: string
-  public contextName: string
-  public appName: string
-  public source: string
+  public config: StaxfileConfig
   public compose: Record<string, any>
-  public vars: Record<string, string>
   private buildsCompiled: Record<string, string> = {}
 
-  constructor(options: StaxfileOptions) {
-    this.contextName = options.contextName
-    this.source = options.source
-    this.staxfile = options.staxfile || this.findStaxfile(this.source)
-    this.appName = options?.appName || path.basename(this.source)
-    this.vars = options.vars || {}
+  constructor(config: StaxfileConfig) {
+    this.config = structuredClone(config)
+
+    if (!this.config.staxfile)
+      this.config.staxfile = this.findStaxfile(this.source)
+
+    if (!this.config.app)
+      this.config.app = path.basename(this.config.source)
 
     verifyFile(this.staxfile, `Staxfile not found: ${this.staxfile}`)
-    this.source = path.resolve(this.source)
-    this.staxfile = path.resolve(this.staxfile)
+    this.config.source = path.resolve(this.config.source)
+    this.config.staxfile = path.resolve(this.config.staxfile)
   }
 
-  get baseDir(): string {
-    return path.dirname(path.resolve(this.staxfile))
-  }
+  get staxfile(): string { return this.config.staxfile }
+  get context(): string { return this.config.context}
+  get app(): string { return this.config.app }
+  get source(): string { return this.config.source }
+  get baseDir(): string { return path.dirname(path.resolve(this.staxfile))}
 
   public compile(print: boolean = false): string {
     const composeFile = this.tempFile('compose')
@@ -81,23 +81,20 @@ export default class Staxfile {
 
   private load() {
     this.compose = yaml.load(readFileSync(this.staxfile))
-    this.compose.stax ||= {}
-    this.compose.stax.app ||= path.basename(this.source)
-    this.compose.stax.source = this.source
-    this.compose.stax = { ...this.compose.stax, ...this.vars }
+    this.compose.config = { ...this.compose.config, ...this.config }
     this.compose = this.interpolate(this.compose)
     this.updateServices()
   }
 
   private interpolate(compose) {
-    const regex = /\${{[\s]*stax\.([\w]+)[\s]*}}/g
+    const regex = /\${{[\s]*config\.([\w]+)[\s]*}}/g
     let dump = yaml.dump(compose, { lineWidth: -1 })
 
     dump = dump.replace(regex, (name, key) => {
-      if (!compose.stax.hasOwnProperty(key))
+      if (!compose.config.hasOwnProperty(key))
         exit(1, `Undefined reference to '${name}'`)
 
-      return compose.stax[key]
+      return compose.config[key]
     })
 
     compose = yaml.load(dump)
@@ -108,18 +105,18 @@ export default class Staxfile {
     const services = {}
 
     for (const [name, service] of Object.entries(this.compose.services)) {
-      service.image ||= `${this.contextName}-${this.appName}`
-      service.container_name = `${this.contextName}-${this.appName}-${name}`
-      service.hostname ||= `${this.appName}-${name}`
+      service.image ||= `${this.context}-${this.app}`
+      service.container_name = `${this.context}-${this.app}-${name}`
+      service.hostname ||= `${this.app}-${name}`
 
       service.environment ||= {}
-      service.environment.STAX_APP_NAME = this.appName
+      service.environment.STAX_APP_NAME = this.app
       service.labels = this.makeLabels(service.labels)
 
       if (service.build?.dockerfile)
         service.build = this.compileBuild(service.build)
 
-      services[`${this.appName}-${name}`] = service
+      services[`${this.app}-${name}`] = service
     }
 
     this.compose.services = services
@@ -129,7 +126,7 @@ export default class Staxfile {
     labels = structuredClone(labels || {})
     labels['stax.staxfile'] = this.staxfile
 
-    for (const [key, value] of Object.entries(flattenObject(this.compose.stax)))
+    for (const [key, value] of Object.entries(flattenObject(this.compose.config)))
       labels[`stax.${key}`] = value.toString()
 
     return labels
@@ -142,7 +139,7 @@ export default class Staxfile {
       return build
 
     build.args ||= {}
-    build.args.STAX_APP_NAME = this.appName
+    build.args.STAX_APP_NAME = this.app
     build.dockerfile = new DockerfileCompiler(build).compile(this.tempFile('dockerfile'))
     delete build.modules
 

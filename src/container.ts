@@ -29,11 +29,11 @@ export default class Container {
   }
 
   get staxfile(): string {
-    return this.vars.staxfile
+    return this.config.staxfile
   }
 
   get app(): string {
-    return this.vars.app
+    return this.config.app
   }
 
   get service(): string {
@@ -48,7 +48,7 @@ export default class Container {
     return this.attributes.Names
   }
 
-  get contextName(): string{
+  get context(): string{
     return this.labels['com.docker.compose.project']
   }
 
@@ -69,19 +69,19 @@ export default class Container {
   }
 
   get source(): string {
-    return this.vars.source
+    return this.config.source
   }
 
-  private _vars: Record<string, string> | null = null
-  get vars(): Record<string, string> {
-    if (this._vars === null) {
-      this._vars = {}
+  private _config: Record<string, string> | null = null
+  get config(): Record<string, string> {
+    if (this._config === null) {
+      this._config = {}
       for (const [key, value] of Object.entries(this.labels)) {
         if (key.startsWith('stax.'))
-          this._vars[key.substring(5)] = value
+          this._config[key.substring(5)] = value
       }
     }
-    return this._vars
+    return this._config
   }
 
   /**
@@ -93,47 +93,47 @@ export default class Container {
   }
 
   get composeFile(): string {
-    return this._composeFile ||= new Staxfile({ contextName: this.contextName, source: this.source, staxfile: this.staxfile, appName: this.app }).compile()
+    return this._composeFile ||= new Staxfile({ context: this.context, source: this.source, staxfile: this.staxfile, app: this.app }).compile()
   }
 
-  static all(contextName: string): Container[] {
-    return docker.ps(contextName)
+  static all(context: string): Container[] {
+    return docker.ps(context)
       .map(attributes => new Container(attributes))
-      .filter(container => container.contextName === contextName)
+      .filter(container => container.context === context)
       .sort((a, b) => a.name.localeCompare(b.name))
   }
 
-  static find(contextName: string, containerName: string, options: FindOptions={}): Container | undefined {
-    const c = this.all(contextName).find(c => c.containerName == containerName)
+  static find(context: string, containerName: string, options: FindOptions={}): Container | undefined {
+    const c = this.all(context).find(c => c.containerName == containerName)
 
     if (!c) {
       if (options.warn)
-        console.warn(`🤷 Container '${name}@${contextName}' not found`)
+        console.warn(`🤷 Container '${name}@${context}' not found`)
       else if (options.mustExist)
-        return exit(1, `👿 '${name}@${contextName}' is not a valid container name`)
+        return exit(1, `👿 '${name}@${context}' is not a valid container name`)
     }
 
     return c
   }
 
   async down() {
-    return docker.compose(this.contextName, 'stop', this.composeFile)
+    return docker.compose(this.context, 'stop', this.composeFile)
   }
 
   async up() {
-    return docker.compose(this.contextName, 'start', this.composeFile, { exit: true })
+    return docker.compose(this.context, 'start', this.composeFile, { exit: true })
   }
 
   async remove() {
-    return docker.compose(this.contextName, 'rm --stop --force --volumes', this.composeFile)
+    return docker.compose(this.context, 'rm --stop --force --volumes', this.composeFile)
   }
 
   async exec(command: string) {
     return docker.container(`exec -it ${this.containerName} ${command}`)
   }
 
-  async rebuild({ vars = {} }: { vars?: Record<string, string> } = {}) {
-    App.setup({ contextName: this.contextName, source: this.source, staxfile: this.staxfile, appName: this.app, vars: vars })
+  async rebuild({ config = {} }: { config?: Record<string, string> } = {}) {
+    App.setup({ context: this.context, source: this.source, staxfile: this.staxfile, app: this.app, ...config })
     this.hooks.onPostBuild()
   }
 
@@ -153,10 +153,10 @@ export default class Container {
     let command = `logs ${this.service}`
     if (options.follow) command += ' --follow'
     if (options.tail) command += ` --tail=${options.tail}`
-    return docker.compose(this.contextName, command, this.composeFile)
+    return docker.compose(this.context, command, this.composeFile)
   }
 
   async restart() {
-    return docker.compose(this.contextName, `restart ${this.service}`, this.composeFile)
+    return docker.compose(this.context, `restart ${this.service}`, this.composeFile)
   }
 }

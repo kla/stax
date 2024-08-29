@@ -3,10 +3,10 @@ import { StaxfileOptions } from './staxfile'
 import App from '~/app'
 
 export default class Stax {
-  public contextName: string
+  public context: string
 
-  constructor(contextName: string) {
-    this.contextName = contextName
+  constructor(context: string) {
+    this.context = context
   }
 
   list() {
@@ -18,20 +18,20 @@ export default class Stax {
     })
   }
 
-  async setup(options: StaxfileOptions) {
-    App.setup({ contextName: this.contextName, ...options })
+  async setup(config: StaxfileOptions) {
+    App.setup({ context: this.context, ...config })
   }
 
   find(appName: string): App | undefined {
     const app = this.apps().find(app => app.name == appName)
 
     if (!app)
-      return exit(1, `No app named '${appName}@${this.contextName}' was found.`)
+      return exit(1, `No app named '${appName}@${this.context}' was found.`)
 
     return app
   }
 
   apps(): App[] {
-    return App.all(this.contextName)
+    return App.all(this.context)
   }
 }

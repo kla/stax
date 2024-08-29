@@ -1,7 +1,7 @@
 import { readFileSync } from 'fs'
 import { load } from 'js-yaml'
 import { exit } from '~/utils'
-import { StaxfileOptions  } from '~/staxfile'
+import { StaxfileConfig  } from '~/staxfile'
 import Staxfile from '~/staxfile'
 import docker from '~/docker'
 import Container from '~/container'
@@ -23,10 +23,10 @@ export default class App {
     return this.containers[0]
   }
 
-  static all(contextName: string): App[] {
+  static all(context: string): App[] {
     const containers = {}
 
-    Container.all(contextName).forEach((container) => {
+    Container.all(context).forEach((container) => {
       if (!containers[container.app]) containers[container.app] = []
       containers[container.app].push(container)
     })
@@ -34,25 +34,25 @@ export default class App {
     return Object.keys(containers).map((name) => new App(name, containers[name]))
   }
 
-  static find(contextName: string, name: string): App | null{
-    const container = Container.find(contextName, name, { mustExist: true })
+  static find(context: string, name: string): App | null{
+    const container = Container.find(context, name, { mustExist: true })
 
     if (!container) {
-      console.warn(`🤷 App '${name}@${contextName}' not found`)
+      console.warn(`🤷 App '${name}@${context}' not found`)
       return null
     }
     return new App(name, [container])
   }
 
-  static async setup(options: StaxfileOptions) {
-    const staxfile = new Staxfile(options)
+  static async setup(config: StaxfileConfig) {
+    const staxfile = new Staxfile(config)
     const composeFile = staxfile.compile()
 
     if (!composeFile)
       return exit(1, `👿 Couldn't setup a container for '${staxfile.source}'`)
 
-    await docker.compose(staxfile.contextName, 'up --detach --force-recreate --build', composeFile, { exit: true })
-    return App.find(staxfile.contextName, this.getContainerName(composeFile))
+    await docker.compose(staxfile.context, 'up --detach --force-recreate --build', composeFile, { exit: true })
+    return App.find(staxfile.context, this.getContainerName(composeFile))
   }
 
   static getContainerName(dockerComposeFile: string): string {
@@ -90,8 +90,8 @@ export default class App {
     return this.primary.logs(options)
   }
 
-  async rebuild({ vars = {} }: { vars?: Record<string, string> } = {}) {
-    return Promise.all(this.containers.map(container => container.rebuild({ vars })))
+  async rebuild({ config = {} }: { config?: Record<string, string> } = {}) {
+    return Promise.all(this.containers.map(container => container.rebuild(config)))
   }
 
   async restart() {

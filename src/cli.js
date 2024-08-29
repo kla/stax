@@ -15,35 +15,35 @@ program.command('setup')
   .argument('<location>', 'Path to or git repo of application')
   .option('-s, --staxfile <staxfile>', 'Staxfile to use for setup')
   .description('Setup an application')
-  .action(async (location, options) => stax.setup({ source: location, ...options, vars: staxVars }))
+  .action(async (location, options) => stax.setup({ source: location, ...options, ...config }))
 
 program.command('up')
-  .argument('<appName>', 'Name of application')
+  .argument('<name>', 'Name of application')
   .description('Start an application')
-  .action(async appName => stax.find(appName).up())
+  .action(async name => stax.find(name).up())
 
 program.command('down')
-  .argument('<appName>', 'Name of application')
+  .argument('<name>', 'Name of application')
   .description('Stop an application')
-  .action(async appName => stax.find(appName).down())
+  .action(async name => stax.find(name).down())
 
 program.command('remove')
   .alias('rm')
-  .argument('<appName>', 'Name of application')
+  .argument('<name>', 'Name of application')
   .description('Remove application')
-  .action(async appName => stax.find(appName).remove())
+  .action(async name => stax.find(name).remove())
 
 program.command('exec')
-  .argument('<appName>', 'Name of application')
+  .argument('<name>', 'Name of application')
   .argument('<command>', 'Command to execute')
   .description('Execute a command in a running application')
-  .action(async (appName, command) => stax.find(appName).exec(command))
+  .action(async (name, command) => stax.find(name).exec(command))
 
 program.command('rebuild')
-  .argument('<appName>', 'Name of application')
+  .argument('<name>', 'Name of application')
   .description('Rebuild an application')
   .allowUnknownOption()
-  .action((appName) => stax.find(appName).rebuild({ vars: staxVars }))
+  .action((name) => stax.find(name).rebuild({ ...config }))
 
 program.command('list')
   .alias('ps').alias('ls')
@@ -52,46 +52,48 @@ program.command('list')
 
 program.command('shell')
   .alias('sh')
-  .argument('<appName>', 'Name of application')
+  .argument('<name>', 'Name of application')
   .description('Start a shell')
-  .action(async appName => stax.find(appName).shell())
+  .action(async name => stax.find(name).shell())
+
+program.command('config')
+  .argument('<name', 'Name of application')
+  .description('Show config variables for the container.')
+  .action(name => console.log(stax.find(name).primary.config))
 
 program.command('inspect')
-  .argument('<appName>', 'Name of application')
+  .argument('<name>', 'Name of application')
   .option('-c, --compose', 'Show the compose file')
   .option('-d, --dockerfile', 'Show the Dockerfile build (if any)')
-  .option('-v, --vars', 'Show the stax vars')
-  .description('Inspect the container and/or configuration files.')
-  .action((appName, options) => {
-    const app = stax.find(appName)
+  .description('Inspect the container or build files.')
+  .action((name, options) => {
+    const app = stax.find(name)
 
     if (options.compose)
-      console.log(readFileSync(stax.find(appName).primary.composeFile, 'utf-8'))
+      console.log(readFileSync(stax.find(name).primary.composeFile, 'utf-8'))
     else if (options.dockerfile)
       console.log('TODO')
-    else if (options.vars)
-      console.log(app.primary.vars)
     else
       run(`docker inspect ${app.primary.containerName}`)
   })
 
 program.command('logs')
-  .argument('<appName>', 'Name of application')
+  .argument('<name>', 'Name of application')
   .option('-f, --follow', 'Follow log output')
   .option('-t, --tail <number>', 'Number of lines to show from the end of the logs')
   .description('Tail logs for an application')
-  .action(async (appName, options) => {
-    const follow = options.follow || false;
-    const tail = options.tail ? parseInt(options.tail) : undefined;
-    await stax.find(appName).logs({ follow, tail });
+  .action(async (name, options) => {
+    const follow = options.follow || false
+    const tail = options.tail ? parseInt(options.tail) : undefined
+    await stax.find(name).logs({ follow, tail })
   })
 
 program
   .command('restart <app>')
   .description('Restart an app')
-  .action(async appName => stax.find(appName).restart())
+  .action(async name => stax.find(name).restart())
 
-let [ args, staxVars ] = parseAndRemoveWildcardOptions(process.argv, '--stax.')
+let [ args, config ] = parseAndRemoveWildcardOptions(process.argv, '--config.')
 
 if (args[2] == 'exec' && process.argv.length > 5) {
   args = process.argv.slice(0, 4)
