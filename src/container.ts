@@ -1,4 +1,5 @@
 import { csvKeyValuePairs, exit } from '~/utils'
+import { StaxfileConfig } from '~/staxfile'
 import docker from '~/docker'
 import Hooks from '~/hooks'
 import Staxfile from '~/staxfile'
@@ -132,8 +133,8 @@ export default class Container {
     return docker.container(`exec -it ${this.containerName} ${command}`)
   }
 
-  async rebuild({ config = {} }: { config?: Record<string, string> } = {}) {
-    App.setup({ context: this.context, source: this.source, staxfile: this.staxfile, app: this.app, ...config })
+  async rebuild(config: StaxfileConfig) {
+    App.setup({ ...config, context: this.context, source: this.source, staxfile: this.staxfile, app: this.app })
     this.hooks.onPostBuild()
   }
 

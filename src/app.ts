@@ -90,7 +90,7 @@ export default class App {
     return this.primary.logs(options)
   }
 
-  async rebuild({ config = {} }: { config?: Record<string, string> } = {}) {
+  async rebuild(config: StaxfileConfig) {
     return Promise.all(this.containers.map(container => container.rebuild(config)))
   }
 

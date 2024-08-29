@@ -43,7 +43,7 @@ program.command('rebuild')
   .argument('<name>', 'Name of application')
   .description('Rebuild an application')
   .allowUnknownOption()
-  .action((name) => stax.find(name).rebuild({ ...config }))
+  .action((name) => stax.find(name).rebuild(config))
 
 program.command('list')
   .alias('ps').alias('ls')
