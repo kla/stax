@@ -20,34 +20,34 @@ program.command('setup')
 program.command('up')
   .argument('<name>', 'Name of application')
   .description('Start an application')
-  .action(async name => stax.find(name).up())
+  .action(async name => { await stax.find(name).up() })
 
 program.command('down')
   .argument('<name>', 'Name of application')
   .description('Stop an application')
-  .action(async name => stax.find(name).down())
+  .action(async name => { await stax.find(name).down() })
 
 program.command('remove')
   .alias('rm')
   .argument('<name>', 'Name of application')
   .description('Remove application')
-  .action(async name => stax.find(name).remove())
+  .action(async name => { await stax.find(name).remove() })
 
 program.command('exec')
   .argument('<name>', 'Name of application')
   .argument('<command>', 'Command to execute')
   .description('Execute a command in a running application')
-  .action(async (name, command) => stax.find(name).exec(command))
+  .action(async (name, command) => { await stax.find(name).exec(command) })
 
 program.command('rebuild')
   .argument('<name>', 'Name of application')
   .description('Rebuild an application')
-  .action((name) => stax.find(name).rebuild(config))
+  .action(async name => { await stax.find(name).rebuild(config) })
 
 program.command('list')
   .alias('ps').alias('ls')
   .description('List applications')
-    .action(() => stax.list())
+  .action(() => stax.list())
 
 program.command('shell')
   .alias('sh')
@@ -97,7 +97,7 @@ program.command('logs')
 program
   .command('restart <app>')
   .description('Restart an app')
-  .action(async name => stax.find(name).restart())
+  .action(async name => { await stax.find(name).restart() })
 
 let [ args, config ] = parseAndRemoveWildcardOptions(process.argv, '--config.')
 
@@ -107,6 +107,6 @@ if (args[2] == 'exec' && process.argv.length > 5) {
 }
 
 tmp.setGracefulCleanup()
-process.on('SIGINT', () => tmp.setGracefulCleanup() && process.exit())
+process.on('SIGINT', () => { tmp.setGracefulCleanup(); process.exit() })
 process.chdir(process.env.WORKING_DIRECTORY)
 program.parse(args)
