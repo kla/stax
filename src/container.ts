@@ -7,9 +7,11 @@ import App from './app'
 
 export default class Container {
   public attributes: Record<string, any>
-  private _labels: Record<string, string>
-  private _composeFile: string
   private hooks: Hooks
+
+  private _labels: Record<string, string> | undefined
+  private _config: Record<string, string> | undefined
+  private _composeFile: string | undefined
 
   constructor(attributes: Record<string, any>) {
     this.attributes = attributes
@@ -18,6 +20,18 @@ export default class Container {
 
   get labels(): Record<string, string> {
     return this._labels ? this._labels : (this._labels = csvKeyValuePairs(this.attributes.Labels))
+  }
+
+  get config(): Record<string, string> {
+    if (!this._config) {
+      this._config = {}
+
+      for (const [key, value] of Object.entries(this.labels)) {
+        if (key.startsWith('stax.'))
+          this._config[key.substring(5)] = value
+      }
+    }
+    return this._config
   }
 
   get id(): string {
@@ -70,18 +84,6 @@ export default class Container {
 
   get source(): string {
     return this.config.source
-  }
-
-  private _config: Record<string, string> | null = null
-  get config(): Record<string, string> {
-    if (this._config === null) {
-      this._config = {}
-      for (const [key, value] of Object.entries(this.labels)) {
-        if (key.startsWith('stax.'))
-          this._config[key.substring(5)] = value
-      }
-    }
-    return this._config
   }
 
   /**
