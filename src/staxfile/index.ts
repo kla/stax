@@ -3,9 +3,9 @@ import { exit, flattenObject, makeTempFile } from '~/utils'
 import { StaxfileOptions } from '~/types'
 import { renderTemplate } from './template'
 import Config from './config'
+import DockerfileCompiler from './dockerfile_compiler'
 import path from 'path'
 import yaml from 'js-yaml'
-import DockerfileCompiler from './dockerfile_compiler'
 
 export default class Staxfile {
   public config: Config
@@ -70,11 +70,15 @@ export default class Staxfile {
 
       } else if (name === "read") {
         const [ file, defaultValue ] = args
-        return defaultValue
+        return this.readFromSourceSync(file) || defaultValue
       }
     })
 
     return matches > 0 ? this.render(text) : text
+  }
+
+  private readFromSourceSync(file) {
+    return readFileSync(`${this.source}/${file}`, 'utf-8').trim()
   }
 
   private updateServices() {
