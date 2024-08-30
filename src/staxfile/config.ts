@@ -19,15 +19,15 @@ export default class Config implements StaxfileOptions {
     if (!this.staxfile)
       this.staxfile = this.findStaxfile(this.source)
 
-    if (!this.app)
-      this.app = path.basename(this.source)
-
     if (!this.staxfile)
       exit(1, `Could not find a Staxfile at ${this.source}`)
 
     verifyFile(this.staxfile)
     this.source = this.location.source // so we get the path.resolve version
     this.staxfile = path.resolve(this.staxfile)
+
+    if (!this.app)
+      this.app = this.location.basename
   }
 
   get location(): Location {

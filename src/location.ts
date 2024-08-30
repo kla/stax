@@ -18,6 +18,10 @@ export default class Location {
     return isGitUrl(source) ? new GitLocation(source) : new Location(path.resolve(source))
   }
 
+  get basename(): string {
+    return path.basename(this.source)
+  }
+
   readSync(file: string): string {
     return readFileSync(path.join(this.source, file), 'utf-8')
   }
@@ -28,10 +32,16 @@ class GitLocation extends Location {
 
   constructor(source: string) {
     super(source)
-    this.ensureRepoCloned()
+  }
+
+  get basename(): string {
+    const urlParts = this.source.split('/')
+    let repoName = urlParts[urlParts.length - 1]
+    return repoName.endsWith('.git') ? repoName.slice(0, -4) : repoName
   }
 
   readSync(file: string): string {
+    this.ensureRepoCloned()
     const tempDir = GitLocation.repoDirectories.get(this.source)!
     const filePath = path.join(tempDir, file)
     return readFileSync(filePath, 'utf-8')

@@ -23,6 +23,7 @@ Syntax and Formatting
 - Use declarative JSX.
 - Don't use ending semicolons.
 - Always use one line for function declarations.
+- Use single quotes whenever possible.
 
 Tests
 - Use bun:test for testing
