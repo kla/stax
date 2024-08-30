@@ -4,9 +4,9 @@ import { StaxfileOptions } from '~/types'
 import { renderTemplate } from './template'
 import Config from './config'
 import DockerfileCompiler from './dockerfile_compiler'
+import Location from '~/location'
 import path from 'path'
 import yaml from 'js-yaml'
-import readSync from '~/location'
 
 export default class Staxfile {
   public config: Config
@@ -21,6 +21,7 @@ export default class Staxfile {
   get context(): string { return this.config.context}
   get app(): string { return this.config.app }
   get source(): string { return this.config.source }
+  get location(): Location { return this.config.location }
   get baseDir(): string { return path.dirname(path.resolve(this.staxfile))}
 
   public compile(): string {
@@ -71,7 +72,7 @@ export default class Staxfile {
 
       } else if (name === 'read') {
         const [ file, defaultValue ] = args
-        return (readSync(this.source, file) || defaultValue).trim()
+        return (this.location.readSync(file) || defaultValue).trim()
       }
     })
 

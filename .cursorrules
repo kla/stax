@@ -27,6 +27,7 @@ Syntax and Formatting
 Tests
 - Use bun:test for testing
 - Use describe and it syntax
+- Use plain javascript
 
 Imports
 - Use ~ for all local imports
