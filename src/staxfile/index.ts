@@ -22,7 +22,7 @@ export default class Staxfile {
   get source(): string { return this.config.source }
   get baseDir(): string { return path.dirname(path.resolve(this.staxfile))}
 
-  public compile(print: boolean = false): string {
+  public compile(): string {
     const composeFile = this.tempFile('compose')
 
     this.insideBaseDir(() => {
@@ -54,7 +54,7 @@ export default class Staxfile {
     this.updateServices()
   }
 
-  private render(text) {
+  private render(text): string {
     let matches = 0
 
     text = renderTemplate(text, (name, args) => {
@@ -85,8 +85,6 @@ export default class Staxfile {
       service.container_name = `${this.context}-${this.app}-${name}`
       service.hostname ||= `${this.app}-${name}`
 
-      service.environment ||= {}
-      service.environment.STAX_APP_NAME = this.app
       service.labels = this.makeLabels(service.labels)
 
       if (service.build?.dockerfile)
@@ -114,8 +112,6 @@ export default class Staxfile {
     if (this.buildsCompiled[original])
       return build
 
-    build.args ||= {}
-    build.args.STAX_APP_NAME = this.app
     build.dockerfile = new DockerfileCompiler(build).compile(this.tempFile('dockerfile'))
     delete build.modules
 
