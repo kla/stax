@@ -59,7 +59,11 @@ program.command('shell')
 program.command('config')
   .argument('<name', 'Name of application')
   .description('Show config variables for the container.')
-  .action(name => console.log(stax.find(name).primary.config))
+  .action(name => {
+    const container = stax.find(name).primary
+    const attributes = { ...container.config, labels: container.labels }
+    console.log(attributes)
+  })
 
 program.command('inspect')
   .argument('<name>', 'Name of application')
