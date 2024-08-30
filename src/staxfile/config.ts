@@ -1,5 +1,6 @@
 import { isDirectory, fileExists, verifyFile } from '~/utils'
 import { StaxfileOptions } from '~/types'
+import { exit } from '~/utils'
 import path from 'path'
 
 export default class Config implements StaxfileOptions {
@@ -20,7 +21,10 @@ export default class Config implements StaxfileOptions {
     if (!this.app)
       this.app = path.basename(this.source)
 
-    verifyFile(this.staxfile, `Staxfile not found: ${this.staxfile}`)
+    if (!this.staxfile)
+      exit(1, `Could not find a Staxfile at ${this.source}`)
+
+    verifyFile(this.staxfile)
     this.source = path.resolve(this.source)
     this.staxfile = path.resolve(this.staxfile)
   }

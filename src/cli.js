@@ -12,7 +12,7 @@ const program = new Command()
 program.name('stax')
 
 program.command('setup')
-  .argument('<location>', 'Path to or git repo of application')
+  .argument('<location>', 'Path to a local directory or git repo of application')
   .option('-s, --staxfile <staxfile>', 'Staxfile to use for setup')
   .description('Setup an application')
   .action(async (location, options) => stax.setup({ source: location, ...options, ...config }))
