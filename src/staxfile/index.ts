@@ -6,6 +6,7 @@ import Config from './config'
 import DockerfileCompiler from './dockerfile_compiler'
 import path from 'path'
 import yaml from 'js-yaml'
+import readSync from '~/location'
 
 export default class Staxfile {
   public config: Config
@@ -70,15 +71,11 @@ export default class Staxfile {
 
       } else if (name === "read") {
         const [ file, defaultValue ] = args
-        return this.readFromSourceSync(file) || defaultValue
+        return (readSync(this.source, file) || defaultValue).trim()
       }
     })
 
     return matches > 0 ? this.render(text) : text
-  }
-
-  private readFromSourceSync(file) {
-    return readFileSync(`${this.source}/${file}`, 'utf-8').trim()
   }
 
   private updateServices() {

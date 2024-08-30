@@ -1,34 +1,32 @@
-import fs from 'fs/promises'
+import { mkdtempSync, readFileSync, rmSync } from 'fs'
+import { execSync } from 'child_process'
 import path from 'path'
-import { simpleGit } from 'simple-git'
 import os from 'os'
 
-export default async function read(location: string, file: string): Promise<string> {
-  if (isGitUrl(location)) {
+export default function readSync(location: string, file: string): string {
+  if (isGitUrl(location))
     return readFromGit(location, file)
-  } else {
+  else
     return readFromLocalFile(location, file)
-  }
 }
 
 function isGitUrl(url: string): boolean {
-  return url.startsWith('git@') || url.startsWith('https://') && url.endsWith('.git')
+  return url.startsWith('git@') || (url.startsWith('https://') && url.endsWith('.git'))
 }
 
-async function readFromLocalFile(directory: string, file: string): Promise<string> {
+function readFromLocalFile(directory: string, file: string): string {
   const filePath = path.join(directory, file)
-  return fs.readFile(filePath, 'utf-8')
+  return readFileSync(filePath, 'utf-8')
 }
 
-async function readFromGit(repoUrl: string, file: string): Promise<string> {
-  const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), 'git-clone-'))
-  const git = simpleGit()
+function readFromGit(repoUrl: string, file: string): string {
+  const tempDir = mkdtempSync(path.join(os.tmpdir(), 'git-clone-'))
 
   try {
-    await git.clone(repoUrl, tempDir)
+    execSync(`git clone --depth 1 ${repoUrl} ${tempDir}`)
     const filePath = path.join(tempDir, file)
-    return fs.readFile(filePath, 'utf-8')
+    return readFileSync(filePath, 'utf-8')
   } finally {
-    await fs.rm(tempDir, { recursive: true, force: true })
+    rmSync(tempDir, { recursive: true, force: true })
   }
 }
