@@ -61,7 +61,7 @@ export default class Staxfile {
     text = renderTemplate(text, (name, args) => {
       matches += 1
 
-      if (name.startsWith("config.")) {
+      if (name.startsWith('config.')) {
         const key = name.slice(7)
 
         if (!this.compose.config.hasOwnProperty(key))
@@ -69,7 +69,7 @@ export default class Staxfile {
 
         return this.compose.config[key]
 
-      } else if (name === "read") {
+      } else if (name === 'read') {
         const [ file, defaultValue ] = args
         return (readSync(this.source, file) || defaultValue).trim()
       }
