@@ -18,8 +18,8 @@ export default class Stax {
     })
   }
 
-  async setup(config: StaxfileOptions) {
-    App.setup({ context: this.context, ...config })
+  async setup(config: StaxfileOptions, options: { inspect?: boolean } = { inspect: false }) {
+    App.setup({ context: this.context, ...config }, options)
   }
 
   find(appName: string): App | undefined {

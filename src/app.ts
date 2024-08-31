@@ -44,12 +44,17 @@ export default class App {
     return new App(name, [container])
   }
 
-  static async setup(config: StaxfileOptions) {
+  static async setup(config: StaxfileOptions, options: { inspect?: boolean } = { inspect: false }) {
     const staxfile = new Staxfile(config)
     const composeFile = staxfile.compile()
 
     if (!composeFile)
       return exit(1, `👿 Couldn't setup a container for '${staxfile.source}'`)
+
+    if (options.inspect) {
+      console.log(readFileSync(composeFile, 'utf-8'))
+      process.exit()
+    }
 
     await docker.compose(staxfile.context, 'up --detach --force-recreate --build', composeFile, { exit: true })
     return App.find(staxfile.context, this.getContainerName(composeFile))
