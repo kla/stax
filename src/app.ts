@@ -5,6 +5,7 @@ import { StaxfileOptions } from '~/types'
 import Staxfile from '~/staxfile'
 import docker from '~/docker'
 import Container from '~/container'
+import yaml from 'js-yaml'
 
 export default class App {
   public name: string
@@ -52,6 +53,9 @@ export default class App {
       return exit(1, `👿 Couldn't setup a container for '${staxfile.source}'`)
 
     if (options.inspect) {
+      console.log('# config variables')
+      console.log(yaml.dump({ config: staxfile.config }))
+      console.log('# compose file')
       console.log(readFileSync(composeFile, 'utf-8'))
       process.exit()
     }

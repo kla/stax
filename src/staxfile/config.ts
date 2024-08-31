@@ -7,6 +7,7 @@ import path from 'path'
 export default class Config implements StaxfileOptions {
   public context: string
   public source: string
+  public source_mount: string
   public staxfile: string
   public app: string
 
@@ -28,6 +29,8 @@ export default class Config implements StaxfileOptions {
 
     if (!this.app)
       this.app = this.location.basename
+
+    this.source_mount = this.location.isLocal ? "${{ config.source }}" : "${{ config.workspace_volume }}"
   }
 
   get location(): Location {

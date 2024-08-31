@@ -3,10 +3,6 @@ import { execSync } from 'child_process'
 import path from 'path'
 import os from 'os'
 
-function isGitUrl(url: string): boolean {
-  return url.startsWith('git@') || (url.startsWith('https://') && url.endsWith('.git'))
-}
-
 export default class Location {
   public source: string
 
@@ -14,12 +10,20 @@ export default class Location {
     this.source = source
   }
 
-  static from(source: string): Location {
-    return isGitUrl(source) ? new GitLocation(source) : new Location(path.resolve(source))
+  static isGitUrl(url: string): boolean {
+    return url.startsWith('git@') || (url.startsWith('https://') && url.endsWith('.git'))
+  }
+
+  static from(location: string): Location {
+    return this.isGitUrl(location) ? new GitLocation(location) : new Location(path.resolve(location))
   }
 
   get basename(): string {
     return path.basename(this.source)
+  }
+
+  get isLocal(): boolean {
+    return !Location.isGitUrl(this.source)
   }
 
   readSync(file: string): string {
