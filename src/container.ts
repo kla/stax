@@ -145,7 +145,7 @@ export default class Container {
       // can't change following on a rebuild
       context: this.context, source: this.source, staxfile: this.staxfile, app: this.app
     }
-    App.setup(config)
+    App.setup(config, { rebuild: true })
     this.hooks.onPostBuild()
   }
 

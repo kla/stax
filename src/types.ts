@@ -26,6 +26,11 @@ export interface RunOptions {
   stdio?: 'inherit' | 'pipe' | 'ignore' | 'ipc' | (number | null | undefined)
 }
 
+export interface SetupOptions {
+  inspect?: boolean
+  rebuild?: boolean
+}
+
 export interface StaxfileOptions {
   context: string
   source: string

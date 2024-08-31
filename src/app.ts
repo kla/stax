@@ -1,7 +1,7 @@
 import { readFileSync } from 'fs'
 import { load } from 'js-yaml'
 import { exit } from '~/utils'
-import { StaxfileOptions } from '~/types'
+import { SetupOptions, StaxfileOptions } from '~/types'
 import Staxfile from '~/staxfile'
 import docker from '~/docker'
 import Container from '~/container'
@@ -45,7 +45,7 @@ export default class App {
     return new App(name, [container])
   }
 
-  static async setup(config: StaxfileOptions, options: { inspect?: boolean } = { inspect: false }) {
+  static async setup(config: StaxfileOptions, options: SetupOptions = {}) {
     const staxfile = new Staxfile(config)
     const composeFile = staxfile.compile()
 
@@ -61,7 +61,12 @@ export default class App {
     }
 
     await docker.compose(staxfile.context, 'up --detach --force-recreate --build', composeFile, { exit: true })
-    return App.find(staxfile.context, this.getContainerName(composeFile))
+    const app = App.find(staxfile.context, this.getContainerName(composeFile))
+
+    if (!options.rebuild)
+      app.primary.exec(`git clone ${staxfile.config.source} ${staxfile.compose.config.workspace}`)
+
+    return app
   }
 
   static getContainerName(dockerComposeFile: string): string {

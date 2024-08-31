@@ -51,7 +51,7 @@ export default class Staxfile {
 
   private load() {
     this.compose = yaml.load(readFileSync(this.staxfile))
-    this.compose.config = { ...this.compose.config, ...this.config }
+    this.compose.config = this.config = new Config({ ...this.compose.config, ...this.config })
     this.compose = yaml.load(this.render(yaml.dump(this.compose, { lineWidth: -1 })))
     this.updateServices()
   }
