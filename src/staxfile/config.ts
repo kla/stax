@@ -30,7 +30,7 @@ export default class Config implements StaxfileOptions {
     if (!this.app)
       this.app = this.location.basename
 
-    this.source_mount = this.location.isLocal ? "${{ config.source }}" : "${{ config.workspace_volume }}"
+    this.source_mount = this.location.local ? "${{ config.source }}" : "${{ config.workspace_volume }}"
   }
 
   get location(): Location {

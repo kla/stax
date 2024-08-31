@@ -22,7 +22,7 @@ export default class Location {
     return path.basename(this.source)
   }
 
-  get isLocal(): boolean {
+  get local(): boolean {
     return !Location.isGitUrl(this.source)
   }
 

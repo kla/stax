@@ -66,7 +66,7 @@ export default class Staxfile {
         const key = name.slice(7)
 
         if (!this.compose.config.hasOwnProperty(key)) {
-          if (name == 'config.workspace_volume' && !this.location.isLocal)
+          if (name == 'config.workspace_volume' && !this.location.local)
             exit(1, `A '${name}' name must be defined when setting up from a remote source.`)
           exit(1, `Undefined reference to '${name}'`)
         }
