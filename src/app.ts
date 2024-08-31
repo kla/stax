@@ -63,7 +63,7 @@ export default class App {
     await docker.compose(staxfile.context, 'up --detach --force-recreate --build', composeFile, { exit: true })
     const app = App.find(staxfile.context, this.getContainerName(composeFile))
 
-    if (!options.rebuild)
+    if (!options.rebuild && !staxfile.config.location.local)
       app.primary.exec(`git clone ${staxfile.config.source} ${staxfile.compose.config.workspace}`)
 
     return app

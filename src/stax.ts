@@ -13,7 +13,10 @@ export default class Stax {
     this.apps().forEach((app) => {
       app.containers.forEach((container) => {
         const icon = container.state == 'running' ? '🟢' : '⚫'
-        console.log(icon, container.name, container.state, container.uptime, container.id)
+        const sourceIcon = container.config.location.local ? '📂' : '🛜 '
+        console.log(icon, container.name, container.state, container.uptime, container.id,
+          `${sourceIcon}${container.config.source}`
+        )
       })
     })
   }

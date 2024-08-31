@@ -4,13 +4,14 @@ import docker from '~/docker'
 import Hooks from '~/hooks'
 import Staxfile from '~/staxfile'
 import App from './app'
+import Config from './staxfile/config'
 
 export default class Container {
   public attributes: Record<string, any>
   private hooks: Hooks
 
   private _labels: Record<string, string> | undefined
-  private _config: Record<string, string> | undefined
+  private _config: Config | undefined
   private _composeFile: string | undefined
 
   constructor(attributes: Record<string, any>) {
@@ -30,6 +31,8 @@ export default class Container {
         if (key.startsWith('stax.'))
           this._config[key.substring(5)] = value
       }
+
+      this._config = new Config(this._config)
     }
     return this._config
   }
