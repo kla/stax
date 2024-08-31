@@ -7,9 +7,12 @@ import path from 'path'
 export default class Config implements StaxfileOptions {
   public context: string
   public source: string
-  public source_mount: string
   public staxfile: string
   public app: string
+
+  // This will point to the local source code directory or a user defined docker volume
+  // for remote setups. This volume will be where stax will clone the repo into.
+  public source_mount: string
 
   constructor(config: StaxfileOptions) {
     Object.keys(config).forEach((key) => {
