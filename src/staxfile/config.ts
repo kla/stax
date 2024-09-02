@@ -9,7 +9,6 @@ export default class Config implements StaxConfig {
   public app!: string
   public staxfile!: string
   public source!: string
-  public source_mount!: string
   public workspace!: string
   public workspace_volume!: string
   public vars!: Record<string, string>
@@ -92,8 +91,6 @@ export default class Config implements StaxConfig {
 
     if (!this.app)
       this.app = this.location.basename
-
-    this.source_mount = this.location.local ? "${{ stax.source }}" : "${{ stax.workspace_volume }}"
 }
 
   private findStaxfile(path): string {

@@ -36,9 +36,6 @@ export interface StaxConfig {
    */
   source: string
 
-  /** This will point to the local source code directory or a user defined docker volume */
-  source_mount: string
-
   /** Local path to the Staxfile used to setup the app */
   staxfile: string
 

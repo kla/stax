@@ -64,7 +64,7 @@ export default class App {
     const app = App.find(staxfile.context, this.getContainerName(composeFile))
 
     if (!options.rebuild && !staxfile.config.location.local)
-      app.primary.exec(`git clone ${staxfile.config.source} ${staxfile.compose.config.workspace}`)
+      app.primary.exec(`git clone ${staxfile.config.source} ${staxfile.compose.stax.workspace}`)
 
     return app
   }

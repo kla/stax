@@ -85,11 +85,20 @@ export default class Staxfile {
         const [ file, defaultValue ] = args
         return (this.location.readSync(file) || defaultValue).trim()
 
+      } else if (name == 'mount_workspace') {
+        const src = this.config.location.local ? this.config.source : this.config.workspace_volume
+        const dest = this.config.workspace
+        return `${src}:${dest}`
+
       } else
         this.warnings.add(`Invalid directive: ${name}`)
     })
 
     return matches > 0 ? this.render(text) : text
+  }
+
+  private mountWorkspace() {
+    return (this.config.location.local)
   }
 
   private fetchConfigValue(name) {
