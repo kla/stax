@@ -26,15 +26,36 @@ export interface RunOptions {
   stdio?: 'inherit' | 'pipe' | 'ignore' | 'ipc' | (number | null | undefined)
 }
 
+export interface StaxConfig {
+  /** The docker compose project name (default is 'stax') */
+  context: string
+
+  /** Location of the application's source. Either a local directory or a git repo url. When it
+   * is a local directory it will be mounted from the host. When it is a git repo the repo will
+   * be cloned into the volume specified by 'workspace_volume'.
+   */
+  source: string
+
+  /** This will point to the local source code directory or a user defined docker volume */
+  source_mount: string
+
+  /** Local path to the Staxfile used to setup the app */
+  staxfile: string
+
+  /** Name of the application */
+  app: string
+
+  /** Directory in the container that the app's source should be mounted to. */
+  workspace: string
+
+  /** Name of volume to create for the app's source in the container */
+  workspace_volume: string
+
+  /** User defined variables */
+  vars: Record<string, string>
+}
+
 export interface SetupOptions {
   inspect?: boolean
   rebuild?: boolean
-}
-
-export interface StaxfileOptions {
-  context: string
-  source: string
-  staxfile?: string
-  app?: string
-  [key: string]: any
 }

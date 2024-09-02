@@ -1,5 +1,6 @@
 import { csvKeyValuePairs, exit } from '~/utils'
-import { FindOptions, StaxfileOptions } from '~/types'
+import { FindOptions, SetupOptions, StaxConfig } from '~/types'
+import { readFileSync } from 'fs'
 import docker from '~/docker'
 import Hooks from '~/hooks'
 import Staxfile from '~/staxfile'
@@ -23,16 +24,14 @@ export default class Container {
     return this._labels ? this._labels : (this._labels = csvKeyValuePairs(this.attributes.Labels))
   }
 
-  get config(): Record<string, string> {
+  get config(): Config {
     if (!this._config) {
-      this._config = {}
+      this._config = new Config()
 
       for (const [key, value] of Object.entries(this.labels)) {
         if (key.startsWith('stax.'))
-          this._config[key.substring(5)] = value
+          this._config.set(key, value)
       }
-
-      this._config = new Config(this._config)
     }
     return this._config
   }
@@ -141,14 +140,15 @@ export default class Container {
     return docker.compose(this.context, `run --rm ${this.name} ${command}`, this.composeFile)
   }
 
-  async rebuild(config: StaxfileOptions) {
+  async rebuild(config: StaxConfig, options: SetupOptions = {}) {
     config = {
       ...this.config,
       ...config,
       // can't change following on a rebuild
       context: this.context, source: this.source, staxfile: this.staxfile, app: this.app
     }
-    App.setup(config, { rebuild: true })
+
+    App.setup(config, { ...options, rebuild: true })
     this.hooks.onPostBuild()
   }
 

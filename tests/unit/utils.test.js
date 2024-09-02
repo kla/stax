@@ -1,4 +1,4 @@
-import { csvKeyValuePairs, deepRemoveKeys, directoryExists, flattenObject, isFile } from '~/utils'
+import { csvKeyValuePairs, deepRemoveKeys, directoryExists, flattenObject, getNonNullProperties, isFile } from '~/utils'
 
 describe('csvKeyValuePairs', () => {
   it('returns an empty object for an empty string', () => {
@@ -143,6 +143,146 @@ describe('deepRemoveKeys', () => {
       expect(result).toEqual({ a: 1, b: 2 })
     })
   })
+})
+
+describe('getNonNullProperties', () => {
+  it('should remove null and undefined properties', () => {
+    const input = {
+      a: 1,
+      b: null,
+      c: undefined,
+      d: 'string'
+    }
+    const expected = {
+      a: 1,
+      d: 'string'
+    }
+    expect(getNonNullProperties(input)).toEqual(expected)
+  })
+
+  it('should handle nested objects', () => {
+    const input = {
+      a: 1,
+      b: {
+        c: null,
+        d: 2,
+        e: {
+          f: undefined,
+          g: 3
+        }
+      }
+    }
+    const expected = {
+      a: 1,
+      b: {
+        d: 2,
+        e: {
+          g: 3
+        }
+      }
+    }
+    expect(getNonNullProperties(input)).toEqual(expected)
+  })
+
+  it('should return an empty object for all null/undefined properties', () => {
+    const input = {
+      a: null,
+      b: undefined,
+      c: {
+        d: null,
+        e: undefined
+      }
+    }
+    expect(getNonNullProperties(input)).toEqual({})
+  })
+
+  it('should handle arrays', () => {
+    const input = {
+      a: [1, null, 3],
+      b: null,
+      c: [{ d: null, e: 4 }]
+    }
+    expect(getNonNullProperties(input)).toEqual({ a: input.a, c: input.c})
+  })
+
+  it('should return the same object if no null/undefined properties', () => {
+    const input = {
+      a: 1,
+      b: 'string',
+      c: { d: 2 }
+    }
+    expect(getNonNullProperties(input)).toEqual(input)
+  })
+})
+
+describe('flattenObject', () => {
+  it('flattens a simple object', () => {
+    const input = { a: 1, b: 2 }
+    const expected = { a: 1, b: 2 }
+    expect(flattenObject(input)).toEqual(expected)
+  })
+
+  it('flattens a nested object', () => {
+    const input = { a: 1, b: { c: 2, d: 3 } }
+    const expected = { a: 1, 'b.c': 2, 'b.d': 3 }
+    expect(flattenObject(input)).toEqual(expected)
+  })
+
+  it('flattens a deeply nested object', () => {
+    const input = { a: 1, b: { c: { d: 2 } }, e: 3 }
+    const expected = { a: 1, 'b.c.d': 2, e: 3 }
+    expect(flattenObject(input)).toEqual(expected)
+  })
+
+  it('handles arrays', () => {
+    const input = { a: [1, 2, 3], b: { c: [4, 5] } }
+    const expected = { a: [1, 2, 3], 'b.c': [4, 5] }
+    expect(flattenObject(input)).toEqual(expected)
+  })
+
+  it('handles null values', () => {
+    const input = { a: null, b: { c: null } }
+    const expected = { a: null, 'b.c': null }
+    expect(flattenObject(input)).toEqual(expected)
+  })
+
+  it('handles empty objects', () => {
+    const input = { a: {}, b: { c: {} } }
+    const expected = {}
+    expect(flattenObject(input)).toEqual(expected)
+  })
+
+  it('uses custom prefix', () => {
+    const input = { a: 1, b: { c: 2 } }
+    const expected = { 'prefix.a': 1, 'prefix.b.c': 2 }
+    expect(flattenObject(input, 'prefix')).toEqual(expected)
+  })
+
+  it('flattens objects with numeric keys', () => {
+    const input = { a: { 0: 'zero', 1: 'one' }, b: 2 }
+    const expected = { 'a.0': 'zero', 'a.1': 'one', b: 2 }
+    expect(flattenObject(input)).toEqual(expected)
+  })
+
+  it('handles undefined values', () => {
+    const input = { a: undefined, b: { c: undefined } }
+    const expected = { a: undefined, 'b.c': undefined }
+    expect(flattenObject(input)).toEqual(expected)
+  })
+
+  it('flattens objects with special characters in keys', () => {
+    const input = { 'a.b': 1, 'c-d': { 'e f': 2 } }
+    const expected = { 'a.b': 1, 'c-d.e f': 2 }
+    expect(flattenObject(input)).toEqual(expected)
+  })
+
+  // it('returns an empty object for non-object input', () => {
+  //   expect(flattenObject(null)).toEqual({})
+  //   expect(flattenObject(undefined)).toEqual({})
+  //   expect(flattenObject(42)).toEqual({})
+  //   expect(flattenObject('string')).toEqual({})
+  //   expect(flattenObject(true)).toEqual({})
+  // })
 })
 
 describe('flattenObject', () => {

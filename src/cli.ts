@@ -2,6 +2,7 @@ import { Command } from 'commander'
 import { readFileSync } from 'fs'
 import { run } from '~/shell'
 import { parseAndRemoveWildcardOptions } from '~/utils'
+import { StaxConfig } from '~/types'
 import Stax from '~/stax'
 import tmp from 'tmp'
 
@@ -16,7 +17,13 @@ program.command('setup')
   .option('-s, --staxfile <staxfile>', 'Staxfile to use for setup')
   .option('-i, --inspect', 'Show the compose file')
   .description('Setup an application')
-  .action(async (location, options) => stax.setup({ source: location, ...options, ...config }, options))
+  .action(async (location, options) => stax.setup({ source: location, ...options, ...overrides }, options))
+
+program.command('rebuild')
+  .argument('<name>', 'Name of application')
+  .option('-i, --inspect', 'Show the compose file')
+  .description('Rebuild an application')
+  .action(async (name, options) => { await stax.find(name).rebuild(overrides as unknown as StaxConfig, options) })
 
 program.command('up')
   .argument('<name>', 'Name of application')
@@ -39,11 +46,6 @@ program.command('exec')
   .argument('<command>', 'Command to execute')
   .description('Execute a command in a running application')
   .action(async (name, command) => { await stax.find(name).exec(command) })
-
-program.command('rebuild')
-  .argument('<name>', 'Name of application')
-  .description('Rebuild an application')
-  .action(async name => { await stax.find(name).rebuild(config) })
 
 program.command('list')
   .alias('ps').alias('ls')
@@ -100,7 +102,7 @@ program
   .description('Restart an app')
   .action(async name => { await stax.find(name).restart() })
 
-let [ args, config ] = parseAndRemoveWildcardOptions(process.argv, '--config.')
+let [ args, overrides ] = parseAndRemoveWildcardOptions(process.argv, '--stax.')
 
 if (args[2] == 'exec' && process.argv.length > 5) {
   args = process.argv.slice(0, 4)

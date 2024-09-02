@@ -11,11 +11,11 @@ export default class Location {
   }
 
   static isGitUrl(url: string): boolean {
-    return url.startsWith('git@') || (url.startsWith('https://') && url.endsWith('.git'))
+    return url && (url.startsWith('git@') || (url.startsWith('https://') && url.endsWith('.git')))
   }
 
   static from(location: string): Location {
-    return this.isGitUrl(location) ? new GitLocation(location) : new Location(path.resolve(location))
+    return this.isGitUrl(location) ? new GitLocation(location) : new Location(location && path.resolve(location))
   }
 
   get basename(): string {

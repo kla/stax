@@ -1,0 +1,17 @@
+---
+stax:
+  workspace_volume: ${{ stax.app }}-workspace-volume
+  workspace: /workspaces/${{ stax.app }}
+  vars:
+    user: app
+    domain: stax.localhost
+    rails_server_port: 3000
+
+services:
+  web:
+    command: bin/rails server
+    expose:
+      - ${{ stax.vars.rails_server_port }}
+    labels:
+      caddy: "${{ stax.app }}.${{ stax.vars.domain }}"
+      caddy.reverse_proxy: "{{ upstreams ${{ stax.vars.rails_server_port }} }}"

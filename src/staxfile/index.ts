@@ -1,6 +1,6 @@
 import { readFileSync, writeFileSync } from 'fs'
-import { exit, flattenObject, makeTempFile } from '~/utils'
-import { StaxfileOptions } from '~/types'
+import { exit, flattenObject, getNonNullProperties, makeTempFile } from '~/utils'
+import { StaxConfig } from '~/types'
 import { renderTemplate } from './template'
 import Config from './config'
 import DockerfileCompiler from './dockerfile_compiler'
@@ -12,8 +12,9 @@ export default class Staxfile {
   public config: Config
   public compose: Record<string, any>
   private buildsCompiled: Record<string, string> = {}
+  private warnings: Set<string>
 
-  constructor(config: StaxfileOptions) {
+  constructor(config: StaxConfig) {
     this.config = new Config(config)
   }
 
@@ -50,10 +51,25 @@ export default class Staxfile {
   }
 
   private load() {
+    this.warnings = new Set<string>
     this.compose = yaml.load(readFileSync(this.staxfile))
-    this.compose.config = this.config = new Config({ ...this.compose.config, ...this.config })
-    this.compose = yaml.load(this.render(yaml.dump(this.compose, { lineWidth: -1 })))
+
+    // want this.config to override anything in compose.stax except for non-null values
+    this.config = new Config({ ...this.compose.stax, ...getNonNullProperties(this.config) })
+    this.compose = this.renderCompose()
     this.updateServices()
+    this.compose = this.renderCompose() // need to re-render after updating services since directives may have been added
+
+    if (this.generatedWarnings.length > 0)
+      exit(1, this.generatedWarnings.join('\n'))
+  }
+
+  private get generatedWarnings(): Array<string> {
+    return [...this.warnings]
+  }
+
+  private renderCompose(): Record<string, any> {
+    return yaml.load(this.render(yaml.dump(this.compose, { lineWidth: -1 })))
   }
 
   private render(text): string {
@@ -62,24 +78,31 @@ export default class Staxfile {
     text = renderTemplate(text, (name, args) => {
       matches += 1
 
-      if (name.startsWith('config.')) {
-        const key = name.slice(7)
-
-        if (!this.compose.config.hasOwnProperty(key)) {
-          if (name == 'config.workspace_volume' && !this.location.local)
-            exit(1, `A '${name}' name must be defined when setting up from a remote source.`)
-          exit(1, `Undefined reference to '${name}'`)
-        }
-
-        return this.compose.config[key]
+      if (name.startsWith('stax.')) {
+        return this.fetchConfigValue(name)
 
       } else if (name === 'read') {
         const [ file, defaultValue ] = args
         return (this.location.readSync(file) || defaultValue).trim()
-      }
+
+      } else
+        this.warnings.add(`Invalid directive: ${name}`)
     })
 
     return matches > 0 ? this.render(text) : text
+  }
+
+  private fetchConfigValue(name) {
+    const key = name.slice(5) // strip 'stax.' prefix
+
+    if (!this.config.hasProperty(key)) {
+      if (name == 'config.workspace_volume' && !this.location.local)
+        this.warnings.add(`A '${name}' name must be defined when setting up from a remote source.`)
+
+      this.warnings.add(`Undefined reference to '${name}'`)
+    }
+
+    return this.config.fetch(key)
   }
 
   private updateServices() {
@@ -90,7 +113,7 @@ export default class Staxfile {
       service.container_name = `${this.context}-${this.app}-${name}`
       service.hostname ||= `${this.app}-${name}`
 
-      service.labels = this.makeLabels(service.labels)
+      service.labels = { ...service.labels, ...this.makeLabels() }
 
       if (service.build?.dockerfile)
         service.build = this.compileBuild(service.build)
@@ -101,11 +124,11 @@ export default class Staxfile {
     this.compose.services = services
   }
 
-  private makeLabels(labels) {
-    labels = structuredClone(labels || {})
+  private makeLabels() {
+    const labels = { }
     labels['stax.staxfile'] = this.staxfile
 
-    for (const [key, value] of Object.entries(flattenObject(this.compose.config)))
+    for (const [key, value] of Object.entries(flattenObject(this.config)))
       labels[`stax.${key}`] = value.toString()
 
     return labels

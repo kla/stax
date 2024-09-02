@@ -86,3 +86,22 @@ export function parseAndRemoveWildcardOptions(args: string[], startsWith: string
   } )
   return [ filteredArgs, staxVars]
 }
+
+export function getNonNullProperties(obj: Record<string, any>): Record<string, any> {
+  const result: Record<string, any> = {}
+
+  for (const [key, value] of Object.entries(obj)) {
+    if (value === null || value === undefined) continue
+
+    if (typeof value === 'object' && !Array.isArray(value)) {
+      const nestedNonNull = getNonNullProperties(value)
+      if (Object.keys(nestedNonNull).length > 0) {
+        result[key] = nestedNonNull
+      }
+    } else {
+      result[key] = value
+    }
+  }
+
+  return result
+}
