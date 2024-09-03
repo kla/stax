@@ -90,7 +90,13 @@ export default class Staxfile {
         const dest = this.config.workspace
         return `${src}:${dest}`
 
-      } else
+      } else if (name == 'uid')
+        return process.getuid()
+
+      else if (name == 'gid')
+        return process.getgid()
+
+      else
         this.warnings.add(`Invalid directive: ${name}`)
     })
 
