@@ -78,19 +78,9 @@ export default class Staxfile {
     text = renderTemplate(text, (name, args) => {
       matches += 1
 
-      if (name.startsWith('stax.')) {
-        return this.fetchConfigValue(name)
-
-      } else if (name === 'read') {
-        const [ file, defaultValue ] = args
-        return (this.location.readSync(file) || defaultValue).trim()
-
-      } else if (name == 'mount_workspace') {
-        const src = this.config.location.local ? this.config.source : this.config.workspace_volume
-        const dest = this.config.workspace
-        return `${src}:${dest}`
-
-      }
+      if (name.startsWith('stax.')) return this.fetchConfigValue(name)
+      else if (name === 'read') return this.read(args[0], args[1])
+      else if (name == 'mount_workspace') return this.mountWorkspace()
       else if (name == 'path.resolve') return path.resolve(args[0])
       else if (name == 'user') return process.env.USER
       else if (name == 'user_id') return process.getuid()
@@ -100,8 +90,19 @@ export default class Staxfile {
     return matches > 0 ? this.render(text) : text
   }
 
+  private read(file, defaultValue) {
+    try {
+      return (this.location.readSync(file) || defaultValue).trim()
+    } catch (e) {
+      console.warn(`⚠️  Couldn't read ${file}: ${e.code}... using default value of '${defaultValue}'`)
+      return defaultValue
+    }
+  }
+
   private mountWorkspace() {
-    return (this.config.location.local)
+    const src = this.config.location.local ? this.config.source : this.config.workspace_volume
+    const dest = this.config.workspace
+    return `${src}:${dest}`
   }
 
   private fetchConfigValue(name) {
