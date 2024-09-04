@@ -142,7 +142,7 @@ export default class Staxfile {
     labels['stax.staxfile'] = this.staxfile
 
     for (const [key, value] of Object.entries(flattenObject(this.config)))
-      labels[`stax.${key}`] = value.toString()
+      labels[`stax.${key}`] = value?.toString()
 
     return labels
   }
