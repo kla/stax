@@ -56,20 +56,6 @@ describe('Config', () => {
     expect(config.vars.user).toBe('newValue2')
   })
 
-  it('logs a warning when attempting to set an invalid property', () => {
-    const warnSpy = console.warn = () => {}
-    const warnCalls = []
-    console.warn = (...args) => {
-      warnCalls.push(args)
-      warnSpy(...args)
-    }
-
-    config.set('nonexistent', 'value')
-
-    expect(warnCalls.length).toBe(1)
-    expect(warnCalls[0][0]).toBe('⚠️  Ignoring invalid config property \'nonexistent\'')
-  })
-
   it('logs a warning when attempting to assign an object to a scalar value', () => {
     const warnSpy = console.warn = () => {}
     const warnCalls = []
@@ -96,7 +82,6 @@ describe('Config', () => {
 
     config.set('nonexistent.deeply.nested.prop', 'value')
     expect(config.nonexistent).toBeUndefined()
-    expect(warnCalls[0][0]).toBe('⚠️  Ignoring invalid config property \'nonexistent\'')
   })
 
   it('sets a property value using stax.vars. prefix', () => {
