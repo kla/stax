@@ -50,11 +50,8 @@ export default class Config implements StaxConfig {
     const keys = path.split('.')
     let current: any = this
 
-    // Check if the root property is valid
-    if (!Object.prototype.hasOwnProperty.call(this, keys[0])) {
-      console.warn(`⚠️  Ignoring invalid config property '${keys[0]}'`)
+    if (!Object.prototype.hasOwnProperty.call(this, keys[0]))
       return
-    }
 
     for (let i = 0; i < keys.length - 1; i++) {
       const key = keys[i]

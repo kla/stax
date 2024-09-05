@@ -1,14 +1,12 @@
 import { csvKeyValuePairs, exit } from '~/utils'
 import { FindOptions, SetupOptions, StaxConfig } from '~/types'
 import docker from '~/docker'
-import Hooks from '~/hooks'
 import Staxfile from '~/staxfile'
 import App from './app'
 import Config from './staxfile/config'
 
 export default class Container {
   public attributes: Record<string, any>
-  private hooks: Hooks
 
   private _labels: Record<string, string> | undefined
   private _config: Config | undefined
@@ -16,7 +14,6 @@ export default class Container {
 
   constructor(attributes: Record<string, any>) {
     this.attributes = attributes
-    this.hooks = new Hooks(this)
   }
 
   get labels(): Record<string, string> {
@@ -148,7 +145,6 @@ export default class Container {
     }
 
     App.setup(config, { ...options, rebuild: true })
-    this.hooks.onPostBuild()
   }
 
   async shell() {
@@ -172,5 +168,14 @@ export default class Container {
 
   async restart() {
     return docker.compose(this.context, `restart ${this.service}`, this.composeFile)
+  }
+
+  async runHook(type) {
+    const hook = this.labels[`stax.hooks.${type}`]
+
+    if (hook) {
+      console.log(`🚀 [${this.containerName}] Running '${type}' hook: ${hook}`)
+      this.exec(hook)
+    }
   }
 }

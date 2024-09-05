@@ -66,6 +66,9 @@ export default class App {
     if (!options.rebuild && !staxfile.config.location.local)
       app.primary.exec(`git clone ${staxfile.config.source} ${staxfile.compose.stax.workspace}`)
 
+    if (!options.rebuild)
+      app.containers.forEach(async container => container.runHook('after_setup'))
+
     return app
   }
 
@@ -110,5 +113,9 @@ export default class App {
 
   async restart() {
     return Promise.all(this.containers.map(container => container.restart()))
+  }
+
+  async runHooks() {
+    this.containers.forEach(async container => container.runHooks())
   }
 }
