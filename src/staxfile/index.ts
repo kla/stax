@@ -58,7 +58,7 @@ export default class Staxfile {
     this.config = new Config({ ...this.compose.stax, ...getNonNullProperties(this.config) })
     this.compose = this.renderCompose()
     this.updateServices()
-    this.compose = this.renderCompose() // need to re-render after updating services since directives may have been added
+    this.compose = this.renderCompose() // need to re-render after updating services since template expressions may have been added
 
     if (this.generatedWarnings.length > 0)
       exit(1, this.generatedWarnings.join('\n'))
@@ -84,7 +84,7 @@ export default class Staxfile {
       else if (name == 'path.resolve') return path.resolve(args[0])
       else if (name == 'user') return process.env.USER
       else if (name == 'user_id') return process.getuid()
-      else this.warnings.add(`Invalid directive: ${name}`)
+      else this.warnings.add(`Invalid template expression: ${name}`)
     })
 
     return matches > 0 ? this.render(text) : text
