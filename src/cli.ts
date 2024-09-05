@@ -8,6 +8,7 @@ import tmp from 'tmp'
 
 const DEFAULT_CONTEXT_NAME = 'stax'
 
+const editor = process.env.STAX_EDITOR || 'code'
 const stax = new Stax(DEFAULT_CONTEXT_NAME)
 const program = new Command()
 program.name('stax')
@@ -24,6 +25,11 @@ program.command('rebuild')
   .option('-i, --inspect', 'Show the compose file')
   .description('Rebuild an application')
   .action(async (name, options) => { await stax.find(name).rebuild(overrides as unknown as StaxConfig, options) })
+
+program
+  .command('restart <name>')
+  .description('Restart an app')
+  .action(async name => { await stax.find(name).restart() })
 
 program.command('up')
   .argument('<name>', 'Name of application')
@@ -47,16 +53,31 @@ program.command('exec')
   .description('Execute a command in a running application')
   .action(async (name, command) => { await stax.find(name).exec(command) })
 
-program.command('list')
-  .alias('ps').alias('ls')
-  .description('List applications')
-  .action(() => stax.list())
-
 program.command('shell')
   .alias('sh')
   .argument('<name>', 'Name of application')
   .description('Start a shell')
   .action(async name => stax.find(name).shell())
+
+program.command('list')
+  .alias('ps').alias('ls')
+  .description('List applications')
+  .action(() => stax.list())
+
+program.command('edit')
+  .argument('<name>', 'Name of application')
+  .description(`Open application in vscode`)
+  .action(async name => {
+    const app = stax.find(name)
+
+    if (!app.primary.running) {
+      app.up()
+      console.log(`🚀 ${name} container(s) are not running. Starting them now."`)
+    }
+
+    const hex = Buffer.from(JSON.stringify({ containerName: app.primary.containerName })).toString('hex')
+    run(`${editor} --folder-uri=vscode-remote://attached-container+${hex}%${app.primary.config.workspace}`)
+  })
 
 program.command('config')
   .argument('<name', 'Name of application')
@@ -96,11 +117,6 @@ program.command('logs')
     const tail = options.tail ? parseInt(options.tail) : undefined
     await stax.find(name).logs({ follow, tail })
   })
-
-program
-  .command('restart <app>')
-  .description('Restart an app')
-  .action(async name => { await stax.find(name).restart() })
 
 let [ args, overrides ] = parseAndRemoveWildcardOptions(process.argv, '--stax.')
 

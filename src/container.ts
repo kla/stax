@@ -1,6 +1,5 @@
 import { csvKeyValuePairs, exit } from '~/utils'
 import { FindOptions, SetupOptions, StaxConfig } from '~/types'
-import { readFileSync } from 'fs'
 import docker from '~/docker'
 import Hooks from '~/hooks'
 import Staxfile from '~/staxfile'
