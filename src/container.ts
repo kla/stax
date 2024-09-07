@@ -194,19 +194,9 @@ export default class Container {
     if (destinationIsDirectory && !isDirectory)
       destPath += sourceFileName
 
-    if (dontOverwrite) {
-      const checkCommand = `docker exec ${this.containerName} sh -c "test -e ${destPath}"`
-      try {
-        execSync(checkCommand)
-        console.warn(`⚠️  Not copying ${source} because it already exists at ${destPath}`)
-        return
-      } catch (error) {
-        if ('status' in error && error.status !== 1) {
-          console.log('Error checking file existence:', error)
-          throw error
-        }
-        // If status is 1, file doesn't exist, proceed with copy
-      }
+    if (dontOverwrite && docker.fileExists(this.containerName, destPath)) {
+      console.warn(`⚠️  Not copying ${source} because it already exists at ${destPath}`)
+      return
     }
 
     docker.container(`cp ${source} ${this.containerName}:${destPath}`)

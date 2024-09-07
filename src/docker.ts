@@ -1,5 +1,6 @@
 import { verifyFile } from '~/utils'
 import { run, capture } from '~/shell'
+import { execSync } from 'child_process'
 
 async function compose(context: string, command: string, composeFile: string, options: Record<string,any> = {}) {
   const base = `docker compose --project-name ${context}`
@@ -22,5 +23,20 @@ function ps(context: string): Array<Record<string,any>> {
   return capture('docker ps --all --format json').split("\n").map(attributes => JSON.parse(attributes))
 }
 
-const docker = { compose, container, ps }
+function fileExists(containerName: string, path: string): boolean {
+  const checkCommand = `docker exec ${containerName} sh -c "test -e ${path}"`
+
+  try {
+    execSync(checkCommand)
+    return true
+  } catch (error) {
+    if ('status' in error && error.status !== 1) {
+      console.log('Error checking file existence:', error)
+      throw error
+    }
+    return false
+  }
+}
+
+const docker = { compose, container, ps, fileExists }
 export default docker
