@@ -138,6 +138,12 @@ program.command('retrieve')
   .description('Copy a from the container')
   .action(async (name, source, destination) => stax.find(name).primary.retrieve(source, destination))
 
+program.command('alias')
+  .argument('<name>', 'Name of application')
+  .argument('<alias>', 'Name of alias for application')
+  .description('Create an alias for an application that can be used in place of the application\'s name when running commands')
+  .action((name, alias) => stax.find(name).addAlias(alias))
+
 let [ args, overrides ] = parseAndRemoveWildcardOptions(process.argv, '--stax.')
 
 if (args[2] == 'exec' && process.argv.length > 5) {

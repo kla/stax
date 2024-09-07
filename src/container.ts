@@ -1,5 +1,4 @@
 import { existsSync } from 'fs'
-import { execSync } from 'child_process'
 import { csvKeyValuePairs, exit } from '~/utils'
 import { FindOptions, SetupOptions, StaxConfig } from '~/types'
 import { run } from '~/shell'

@@ -5,6 +5,7 @@ import { StaxConfig, SetupOptions } from '~/types'
 import Staxfile from '~/staxfile'
 import docker from '~/docker'
 import Container from '~/container'
+import settings from '~/settings'
 import yaml from 'js-yaml'
 
 export default class App {
@@ -117,5 +118,12 @@ export default class App {
 
   async runHooks() {
     this.containers.forEach(async container => container.runHooks())
+  }
+
+  addAlias(alias) {
+    const aliases = settings.read('aliases') || {}
+
+    aliases[alias] = this.name
+    settings.write('aliases', aliases)
   }
 }
