@@ -1,4 +1,5 @@
 import { existsSync } from 'fs'
+import { execSync } from 'child_process'
 import { csvKeyValuePairs, exit } from '~/utils'
 import { FindOptions, SetupOptions, StaxConfig } from '~/types'
 import { run } from '~/shell'
@@ -182,8 +183,33 @@ export default class Container {
       run(hook)
   }
 
-  async copy(source, destination) {
-    return docker.container(`cp ${source} ${this.containerName}:${destination}`)
+  async copy(source: string, destination: string, options: { dontOverwrite?: boolean } = {}) {
+    const { dontOverwrite = false } = options
+    const isDirectory = source.endsWith('/')
+    const destinationIsDirectory = destination.endsWith('/')
+    const sourceParts = source.split('/')
+    const sourceFileName = sourceParts[sourceParts.length - 1]
+
+    let destPath = destination
+    if (destinationIsDirectory && !isDirectory)
+      destPath += sourceFileName
+
+    if (dontOverwrite) {
+      const checkCommand = `docker exec ${this.containerName} sh -c "test -e ${destPath}"`
+      try {
+        execSync(checkCommand)
+        console.warn(`⚠️  Not copying ${source} because it already exists at ${destPath}`)
+        return
+      } catch (error) {
+        if ('status' in error && error.status !== 1) {
+          console.log('Error checking file existence:', error)
+          throw error
+        }
+        // If status is 1, file doesn't exist, proceed with copy
+      }
+    }
+
+    docker.container(`cp ${source} ${this.containerName}:${destPath}`)
   }
 
   async retrieve(source, destination) {
