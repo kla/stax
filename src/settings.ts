@@ -9,9 +9,9 @@ function load() {
 }
 
 const settings = {
-  read: function(name: string) {
+  read: function(name: string, defaultValue: any | undefined) {
     const settings = load()
-    return settings[name]
+    return settings[name] || defaultValue
   },
 
   write: function(name, value) {

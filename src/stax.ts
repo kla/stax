@@ -27,7 +27,7 @@ export default class Stax {
   }
 
   find(appName: string): App | undefined {
-    appName = settings.read('aliases')[appName] || appName
+    appName = settings.read('aliases', {})[appName] || appName
     const app = this.apps().find(app => app.name == appName)
 
     if (!app)
