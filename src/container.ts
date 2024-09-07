@@ -1,7 +1,7 @@
+import { existsSync } from 'fs'
 import { csvKeyValuePairs, exit } from '~/utils'
 import { FindOptions, SetupOptions, StaxConfig } from '~/types'
 import { run } from '~/shell'
-import path from 'path'
 import docker from '~/docker'
 import Staxfile from '~/staxfile'
 import App from './app'
@@ -176,7 +176,10 @@ export default class Container {
     let hook = this.labels[`stax.hooks.${type}`]
     if (!hook) return
 
-    run(`cat ${hook} | docker container exec --interactive ${this.containerName} /bin/sh`)
+    if (existsSync(hook))
+      run(`cat ${hook} | docker container exec --interactive ${this.containerName} /bin/sh`)
+    else
+      run(hook)
   }
 
   async copy(source, destination) {

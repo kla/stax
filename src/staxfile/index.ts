@@ -1,4 +1,4 @@
-import { readFileSync, writeFileSync } from 'fs'
+import { readFileSync, writeFileSync, existsSync } from 'fs'
 import { exit, flattenObject, getNonNullProperties, makeTempFile, verifyFile } from '~/utils'
 import { StaxConfig } from '~/types'
 import { renderTemplate } from './template'
@@ -7,7 +7,6 @@ import DockerfileCompiler from './dockerfile_compiler'
 import Location from '~/location'
 import path from 'path'
 import yaml from 'js-yaml'
-import { verify } from 'crypto'
 
 export default class Staxfile {
   public config: Config
@@ -154,9 +153,11 @@ export default class Staxfile {
 
     for (const hook of hooks) {
       if (labels[`stax.hooks.${hook}`]) {
-        const file = path.resolve(labels[`stax.hooks.${hook}`])
-        verifyFile(file, `Hook file not found for '${hook}'`)
-        labels[`stax.hooks.${hook}`] = file
+        if (existsSync(labels[`stax.hooks.${hook}`])) {
+          const file = path.resolve(labels[`stax.hooks.${hook}`])
+          verifyFile(file, `Hook file not found for '${hook}'`)
+          labels[`stax.hooks.${hook}`] = file
+        }
       }
     }
     return labels
