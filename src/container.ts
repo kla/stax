@@ -1,5 +1,7 @@
 import { csvKeyValuePairs, exit } from '~/utils'
 import { FindOptions, SetupOptions, StaxConfig } from '~/types'
+import { run } from '~/shell'
+import path from 'path'
 import docker from '~/docker'
 import Staxfile from '~/staxfile'
 import App from './app'
@@ -171,11 +173,9 @@ export default class Container {
   }
 
   async runHook(type) {
-    const hook = this.labels[`stax.hooks.${type}`]
+    let hook = this.labels[`stax.hooks.${type}`]
+    if (!hook) return
 
-    if (hook) {
-      console.log(`🚀 [${this.containerName}] Running '${type}' hook: ${hook}`)
-      this.exec(hook)
-    }
+    run(`cat ${hook} | docker container exec --interactive ${this.containerName} /bin/sh`)
   }
 }

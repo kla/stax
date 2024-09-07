@@ -16,23 +16,17 @@ export function capture(command: string) {
 }
 
 export async function run(command: string, { env } = {}) {
-  const args = command.split(' ')
-  const executable = args.shift()
-  const options: any = { stdio: 'inherit', tty: true }
+  const shellOptions: any = {
+    stdio: 'inherit',
+    shell: true,
+    env: env ? { ...process.env, ...env } : process.env
+  }
 
-  if (!executable)
-    throw new Error('Please specify a command to run.')
-
-  if (env)
-    options.env = { ...process.env, ...env }
-
-  outputCommand(command, options)
+  outputCommand(command, shellOptions)
 
   return new Promise((resolve, reject) => {
-    const child = spawn(executable, args, options)
+    const child = spawn(command, [], shellOptions)
 
-    child.stdout.on('data', data => console.log(data.toString()))
-    child.stderr.on('data', data => console.error(data.toString()))
     child.on('error', error => reject(error))
 
     child.on('close', (code) => {

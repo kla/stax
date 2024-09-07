@@ -1,5 +1,5 @@
 import { readFileSync, writeFileSync } from 'fs'
-import { exit, flattenObject, getNonNullProperties, makeTempFile } from '~/utils'
+import { exit, flattenObject, getNonNullProperties, makeTempFile, verifyFile } from '~/utils'
 import { StaxConfig } from '~/types'
 import { renderTemplate } from './template'
 import Config from './config'
@@ -7,6 +7,7 @@ import DockerfileCompiler from './dockerfile_compiler'
 import Location from '~/location'
 import path from 'path'
 import yaml from 'js-yaml'
+import { verify } from 'crypto'
 
 export default class Staxfile {
   public config: Config
@@ -127,6 +128,7 @@ export default class Staxfile {
       service.hostname ||= `${this.app}-${name}`
 
       service.labels = { ...service.labels, ...this.makeLabels() }
+      service.labels = this.updateHooks(service.labels)
 
       if (service.build?.dockerfile)
         service.build = this.compileBuild(service.build)
@@ -144,6 +146,19 @@ export default class Staxfile {
     for (const [key, value] of Object.entries(flattenObject(this.config)))
       labels[`stax.${key}`] = value?.toString()
 
+    return labels
+  }
+
+  private updateHooks(labels) {
+    const hooks = [ 'after_setup' ]
+
+    for (const hook of hooks) {
+      if (labels[`stax.hooks.${hook}`]) {
+        const file = path.resolve(labels[`stax.hooks.${hook}`])
+        verifyFile(file, `Hook file not found for '${hook}'`)
+        labels[`stax.hooks.${hook}`] = file
+      }
+    }
     return labels
   }
 
