@@ -178,4 +178,12 @@ export default class Container {
 
     run(`cat ${hook} | docker container exec --interactive ${this.containerName} /bin/sh`)
   }
+
+  async copy(source, destination) {
+    return docker.container(`cp ${source} ${this.containerName}:${destination}`)
+  }
+
+  async retrieve(source, destination) {
+    return docker.container(`cp ${this.containerName}:${source} ${destination}`)
+  }
 }

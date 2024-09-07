@@ -121,6 +121,21 @@ program.command('logs')
     await stax.find(name).logs({ follow, tail })
   })
 
+program.command('copy')
+  .alias('cp')
+  .argument('<name>', 'Name of application')
+  .argument('<source>', 'Path to a local file or directory')
+  .argument('<destination>', 'Path to a destination directory')
+  .description('Copy a file to the container')
+  .action(async (name, source, destination) => stax.find(name).primary.copy(source, destination))
+
+program.command('retrieve')
+  .argument('<name>', 'Name of application')
+  .argument('<source>', 'Path to a local file or directory')
+  .argument('<destination>', 'Path to a destination directory')
+  .description('Copy a from the container')
+  .action(async (name, source, destination) => stax.find(name).primary.retrieve(source, destination))
+
 let [ args, overrides ] = parseAndRemoveWildcardOptions(process.argv, '--stax.')
 
 if (args[2] == 'exec' && process.argv.length > 5) {
