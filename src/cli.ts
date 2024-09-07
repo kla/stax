@@ -1,7 +1,7 @@
 import { Command } from 'commander'
 import { readFileSync } from 'fs'
 import { run } from '~/shell'
-import { parseAndRemoveWildcardOptions } from '~/utils'
+import { exit, parseAndRemoveWildcardOptions } from '~/utils'
 import { StaxConfig } from '~/types'
 import Stax from '~/stax'
 import tmp from 'tmp'
@@ -74,6 +74,9 @@ program.command('edit')
       app.up()
       console.log(`🚀 ${name} container(s) are not running. Starting them now."`)
     }
+
+    if (!app.primary.config.workspace)
+      exit(0, `${name} has no 'workspace' defined.`)
 
     const hex = Buffer.from(JSON.stringify({ containerName: app.primary.containerName })).toString('hex')
     run(`${editor} --folder-uri=vscode-remote://attached-container+${hex}%${app.primary.config.workspace}`)
