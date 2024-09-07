@@ -130,6 +130,7 @@ program.command('copy')
   .action(async (name, source, destination) => stax.find(name).primary.copy(source, destination))
 
 program.command('retrieve')
+  .alias('get')
   .argument('<name>', 'Name of application')
   .argument('<source>', 'Path to a local file or directory')
   .argument('<destination>', 'Path to a destination directory')
