@@ -16,7 +16,7 @@ export default class Stax {
         const icon = container.state == 'running' ? '🟢' : '⚫'
         const sourceIcon = container.config.location.local ? '📂' : '🛜 '
         console.log(icon, container.name, container.state, container.uptime, container.id,
-          `${sourceIcon}${container.config.source}`
+          sourceIcon, container.config.source
         )
       })
     })
