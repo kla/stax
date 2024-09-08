@@ -203,7 +203,7 @@ export default class Container {
     docker.container(`cp ${source} ${this.containerName}:${destPath}`)
   }
 
-  async retrieve(source, destination) {
+  async get(source, destination) {
     return docker.container(`cp ${this.containerName}:${source} ${destination}`)
   }
 }
