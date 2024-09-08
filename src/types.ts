@@ -9,6 +9,10 @@ export interface FindOptions {
   mustExist?: boolean
 }
 
+export interface FindContainerOptions {
+  service?: string
+}
+
 /**
  * Represents the options for running a command.
  */

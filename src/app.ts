@@ -1,7 +1,7 @@
 import { readFileSync } from 'fs'
 import { load } from 'js-yaml'
 import { exit } from '~/utils'
-import { StaxConfig, SetupOptions } from '~/types'
+import { StaxConfig, SetupOptions, FindContainerOptions } from '~/types'
 import Staxfile from '~/staxfile'
 import docker from '~/docker'
 import Container from '~/container'
@@ -101,7 +101,16 @@ export default class App {
     return this.primary.exec(command)
   }
 
-  async shell() {
+  findContainer(options: FindContainerOptions): Container | null {
+    return this.containers.find(container => container.service == options.service)
+  }
+
+  async shell(options: FindContainerOptions) {
+    if (options.service) {
+      const container = this.findContainer(options)
+      if (!container) exit(1, `👿 No container found for a service named '${options.service}'. Valid services are: ${this.containers.map(container => container.service).join(', ')}`)
+      return container.shell()
+    }
     return this.primary.shell()
   }
 
