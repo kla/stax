@@ -120,27 +120,30 @@ export default class Staxfile {
 
   private updateServices() {
     const services = {}
+    let number = 0
 
     for (const [name, service] of Object.entries(this.compose.services)) {
       service.image ||= `${this.context}-${this.app}`
       service.container_name = `${this.context}-${this.app}-${name}`
       service.hostname ||= `${this.app}-${name}`
 
-      service.labels = { ...service.labels, ...this.makeLabels() }
+      service.labels = { ...service.labels, ...this.makeLabels(number) }
       service.labels = this.updateHooks(service.labels)
 
       if (service.build?.dockerfile)
         service.build = this.compileBuild(service.build)
 
       services[`${this.app}-${name}`] = service
+      number += 1
     }
 
     this.compose.services = services
   }
 
-  private makeLabels() {
+  private makeLabels(number: number) {
     const labels = { }
     labels['stax.staxfile'] = this.staxfile
+    labels['stax.container_number'] = number
 
     for (const [key, value] of Object.entries(flattenObject(this.config)))
       labels[`stax.${key}`] = value?.toString()

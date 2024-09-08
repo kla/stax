@@ -47,11 +47,11 @@ export default class Container {
   }
 
   get service(): string {
-    return this.labels['com.docker.compose.service']
+    return this.labels['com.docker.compose.service'].replace(`${this.app}-`, '')
   }
 
   get name(): string {
-    return this.service
+    return this.labels['com.docker.compose.service']
   }
 
   get containerName(): string {
@@ -63,7 +63,7 @@ export default class Container {
   }
 
   get number(): number {
-    return parseInt(this.labels['com.docker.compose.container-number'], 10)
+    return parseInt(this.labels['stax.container_number'], 10) || 0
   }
 
   get workingDirectory(): string {
@@ -164,14 +164,14 @@ export default class Container {
   }
 
   async logs(options: { follow?: boolean, tail?: number } = {}) {
-    let command = `logs ${this.service}`
+    let command = `logs ${this.name}`
     if (options.follow) command += ' --follow'
     if (options.tail) command += ` --tail=${options.tail}`
     return docker.compose(this.context, command, this.composeFile)
   }
 
   async restart() {
-    return docker.compose(this.context, `restart ${this.service}`, this.composeFile)
+    return docker.compose(this.context, `restart ${this.name}`, this.composeFile)
   }
 
   async runHook(type) {

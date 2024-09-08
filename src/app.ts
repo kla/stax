@@ -17,12 +17,13 @@ export default class App {
     this.containers = containers.sort((a: Container, b: Container) => a.number - b.number)
   }
 
-  get status() {
-    return this.primary.attributes.State
-  }
-
   get primary(): Container {
     return this.containers[0]
+  }
+
+  get state() {
+    const states = new Set(this.containers.map(container => container.state))
+    return states.size == 1 ? [...states][0] : 'unhealthy'
   }
 
   static all(context: string): App[] {
