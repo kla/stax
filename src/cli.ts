@@ -68,6 +68,7 @@ program.command('edit')
   })
 
 program.command('exec')
+  .alias('run')
   .argument('<name>', 'Name of application')
   .argument('<command>', 'Command to execute. Use "--" before your command if it has more than one word.')
   .option('-s, --service <name>', 'Name of service to act on')
