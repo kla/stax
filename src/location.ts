@@ -26,6 +26,10 @@ export default class Location {
     return !Location.isGitUrl(this.source)
   }
 
+  get type(): string {
+    return this.local ? 'local' : 'remote'
+  }
+
   readSync(file: string): string {
     return readFileSync(path.join(this.source, file), 'utf-8')
   }

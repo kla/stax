@@ -1,6 +1,8 @@
 import Table from 'cli-table3'
+import App from './app'
+import Location from './location'
 
-const icons = {
+const stateIcons = {
   created: '🐣',
   healthy: '🟢',
   unhealthy: '🟡',
@@ -12,9 +14,14 @@ const icons = {
   unknown: '❔',
 }
 
+const sourceIcons = {
+  local: '📁',
+  remote: '🌐',
+}
+
 export default function list(apps: App[]) {
   const table = new Table({
-    head: ['', 'App', 'Status', 'Uptime', 'Port(s)'],
+    head: ['', 'App', 'Status', 'Uptime', 'Port(s)', 'Source'],
     style: { head: ['cyan'] },
     chars: {
       'top': '', 'top-mid': '', 'top-left': '', 'top-right': '',
@@ -27,11 +34,12 @@ export default function list(apps: App[]) {
   apps.forEach((app) => {
     app.containers.forEach((container) => {
       table.push([
-        icons[container.state] || icons.unknown,
+        stateIcons[container.state] || stateIcons.unknown,
         app.name,
         container.state,
         container.uptime,
         container.attributes.Ports,
+        `${sourceIcons[Location.from(container.config.source).type]} ${container.config.source}`,
       ])
     })
   })
