@@ -1,6 +1,7 @@
 import { exit } from '~/utils'
-import { StaxConfig } from '~/types'
+import { FindContainerOptions, StaxConfig } from '~/types'
 import App from '~/app'
+import Container from '~/container'
 import settings from '~/settings'
 import list from '~/app_list'
 
@@ -27,6 +28,10 @@ export default class Stax {
       return exit(1, `No app named '${appName}@${this.context}' was found.`)
 
     return app
+  }
+
+  findContainer(appName: string, options: FindContainerOptions): Container {
+    return this.find(appName).findContainer(options)
   }
 
   apps(): App[] {

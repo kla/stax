@@ -11,6 +11,7 @@ const DEFAULT_CONTEXT_NAME = 'stax'
 const editor = process.env.STAX_EDITOR || 'code'
 const stax = new Stax(DEFAULT_CONTEXT_NAME)
 const program = new Command()
+
 program.name('stax')
 
 program.command('alias')
@@ -20,10 +21,11 @@ program.command('alias')
   .action((name, alias) => stax.find(name).addAlias(alias))
 
 program.command('config')
-  .argument('<name', 'Name of application')
+  .argument('<name>', 'Name of application')
+  .option('-s, --service <name>', 'Name of service to act on')
   .description('Show config variables for the container.')
-  .action(name => {
-    const container = stax.find(name).primary
+  .action((name, options) => {
+    const container = stax.findContainer(name, options)
     const attributes = { ...container.config, labels: container.labels }
     console.log(attributes)
   })
@@ -33,14 +35,19 @@ program.command('copy')
   .argument('<name>', 'Name of application')
   .argument('<source>', 'Path to a local file or directory')
   .argument('<destination>', 'Path to a destination file or directory in the container')
+  .option('-s, --service <name>', 'Name of service to act on')
   .option('-n, --dont-overwrite', 'Don\'t overwrite if file already exists')
   .description('Copy a file to the container')
-  .action(async (name, source, destination, options) => stax.find(name).primary.copy(source, destination, options))
+  .action(async (name, source, destination, options) => stax.findContainer(name, options).copy(source, destination, options))
 
 program.command('down')
   .argument('<name>', 'Name of application')
+  .option('-s, --service <name>', 'Name of service to act on')
   .description('Stop an application')
-  .action(async name => { await stax.find(name).down() })
+  .action(async (name, options) => {
+    const target = options.service ? stax.findContainer(name, options) : stax.find(name)
+    target.down()
+  })
 
 program.command('edit')
   .argument('<name>', 'Name of application')
@@ -62,9 +69,18 @@ program.command('edit')
 
 program.command('exec')
   .argument('<name>', 'Name of application')
-  .argument('<command>', 'Command to execute')
+  .argument('<command>', 'Command to execute. Use "--" before your command if it has more than one word.')
+  .option('-s, --service <name>', 'Name of service to act on')
   .description('Execute a command in a running application')
-  .action(async (name, command) => { await stax.find(name).exec(command) })
+  .action(async (name, command, options) => await stax.findContainer(name, options).exec(command))
+
+program.command('get')
+  .argument('<name>', 'Name of application')
+  .argument('<source>', 'File to copy from the container')
+  .argument('<destination>', 'Local destination to copy the file to')
+  .option('-s, --service <name>', 'Name of service to act on')
+  .description('Copy a from the container')
+  .action(async (name, source, destination, options) => stax.findContainer(name, options).get(source, destination))
 
 program.command('inspect')
   .argument('<name>', 'Name of application')
@@ -85,20 +101,23 @@ program.command('inspect')
       run(`docker inspect ${app.primary.containerName}`)
   })
 
-program.command('list')
-  .alias('ps').alias('ls')
+program.command('ls')
+  .alias('ps').alias('list')
   .description('List applications')
   .action(() => stax.list())
 
 program.command('logs')
   .argument('<name>', 'Name of application')
+  .option('-s, --service <name>', 'Name of service to act on')
   .option('-f, --follow', 'Follow log output')
   .option('-t, --tail <number>', 'Number of lines to show from the end of the logs')
+  .option('--since <since>', 'A time or duration string accepted by \'docker container logs\'')
   .description('Tail logs for an application')
   .action(async (name, options) => {
     const follow = options.follow || false
     const tail = options.tail ? parseInt(options.tail) : undefined
-    await stax.find(name).logs({ follow, tail })
+    const since = options.since
+    await stax.findContainer(name, options).logs({ follow, tail, since })
   })
 
 program.command('rebuild')
@@ -118,13 +137,6 @@ program.command('restart')
   .description('Restart an application')
   .action(async name => { await stax.find(name).restart() })
 
-program.command('get')
-  .argument('<name>', 'Name of application')
-  .argument('<source>', 'File to copy from the container')
-  .argument('<destination>', 'Local destination to copy the file to')
-  .description('Copy a from the container')
-  .action(async (name, source, destination) => stax.find(name).primary.get(source, destination))
-
 program.command('setup')
   .argument('<location>', 'Path to a local directory or git repo of application')
   .option('-s, --staxfile <staxfile>', 'Staxfile to use for setup')
@@ -135,20 +147,26 @@ program.command('setup')
 program.command('shell')
   .alias('sh')
   .argument('<name>', 'Name of application')
-  .option('-s, --service <name>', 'Service to shell into')
+  .option('-s, --service <name>', 'Name of service to act on')
   .description('Shell into application\' primary container')
-  .action(async (name, options) => stax.find(name).shell(options))
+  .action(async (name, options) => stax.findContainer(name, options).shell())
 
 program.command('up')
   .argument('<name>', 'Name of application')
+  .option('-s, --service <name>', 'Name of service to act on')
   .description('Start an application')
-  .action(async name => { await stax.find(name).up() })
+  .action(async (name, options) => {
+    const target = options.service ? stax.findContainer(name, options) : stax.find(name)
+    target.up()
+  })
 
 let [ args, overrides ] = parseAndRemoveWildcardOptions(process.argv, '--stax.')
+const commandSeparator = args.indexOf('--')
 
-if (args[2] == 'exec' && process.argv.length > 5) {
-  args = process.argv.slice(0, 4)
-  args = args.concat(process.argv.slice(4, 9999).join(' '))
+if (commandSeparator >= 0) {
+  const command = args.slice(commandSeparator+1).join(' ')
+  args = args.slice(0, commandSeparator)
+  args.push(command)
 }
 
 tmp.setGracefulCleanup()

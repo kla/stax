@@ -17,6 +17,14 @@ export default class App {
     this.containers = containers.sort((a: Container, b: Container) => a.number - b.number)
   }
 
+  get context(): string {
+    return this.primary.context
+  }
+
+  get composeFile(): string {
+    return this.primary.composeFile
+  }
+
   get primary(): Container {
     return this.containers[0]
   }
@@ -86,36 +94,29 @@ export default class App {
   }
 
   async down() {
-    return Promise.all(this.containers.map(container => container.down()))
+    return docker.compose(this.context, 'stop', this.composeFile)
   }
 
   async up() {
-    return Promise.all(this.containers.map(container => container.up()))
+    return docker.compose(this.context, 'start', this.composeFile, { exit: true })
   }
 
   async remove() {
-    return Promise.all(this.containers.map(container => container.remove()))
+    return docker.compose(this.context, 'rm --stop --force --volumes', this.composeFile)
   }
 
   async exec(command: string) {
     return this.primary.exec(command)
   }
 
-  findContainer(options: FindContainerOptions): Container | null {
-    return this.containers.find(container => container.service == options.service)
-  }
-
-  async shell(options: FindContainerOptions) {
+  findContainer(options: FindContainerOptions): Container {
     if (options.service) {
-      const container = this.findContainer(options)
-      if (!container) exit(1, `👿 No container found for a service named '${options.service}'. Valid services are: ${this.containers.map(container => container.service).join(', ')}`)
-      return container.shell()
+      const container = this.containers.find(container => container.service == options.service)
+      if (!container)
+        exit(1, `👿 No container found for a service named '${options.service}'. Valid services are: ${this.containers.map(container => container.service).join(', ')}`)
+      return container
     }
-    return this.primary.shell()
-  }
-
-  async logs(options: { follow?: boolean, tail?: number } = {}) {
-    return this.primary.logs(options)
+    return this.primary
   }
 
   async rebuild(config: StaxConfig, options: SetupOptions = {}) {

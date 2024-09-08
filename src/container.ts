@@ -1,4 +1,4 @@
-import { existsSync } from 'fs'
+import { existsSync, readFileSync } from 'fs'
 import { csvKeyValuePairs, exit } from '~/utils'
 import { FindOptions, SetupOptions, StaxConfig } from '~/types'
 import { run } from '~/shell'
@@ -112,20 +112,20 @@ export default class Container {
 
     if (!c) {
       if (options.warn)
-        console.warn(`🤷 Container '${name}@${context}' not found`)
+        console.warn(`🤷 Container '${context}/${containerName}' not found`)
       else if (options.mustExist)
-        return exit(1, `👿 '${name}@${context}' is not a valid container name`)
+        return exit(1, `👿 '${context}/${containerName}' is not a valid container name`)
     }
 
     return c
   }
 
   async down() {
-    return docker.compose(this.context, 'stop', this.composeFile)
+    return docker.compose(this.context, `stop ${this.name}`, this.composeFile)
   }
 
   async up() {
-    return docker.compose(this.context, 'start', this.composeFile, { exit: true })
+    return docker.compose(this.context, `start ${this.name}`, this.composeFile, { exit: true })
   }
 
   async remove() {
@@ -163,10 +163,11 @@ export default class Container {
     })
   }
 
-  async logs(options: { follow?: boolean, tail?: number } = {}) {
+  async logs(options: { follow?: boolean, tail?: number, since?: string } = {}) {
     let command = `logs ${this.name}`
     if (options.follow) command += ' --follow'
     if (options.tail) command += ` --tail=${options.tail}`
+    if (options.since) command += ` --since=${options.since}`
     return docker.compose(this.context, command, this.composeFile)
   }
 
