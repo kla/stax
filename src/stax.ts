@@ -2,6 +2,7 @@ import { exit } from '~/utils'
 import { StaxConfig } from '~/types'
 import App from '~/app'
 import settings from '~/settings'
+import list from '~/app_list'
 
 export default class Stax {
   public context: string
@@ -11,15 +12,7 @@ export default class Stax {
   }
 
   list() {
-    this.apps().forEach((app) => {
-      app.containers.forEach((container) => {
-        const icon = container.state == 'running' ? '🟢' : '⚫'
-        const sourceIcon = container.config.location.local ? '📂' : '🛜 '
-        console.log(icon, container.name, container.state, container.uptime, container.id,
-          sourceIcon, container.config.source
-        )
-      })
-    })
+    list(this.apps())
   }
 
   async setup(config: StaxConfig, options: { inspect?: boolean } = { inspect: false }) {

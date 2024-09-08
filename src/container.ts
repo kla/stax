@@ -71,15 +71,17 @@ export default class Container {
   }
 
   get state(): string {
+    if (this.attributes.Status.includes('unhealthy')) return 'unhealthy'
+    if (this.attributes.Status.includes('healthy')) return 'healthy'
     return this.attributes.State
   }
 
   get running(): boolean {
-    return this.state == 'running'
+    return this.attributes.State == 'running'
   }
 
   get uptime(): string {
-    return this.attributes.RunningFor
+    return this.running ? this.attributes.RunningFor : null
   }
 
   get source(): string {

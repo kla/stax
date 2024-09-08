@@ -34,7 +34,7 @@ export default class DockerfileCompiler {
   }
 
   private args(): string {
-    return Object.entries(this.build.args).map(([name, value]) => `ARG ${name}="${value}"\n`).join('')
+    return this.build.args ? Object.entries(this.build.args).map(([name, value]) => `ARG ${name}="${value}"\n`).join('') : ''
   }
 
   private loadModules(): Record<string, string> {
