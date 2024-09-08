@@ -133,11 +133,11 @@ export default class Container {
   }
 
   async exec(command: string) {
-    return docker.container(`exec --interactive --tty ${this.containerName} ${command}`)
-  }
+    const args = '--interactive --tty'
 
-  async run(command: string) {
-    return docker.compose(this.context, `run --rm ${this.name} ${command}`, this.composeFile)
+    if (this.running)
+      return docker.container(`exec ${args} ${this.containerName} ${command}`)
+    return docker.compose(this.context, `run --rm ${args} ${this.name} ${command}`, this.composeFile)
   }
 
   async rebuild(config: StaxConfig, options: SetupOptions = {}) {
@@ -155,7 +155,7 @@ export default class Container {
     const shells = [ '/bin/bash', '/bin/sh' ]
     shells.find(async (shell) => {
       try {
-        await this[this.running ? 'exec' : 'run'](shell)
+        await this.exec(shell)
         return true
       } catch (e) {
         return false
