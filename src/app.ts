@@ -1,5 +1,4 @@
 import { readFileSync } from 'fs'
-import { load } from 'js-yaml'
 import { exit } from '~/utils'
 import { StaxConfig, SetupOptions, FindContainerOptions } from '~/types'
 import Staxfile from '~/staxfile'
@@ -45,14 +44,14 @@ export default class App {
     return Object.keys(containers).map((name) => new App(name, containers[name]))
   }
 
-  static find(context: string, name: string): App | null{
-    const container = Container.find(context, name, { mustExist: true })
+  static find(context: string, containerName: string): App | null{
+    const container = Container.find(context, containerName, { mustExist: true })
 
     if (!container) {
-      console.warn(`🤷 App '${name}@${context}' not found`)
+      console.warn(`🤷 App '${containerName}@${context}' not found`)
       return null
     }
-    return new App(name, [container])
+    return new App(containerName, [container])
   }
 
   static async setup(config: StaxConfig, options: SetupOptions = {}) {
@@ -71,7 +70,7 @@ export default class App {
     }
 
     await docker.compose(staxfile.context, 'up --detach --force-recreate --build', composeFile, { exit: true })
-    const app = App.find(staxfile.context, this.getContainerName(composeFile))
+    const app = App.find(staxfile.context, `${staxfile.context}-` + Object.keys(staxfile.compose.services)[0])
 
     if (!options.rebuild && !staxfile.config.location.local)
       app.primary.exec(`git clone ${staxfile.config.source} ${staxfile.compose.stax.workspace}`)
@@ -80,17 +79,6 @@ export default class App {
       app.containers.forEach(async container => container.runHook('after_setup'))
 
     return app
-  }
-
-  static getContainerName(dockerComposeFile: string): string {
-    const yaml = load(readFileSync(dockerComposeFile))
-    const service = yaml.services[Object.keys(yaml.services)]
-
-    // TODO: handle multiple services
-    if (!service?.container_name)
-      exit(1, `👿 No container_name found in ${dockerComposeFile}`)
-
-    return service.container_name
   }
 
   async down() {
