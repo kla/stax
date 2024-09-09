@@ -1,7 +1,7 @@
 import { Command } from 'commander'
 import { readFileSync } from 'fs'
 import { run } from '~/shell'
-import { exit, parseAndRemoveWildcardOptions } from '~/utils'
+import { exit, parseAndRemoveWildcardOptions, pp } from '~/utils'
 import { StaxConfig } from '~/types'
 import Stax from '~/stax'
 import tmp from 'tmp'
@@ -26,8 +26,7 @@ program.command('config')
   .description('Show config variables for the container.')
   .action((name, options) => {
     const container = stax.findContainer(name, options)
-    const attributes = { ...container.config, labels: container.labels }
-    console.log(attributes)
+    pp({ ...container.config, labels: container.labels })
   })
 
 program.command('copy')
