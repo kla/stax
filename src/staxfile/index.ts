@@ -94,7 +94,7 @@ export default class Staxfile {
     try {
       return (this.location.readSync(file) || defaultValue).trim()
     } catch (e) {
-      console.warn(`⚠️  Couldn't read ${file}: ${e.code}... using default value of '${defaultValue}'`)
+      console.warn(`${icons.warning}  Couldn't read ${file}: ${e.code}... using default value of '${defaultValue}'`)
       return defaultValue
     }
   }

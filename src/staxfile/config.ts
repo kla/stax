@@ -2,6 +2,7 @@ import { isDirectory, fileExists, verifyFile } from '~/utils'
 import { StaxConfig } from '~/types'
 import { exit } from '~/utils'
 import Location from '~/location'
+import icons from '~/icons'
 import path from 'path'
 
 export default class Config implements StaxConfig {
@@ -59,7 +60,7 @@ export default class Config implements StaxConfig {
       if (!(key in current) || current[key] === null || current[key] === undefined) {
         current[key] = {}
       } else if (typeof current[key] !== 'object') {
-        console.warn(`⚠️  Cannot set '${path}': '${keys.slice(0, i + 1).join('.')}' is not an object`)
+        console.warn(`${icons.warning}  Cannot set '${path}': '${keys.slice(0, i + 1).join('.')}' is not an object`)
         return
       }
       current = current[key]

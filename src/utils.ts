@@ -1,5 +1,6 @@
 import { existsSync, statSync } from 'fs'
 import tmp from 'tmp'
+import icons from './icons'
 
 // Parses a CSV string into a key/value object (e.g. "a=b,c=d" => { a: "b", c: "d" })
 export function csvKeyValuePairs(csv: string = '') {
@@ -35,7 +36,7 @@ export function fileExists(file) {
 
 export function verifyFile(file: string, message: string = undefined): boolean {
   if (!fileExists(file))
-    exit(1, (message || 'File not found') + `: ${file}`)
+    exit(1, icons.warning + '  ' + (message || 'File not found') + `: ${file}`)
   return true
 }
 

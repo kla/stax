@@ -2,24 +2,7 @@ import Table from 'cli-table3'
 import App from './app'
 import Container from './container'
 import Location from './location'
-
-const stateIcons = {
-  created: '🐣',
-  healthy: '🟢',
-  unhealthy: '🟡',
-  running: '🔵',
-  exited: '⚫',
-  warning: '⚠️',
-  paused: '⏸️',
-  restarting: '⌛',
-  dead: '💀',
-  unknown: '❔',
-}
-
-const sourceIcons = {
-  local: '📁',
-  remote: '🌐',
-}
+import icons from './icons'
 
 function name(app: App, container: Container) {
   if (app.containers.length > 1) {
@@ -42,14 +25,14 @@ export default function list(apps: App[]) {
   })
 
   apps.forEach((app) => {
-    const source = `${sourceIcons[Location.from(app.primary.config.source).type]} ${app.primary.config.source}`
+    const source = `${icons[Location.from(app.primary.config.source).type]} ${app.primary.config.source}`
 
     if (app.containers.length > 1)
-      table.push([ stateIcons[app.state], app.name, '', '', '', source ])
+      table.push([ icons[app.state], app.name, '', '', '', source ])
 
     app.containers.forEach((container) => {
       table.push([
-        stateIcons[container.state] || stateIcons.unknown,
+        icons[container.state] || icons.unknown,
         name(app, container),
         container.state,
         container.uptime,

@@ -1,11 +1,13 @@
-import { existsSync, readFileSync } from 'fs'
+import { existsSync } from 'fs'
 import { csvKeyValuePairs, exit } from '~/utils'
 import { FindOptions, SetupOptions, StaxConfig } from '~/types'
 import { run } from '~/shell'
+import { verifyFile } from './utils'
 import docker from '~/docker'
 import Staxfile from '~/staxfile'
 import App from './app'
 import Config from './staxfile/config'
+import icons from './icons'
 
 export default class Container {
   public attributes: Record<string, any>
@@ -186,6 +188,8 @@ export default class Container {
   }
 
   async copy(source: string, destination: string, options: { dontOverwrite?: boolean } = {}) {
+    verifyFile(source)
+
     const { dontOverwrite = false } = options
     const isDirectory = source.endsWith('/')
     const destinationIsDirectory = destination.endsWith('/')
@@ -197,7 +201,7 @@ export default class Container {
       destPath += sourceFileName
 
     if (dontOverwrite && docker.fileExists(this.containerName, destPath)) {
-      console.warn(`⚠️  Not copying ${source} because it already exists at ${destPath}`)
+      console.warn(`${icons.warning}  Not copying ${source} because it already exists at ${destPath}`)
       return
     }
 
