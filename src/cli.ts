@@ -1,6 +1,6 @@
 import { Command } from 'commander'
 import { readFileSync } from 'fs'
-import { run } from '~/shell'
+import { capture, run } from '~/shell'
 import { exit, parseAndRemoveWildcardOptions, pp } from '~/utils'
 import { StaxConfig } from '~/types'
 import Stax from '~/stax'
@@ -92,13 +92,13 @@ program.command('inspect')
     const app = stax.find(name)
 
     if (options.compose)
-      console.log(readFileSync(stax.find(name).primary.composeFile, 'utf-8'))
+      pp(readFileSync(stax.find(name).primary.composeFile, 'utf-8'))
     else if (options.dockerfile)
       console.log('TODO')
     else if (options.labels)
       console.log(app.primary.labels)
     else
-      run(`docker inspect ${app.primary.containerName}`)
+      pp(JSON.parse(capture(`docker inspect ${app.primary.containerName}`)))
   })
 
 program.command('ls')

@@ -110,7 +110,7 @@ export function getNonNullProperties(obj: Record<string, any>): Record<string, a
 }
 
 export function pp(object) {
-  const yamlString = yaml.dump(object)
+  const yamlString = yaml.dump(object, { lineWidth: -1 })
   const lines = yamlString.split('\n')
   let currentIndent = 0
 
@@ -119,10 +119,10 @@ export function pp(object) {
     if (match) {
       const [, indent, key, value] = match
       currentIndent = indent.length
-      const bar = chalk.gray('│  ').repeat(currentIndent / 2)
+      const bar = chalk.gray('│ ').repeat(currentIndent / 2)
       return `${bar}${chalk.cyan(key)}${chalk.gray(':')}${value}`
     } else {
-      const bar = chalk.gray('│  ').repeat((currentIndent + 2) / 2)
+      const bar = chalk.gray('│ ').repeat((currentIndent + 2) / 2)
       return `${bar}${line.trim()}`
     }
   })
