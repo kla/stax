@@ -81,7 +81,7 @@ export function parseAndRemoveWildcardOptions(args: string[], startsWith: string
   const staxVars: Record<string, string> = {}
   const filteredArgs = args.filter(arg => {
     if (arg.startsWith(startsWith)) {
-      const [key, value] = arg.slice(startsWith.length).split('=')
+      const [key, value] = arg.slice(2).split('=')
       staxVars[key] = value
       return false
     }

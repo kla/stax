@@ -1,7 +1,8 @@
 import { readFileSync } from 'fs'
-import { exit } from '~/utils'
+import { exit, pp } from '~/utils'
 import { StaxConfig, SetupOptions, FindContainerOptions } from '~/types'
 import Staxfile from '~/staxfile'
+import icons from '~/icons'
 import docker from '~/docker'
 import Container from '~/container'
 import settings from '~/settings'
@@ -48,10 +49,14 @@ export default class App {
     const container = Container.find(context, containerName, { mustExist: true })
 
     if (!container) {
-      console.warn(`🤷 App '${containerName}@${context}' not found`)
+      console.warn(`${icons.warning} App '${containerName}@${context}' not found`)
       return null
     }
     return new App(containerName, [container])
+  }
+
+  static exists(context: string, name: string): boolean {
+    return this.all(context).find(app => app.name == name) != null
   }
 
   static async setup(config: StaxConfig, options: SetupOptions = {}) {
@@ -62,10 +67,10 @@ export default class App {
       return exit(1, `👿 Couldn't setup a container for '${staxfile.source}'`)
 
     if (options.inspect) {
-      console.log('# config variables')
-      console.log(yaml.dump({ config: staxfile.config }))
-      console.log('# compose file')
-      console.log(readFileSync(composeFile, 'utf-8'))
+      console.log('# Stax config')
+      pp({ stax: staxfile.config })
+      console.log('\n# compose file')
+      pp(yaml.load(readFileSync(composeFile, 'utf-8')))
       process.exit()
     }
 
@@ -111,6 +116,13 @@ export default class App {
     return Promise.all(this.containers.map(container => container.rebuild(config, options)))
   }
 
+  async duplicate(newName: string, config: StaxConfig, options: SetupOptions = {}) {
+    if (this.constructor.exists(this.context, newName))
+      exit(1, `${icons.error} An app named '${newName}' already exists.`)
+
+    this.rebuild({ ...config, app: newName }, options)
+  }
+
   async restart() {
     return Promise.all(this.containers.map(container => container.restart()))
   }
@@ -119,7 +131,7 @@ export default class App {
     this.containers.forEach(async container => container.runHooks())
   }
 
-  addAlias(alias) {
+  addAlias(alias: string) {
     const aliases = settings.read('aliases') || {}
 
     aliases[alias] = this.name

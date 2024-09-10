@@ -11,6 +11,7 @@ const icons = {
   unknown: '❔',
   local: '📁',
   remote: '🌐',
+  error: '😡',
 }
 
 export default icons

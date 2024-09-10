@@ -147,7 +147,7 @@ export default class Container {
       ...this.config,
       ...config,
       // can't change following on a rebuild
-      context: this.context, source: this.source, staxfile: this.staxfile, app: this.app
+      context: this.context, source: this.source, staxfile: this.staxfile
     }
 
     App.setup(config, { ...options, rebuild: true })
