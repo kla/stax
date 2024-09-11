@@ -190,7 +190,10 @@ export default class Container {
   }
 
   async copy(source: string, destination: string, options: { dontOverwrite?: boolean } = {}) {
-    verifyFile(source)
+    if (!existsSync(source)) {
+      console.warn(`${icons.warning}  Can't copy '${source}' because it does not exist`)
+      return
+    }
 
     const { dontOverwrite = false } = options
     const isDirectory = source.endsWith('/')
