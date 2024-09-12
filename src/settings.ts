@@ -1,11 +1,13 @@
 import { existsSync, readFileSync, writeFileSync } from 'fs'
 import yaml from 'js-yaml'
-import path = require('path')
+import path from 'path'
 
-const filename = path.resolve(process.env.HOME, '.stax')
+function filename(): string {
+  return path.join(process.env.STAX_HOME, 'settings.yaml')
+}
 
 function load() {
-  return (existsSync(filename) && yaml.load(readFileSync(filename, 'utf-8'))) || {}
+  return (existsSync(filename()) && yaml.load(readFileSync(filename(), 'utf-8'))) || {}
 }
 
 const settings = {
@@ -17,7 +19,7 @@ const settings = {
   write: function(name, value) {
     const settings = { ...load() }
     settings[name] = value
-    writeFileSync(filename, yaml.dump(settings), 'utf-8')
+    writeFileSync(filename(), yaml.dump(settings), 'utf-8')
   }
 }
 

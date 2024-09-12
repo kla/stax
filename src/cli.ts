@@ -1,9 +1,10 @@
 import { Command } from 'commander'
-import { readFileSync } from 'fs'
+import { existsSync, mkdirSync, readFileSync } from 'fs'
 import { capture, run } from '~/shell'
 import { exit, parseAndRemoveWildcardOptions, pp } from '~/utils'
 import { StaxConfig } from '~/types'
 import Stax from '~/stax'
+import path from 'path'
 import tmp from 'tmp'
 
 const DEFAULT_CONTEXT_NAME = 'stax'
@@ -177,6 +178,12 @@ if (commandSeparator >= 0) {
 }
 
 tmp.setGracefulCleanup()
+
+process.env.STAX_HOME = path.join(process.env.HOME, '.stax')
+
+if (!existsSync(process.env.STAX_HOME))
+  mkdirSync(process.env.STAX_HOME)
+
 process.on('SIGINT', () => { tmp.setGracefulCleanup(); process.exit() })
 process.chdir(process.env.WORKING_DIRECTORY)
 program.parse(args)
