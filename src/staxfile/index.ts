@@ -5,6 +5,7 @@ import { renderTemplate } from './template'
 import Config from './config'
 import DockerfileCompiler from './dockerfile_compiler'
 import Location from '~/location'
+import icons from '~/icons'
 import path from 'path'
 import yaml from 'js-yaml'
 
