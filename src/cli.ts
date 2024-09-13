@@ -6,6 +6,7 @@ import { StaxConfig } from '~/types'
 import Stax from '~/stax'
 import path from 'path'
 import tmp from 'tmp'
+import settings from './settings'
 
 const DEFAULT_CONTEXT_NAME = 'stax'
 
@@ -16,10 +17,22 @@ const program = new Command()
 program.name('stax')
 
 program.command('alias')
-  .argument('<name>', 'Name of application')
-  .argument('<alias>', 'Name of alias for application')
+  .argument('[name]', 'Name of application')
+  .argument('[alias]', 'Name of alias for application')
   .description('Create an alias for an application that can be used in place of the application\'s name when running commands')
-  .action((name, alias) => stax.find(name).addAlias(alias))
+  .action((name, alias, command) => {
+    if (name && alias)
+      return stax.find(name).addAlias(alias)
+
+    const aliases = settings.read('aliases', null)
+
+    if (aliases && Object.keys(aliases).length > 0) {
+      console.log('Current aliases:')
+      pp(aliases)
+      console.log('\nUsage: stax alias [options] [name] [alias]')
+    } else
+      program.commands.find(cmd => cmd.name() === 'alias').help()
+  })
 
 program.command('config')
   .argument('<name>', 'Name of application')
