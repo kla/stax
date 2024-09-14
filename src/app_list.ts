@@ -12,26 +12,9 @@ function name(app: App, container: Container) {
   return app.name
 }
 
-function shortenPorts(ports: string): string {
-  return ports
-    .replace(/0\.0\.0\.0/g, '')
-    .replace(/\/tcp/g, '')
-    .split(', ')
-    .map(port => {
-      const [local, container] = port.split('->')
-      if (container) {
-        const localPort = local.replace(/^:/, '')
-        const containerPort = container.replace(/^:/, '')
-        return localPort === containerPort ? localPort : `${localPort}->${containerPort}`
-      }
-      return port.replace(/^:/, '')
-    })
-    .join(', ')
-}
-
 export default function list(apps: App[]) {
   const table = new Table({
-    head: ['', 'App', 'Status', 'Uptime', 'Port(s)', 'Source'],
+    head: ['', 'App', 'Status', 'Uptime', 'Forwarding', 'Source'],
     style: { head: ['cyan'] },
     chars: {
       'top': '', 'top-mid': '', 'top-left': '', 'top-right': '',
@@ -53,7 +36,7 @@ export default function list(apps: App[]) {
         name(app, container),
         container.state,
         container.uptime,
-        shortenPorts(container.attributes.Ports),
+        container.forwardedPorts.join(', '),
         app.containers.length == 1 ? source : '',
       ])
     })

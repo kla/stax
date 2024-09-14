@@ -2,7 +2,6 @@ import { existsSync } from 'fs'
 import { csvKeyValuePairs, exit } from '~/utils'
 import { FindOptions, SetupOptions, StaxConfig } from '~/types'
 import { run } from '~/shell'
-import { verifyFile } from './utils'
 import docker from '~/docker'
 import Staxfile from '~/staxfile'
 import App from './app'
@@ -100,6 +99,24 @@ export default class Container {
 
   get composeFile(): string {
     return this._composeFile ||= new Staxfile({ context: this.context, source: this.source, staxfile: this.staxfile, app: this.app }).compile()
+  }
+
+  get forwardedPorts(): string[] {
+    return this.attributes.Ports
+      ?.split(',')
+      .map(port => port.trim())
+      .filter(port => port.includes('->'))
+      .map(port => {
+        const [hostPart, containerPart] = port.split('->')
+        const [bindAddress, hostPort] = hostPart.split(':')
+        const containerPort = containerPart.split('/')[0] // Remove the protocol part
+        const hostPortInfo = bindAddress === '0.0.0.0' ? hostPort : `${bindAddress}:${hostPort}`
+
+        if (hostPort === containerPort)
+          return hostPortInfo
+
+        return `${hostPortInfo}->${containerPort}`
+      }) || []
   }
 
   static all(context: string): Container[] {
