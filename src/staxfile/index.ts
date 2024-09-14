@@ -82,6 +82,7 @@ export default class Staxfile {
       if (name.startsWith('stax.')) return this.fetchConfigValue(name)
       else if (name === 'read') return this.read(args[0], args[1])
       else if (name == 'mount_workspace') return this.mountWorkspace()
+      else if (name == 'mount_ssh_auth_sock') return this.mountSshAuthSock()
       else if (name == 'path.resolve') return path.resolve(args[0])
       else if (name == 'user') return process.env.USER
       else if (name == 'user_id') return process.getuid()
@@ -107,11 +108,20 @@ export default class Staxfile {
     return `${src}:${dest}`
   }
 
+  private mountSshAuthSock() {
+    return process.platform === 'darwin' ?
+      '${{ stax.ssh_auth_sock }}:${{ stax.ssh_auth_sock }}' :
+      '${{ stax.host_services }}:/run/host-services'
+  }
+
   private fetchConfigValue(name) {
     const key = name.slice(5) // strip 'stax.' prefix
 
     if (key == 'host_services')
       return process.env.STAX_HOST_SERVICES
+
+    if (key == 'ssh_auth_sock')
+      return '/run/host-services/ssh-auth.sock'
 
     if (!this.config.hasProperty(key)) {
       if (name == 'config.workspace_volume' && !this.location.local)
