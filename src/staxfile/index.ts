@@ -1,5 +1,5 @@
 import { readFileSync, writeFileSync, existsSync } from 'fs'
-import { exit, flattenObject, getNonNullProperties, makeTempFile, verifyFile } from '~/utils'
+import { dasherize, exit, flattenObject, getNonNullProperties, makeTempFile, verifyFile } from '~/utils'
 import { StaxConfig } from '~/types'
 import { renderTemplate } from './template'
 import Config from './config'
@@ -85,6 +85,7 @@ export default class Staxfile {
       else if (name == 'path.resolve') return path.resolve(args[0])
       else if (name == 'user') return process.env.USER
       else if (name == 'user_id') return process.getuid()
+      else if (name == 'dasherize') return dasherize(args[0])
       else this.warnings.add(`Invalid template expression: ${name}`)
     })
 

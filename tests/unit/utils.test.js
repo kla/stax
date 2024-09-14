@@ -1,4 +1,4 @@
-import { csvKeyValuePairs, deepRemoveKeys, directoryExists, flattenObject, getNonNullProperties, isFile } from '~/utils'
+import { csvKeyValuePairs, dasherize, deepRemoveKeys, directoryExists, flattenObject, getNonNullProperties, isFile } from '~/utils'
 
 describe('csvKeyValuePairs', () => {
   it('returns an empty object for an empty string', () => {
@@ -326,5 +326,42 @@ describe('flattenObject', () => {
     const input = { a: 1, b: { c: 2 } }
     const expected = { 'prefix.a': 1, 'prefix.b.c': 2 }
     expect(flattenObject(input, 'prefix')).toEqual(expected)
+  })
+})
+describe('dasherize', () => {
+  it('converts camelCase to kebab-case', () => {
+    expect(dasherize('camelCase')).toBe('camel-case')
+  })
+
+  it('converts snake_case to kebab-case', () => {
+    expect(dasherize('snake_case')).toBe('snake-case')
+  })
+
+  it('converts space separated words to kebab-case', () => {
+    expect(dasherize('space separated')).toBe('space-separated')
+  })
+
+  it('handles already kebab-case strings', () => {
+    expect(dasherize('kebab-case')).toBe('kebab-case')
+  })
+
+  it('handles mixed separators', () => {
+    expect(dasherize('Mixed_Snake Case')).toBe('mixed-snake-case')
+  })
+
+  it('handles multiple spaces', () => {
+    expect(dasherize('multiple   spaces')).toBe('multiple-spaces')
+  })
+
+  it('handles tabs and multiple spaces', () => {
+    expect(dasherize('mixed\t  whitespace')).toBe('mixed-whitespace')
+  })
+
+  it('returns an empty string when input is empty', () => {
+    expect(dasherize('')).toBe('')
+  })
+
+  it('handles single word strings', () => {
+    expect(dasherize('Word')).toBe('word')
   })
 })

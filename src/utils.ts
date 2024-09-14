@@ -128,3 +128,10 @@ export function pp(object) {
   })
   console.log(coloredLines.slice(0, coloredLines.length-1).join('\n'))
 }
+
+export function dasherize(str: string): string {
+  return str
+    .replace(/([a-z])([A-Z])/g, '$1-$2')
+    .replace(/[\s_]+/g, '-')
+    .toLowerCase()
+}
