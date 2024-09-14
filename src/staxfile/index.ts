@@ -110,6 +110,9 @@ export default class Staxfile {
   private fetchConfigValue(name) {
     const key = name.slice(5) // strip 'stax.' prefix
 
+    if (key == 'host_services')
+      return process.env.STAX_HOST_SERVICES
+
     if (!this.config.hasProperty(key)) {
       if (name == 'config.workspace_volume' && !this.location.local)
         this.warnings.add(`A '${name}' name must be defined when setting up from a remote source.`)

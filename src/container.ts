@@ -2,6 +2,7 @@ import { existsSync } from 'fs'
 import { csvKeyValuePairs, exit } from '~/utils'
 import { FindOptions, SetupOptions, StaxConfig } from '~/types'
 import { run } from '~/shell'
+import { linkSshAuthSock } from '~/host_services'
 import docker from '~/docker'
 import Staxfile from '~/staxfile'
 import App from './app'
@@ -153,6 +154,8 @@ export default class Container {
 
   async exec(command: string) {
     const args = '--interactive --tty'
+
+    linkSshAuthSock()
 
     if (this.running)
       return docker.container(`exec ${args} ${this.containerName} ${command}`)

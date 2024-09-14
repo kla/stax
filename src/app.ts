@@ -7,6 +7,7 @@ import docker from '~/docker'
 import Container from '~/container'
 import settings from '~/settings'
 import yaml from 'js-yaml'
+import { linkSshAuthSock } from './host_services'
 
 export default class App {
   public name: string
@@ -99,6 +100,7 @@ export default class App {
   }
 
   async exec(command: string) {
+    linkSshAuthSock()
     return this.primary.exec(command)
   }
 
@@ -124,6 +126,7 @@ export default class App {
   }
 
   async restart() {
+    linkSshAuthSock()
     return Promise.all(this.containers.map(container => container.restart()))
   }
 

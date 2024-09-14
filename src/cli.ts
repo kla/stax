@@ -193,9 +193,10 @@ if (commandSeparator >= 0) {
 tmp.setGracefulCleanup()
 
 process.env.STAX_HOME = path.join(process.env.HOME, '.stax')
+process.env.STAX_HOST_SERVICES = path.join(process.env.STAX_HOME, 'host-services')
 
-if (!existsSync(process.env.STAX_HOME))
-  mkdirSync(process.env.STAX_HOME)
+if (!existsSync(process.env.STAX_HOME)) mkdirSync(process.env.STAX_HOME)
+if (!existsSync(process.env.STAX_HOST_SERVICES)) mkdirSync(process.env.STAX_HOST_SERVICES)
 
 process.on('SIGINT', () => { tmp.setGracefulCleanup(); process.exit() })
 process.chdir(process.env.WORKING_DIRECTORY)
