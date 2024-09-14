@@ -35,7 +35,7 @@ export default function list(apps: App[]) {
         icons[container.state] || icons.unknown,
         name(app, container),
         container.state,
-        container.uptime,
+        container.uptime?.replace(' ago', ''),
         container.forwardedPorts.join(', '),
         app.containers.length == 1 ? source : '',
       ])
