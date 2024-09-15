@@ -1,5 +1,5 @@
-import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'fs'
-import { dasherize, exit, flattenObject, getNonNullProperties, verifyFile } from '~/utils'
+import { readFileSync, writeFileSync, existsSync, mkdirSync, statSync } from 'fs'
+import { cacheDir as _cacheDir, dasherize, exit, flattenObject, getNonNullProperties, verifyFile } from '~/utils'
 import { StaxConfig } from '~/types'
 import { renderTemplate } from './template'
 import Config from './config'
@@ -27,7 +27,7 @@ export default class Staxfile {
   get baseDir(): string { return path.dirname(path.resolve(this.staxfile))}
 
   private get cacheDir(): string {
-    const cacheDir = path.join(process.env.STAX_HOME, 'cache', this.context, this.app)
+    const cacheDir = _cacheDir(this.context, this.app)
 
     if (!existsSync(cacheDir))
       mkdirSync(cacheDir, { recursive: true })
@@ -35,8 +35,18 @@ export default class Staxfile {
     return cacheDir
   }
 
-  public compile(): string {
+  public compile(force: boolean = false): string {
     const composeFile = path.join(this.cacheDir, 'compose.yaml')
+
+    if (!force && existsSync(composeFile)) {
+      const cachedStats = statSync(composeFile)
+      const staxfileStats = statSync(this.staxfile)
+
+      if (cachedStats.mtime > staxfileStats.mtime)
+        return composeFile
+    }
+
+    console.log(`${icons.build}  Compiling ${this.staxfile}`)
 
     this.insideBaseDir(() => {
       this.load()

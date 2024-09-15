@@ -1,13 +1,13 @@
-import { readFileSync } from 'fs'
-import { exit, pp } from '~/utils'
+import { readFileSync, rmSync } from 'fs'
+import { cacheDir, exit, fileExists, pp } from '~/utils'
 import { StaxConfig, SetupOptions, FindContainerOptions } from '~/types'
+import { linkSshAuthSock } from './host_services'
 import Staxfile from '~/staxfile'
 import icons from '~/icons'
 import docker from '~/docker'
 import Container from '~/container'
 import settings from '~/settings'
 import yaml from 'js-yaml'
-import { linkSshAuthSock } from './host_services'
 import prompts from 'prompts'
 
 export default class App {
@@ -63,7 +63,7 @@ export default class App {
 
   static async setup(config: StaxConfig, options: SetupOptions = {}) {
     const staxfile = new Staxfile(config)
-    const composeFile = staxfile.compile()
+    const composeFile = staxfile.compile(true)
 
     if (!composeFile)
       return exit(1, `👿 Couldn't setup a container for '${staxfile.source}'`)
@@ -98,6 +98,7 @@ export default class App {
 
   async remove() {
     const volume = `${this.context}_${this.primary.config.workspace_volume}`
+    const cache = cacheDir(this.context, this.name)
 
     await docker.compose(this.context, 'rm --stop --force --volumes', this.composeFile)
 
@@ -111,6 +112,11 @@ export default class App {
 
       if (response.value)
         await docker.volumeRemove(volume)
+    }
+
+    if (fileExists(cache)) {
+      console.log(`${icons.trash}  Deleting ${cache}`)
+      rmSync(cache, { recursive: true })
     }
   }
 

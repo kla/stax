@@ -15,6 +15,7 @@ const icons = {
   trash: '🗑️',
   play: '▶️',
   success: '✅',
+  build: '🛠️',
 }
 
 export default icons

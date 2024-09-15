@@ -3,6 +3,7 @@ import tmp from 'tmp'
 import icons from './icons'
 import yaml from 'js-yaml'
 import chalk from 'chalk'
+import * as path from 'path'
 
 // Parses a CSV string into a key/value object (e.g. "a=b,c=d" => { a: "b", c: "d" })
 export function csvKeyValuePairs(csv: string = '') {
@@ -134,4 +135,8 @@ export function dasherize(str: string): string {
     .replace(/([a-z])([A-Z])/g, '$1-$2')
     .replace(/[\s_]+/g, '-')
     .toLowerCase()
+}
+
+export function cacheDir(context: string, app: string) {
+  return path.join(process.env.STAX_HOME, 'cache', context, app)
 }
