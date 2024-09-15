@@ -1,5 +1,5 @@
-import { readFileSync, writeFileSync, existsSync } from 'fs'
-import { dasherize, exit, flattenObject, getNonNullProperties, makeTempFile, verifyFile } from '~/utils'
+import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'fs'
+import { dasherize, exit, flattenObject, getNonNullProperties, verifyFile } from '~/utils'
 import { StaxConfig } from '~/types'
 import { renderTemplate } from './template'
 import Config from './config'
@@ -26,8 +26,17 @@ export default class Staxfile {
   get location(): Location { return this.config.location }
   get baseDir(): string { return path.dirname(path.resolve(this.staxfile))}
 
+  private get cacheDir(): string {
+    const cacheDir = path.join(process.env.STAX_HOME, 'cache', this.context, this.app)
+
+    if (!existsSync(cacheDir))
+      mkdirSync(cacheDir, { recursive: true })
+
+    return cacheDir
+  }
+
   public compile(): string {
-    const composeFile = this.tempFile('compose')
+    const composeFile = path.join(this.cacheDir, 'compose.yaml')
 
     this.insideBaseDir(() => {
       this.load()
@@ -45,10 +54,6 @@ export default class Staxfile {
     } finally {
       process.chdir(cwd)
     }
-  }
-
-  private tempFile(postfix) {
-    return makeTempFile(this.baseDir, postfix)
   }
 
   private load() {
@@ -187,7 +192,8 @@ export default class Staxfile {
     if (this.buildsCompiled[original])
       return build
 
-    build.dockerfile = new DockerfileCompiler(build).compile(this.tempFile('dockerfile'))
+    const dockerfilePath = path.join(this.cacheDir, original.split(path.sep).slice(-2).join('-'))
+    build.dockerfile = new DockerfileCompiler(build).compile(dockerfilePath)
     delete build.modules
 
     this.buildsCompiled[original] = build.dockerfile
