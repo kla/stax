@@ -70,8 +70,7 @@ export default class Staxfile {
     this.warnings = new Set<string>
     this.compose = yaml.load(readFileSync(this.staxfile))
 
-    // want this.config to override anything in compose.stax except for non-null values
-    this.config = new Config({ ...this.compose.stax, ...getNonNullProperties(this.config) })
+    this.config = new Config({ ...this.config, ...this.compose.stax })
     this.compose = this.renderCompose()
     this.updateServices()
     this.compose = this.renderCompose() // need to re-render after updating services since template expressions may have been added
@@ -218,7 +217,6 @@ export default class Staxfile {
         acc[key] = value
         return acc
       }, {})
-
     return yaml.dump(normalizedCompose, { lineWidth: -1, noRefs: true })
   }
 }
