@@ -20,7 +20,7 @@ program.command('alias')
   .argument('[name]', 'Name of application')
   .argument('[alias]', 'Name of alias for application')
   .description('Create an alias for an application that can be used in place of the application\'s name when running commands')
-  .action((name, alias, command) => {
+  .action((name, alias) => {
     if (name && alias)
       return stax.find(name).addAlias(alias)
 

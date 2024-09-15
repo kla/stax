@@ -154,5 +154,6 @@ export default class App {
 
     aliases[alias] = this.name
     settings.write('aliases', aliases)
+    console.log(`${icons.success} Added alias '${alias}' for '${this.name}'`)
   }
 }
