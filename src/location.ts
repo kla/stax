@@ -58,7 +58,7 @@ class GitLocation extends Location {
 
   private getRepoDirectory(): string {
     const repoName = this.basename.replace(/[^a-zA-Z0-9-_]/g, '_')
-    return path.join(process.env.STAX_HOME, 'cache', this.context, 'git', repoName)
+    return path.join(process.env.STAX_HOME, 'cache', this.context, '.git', repoName)
   }
 
   private ensureRepoCloned() {
