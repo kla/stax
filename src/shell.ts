@@ -8,19 +8,22 @@ function outputCommand(command: string, { cwd, silent }: RunOptions): void {
     return
 
   command = chalk.green(`${icons.play}  ${command}`)
-  if (cwd) command += ` (in ${cwd})`
+  if (cwd) command += chalk.green(` (in ${cwd})`)
   console.log(command)
 }
 
-export function capture(command: string) {
-  return execSync(command, { encoding: 'utf-8' }).trim()
+export function capture(command: string, options={}) {
+  options = { silent: true, encoding: 'utf-8', ...options }
+  outputCommand(command, options)
+  return execSync(command, options).trim()
 }
 
-export async function run(command: string, { env } = {}) {
+export async function run(command: string, { env, cwd } = {}) {
   const shellOptions: any = {
     stdio: 'inherit',
     shell: true,
-    env: env ? { ...process.env, ...env } : process.env
+    env: env ? { ...process.env, ...env } : process.env,
+    cwd: cwd,
   }
 
   outputCommand(command, shellOptions)

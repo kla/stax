@@ -1,7 +1,6 @@
-import { readFileSync, mkdtempSync, rmSync, existsSync } from 'fs'
-import { execSync } from 'child_process'
-import path from 'path'
-import os from 'os'
+import { readFileSync, mkdirSync, existsSync } from 'fs'
+import { capture } from './shell'
+import * as path from 'path'
 
 export default class Location {
   public context: string
@@ -38,7 +37,7 @@ export default class Location {
 }
 
 class GitLocation extends Location {
-  private static repoDirectories = new Map<string, string>()
+  private static clonedRepos = new Set<string>()
 
   constructor(context: string, source: string) {
     super(context, source)
@@ -52,27 +51,33 @@ class GitLocation extends Location {
 
   readSync(file: string): string {
     this.ensureRepoCloned()
-    const tempDir = GitLocation.repoDirectories.get(this.source)!
-    const filePath = path.join(tempDir, file)
+    const repoDir = this.getRepoDirectory()
+    const filePath = path.join(repoDir, file)
     return readFileSync(filePath, 'utf-8')
   }
 
-  private ensureRepoCloned() {
-    let tempDir = GitLocation.repoDirectories.get(this.source)
-
-    if (!tempDir || !existsSync(tempDir)) {
-      tempDir = mkdtempSync(path.join(os.tmpdir(), 'git-clone-'))
-      GitLocation.repoDirectories.set(this.source, tempDir)
-      execSync(`git clone --depth 1 ${this.source} ${tempDir}`)
-    }
+  private getRepoDirectory(): string {
+    const repoName = this.basename.replace(/[^a-zA-Z0-9-_]/g, '_')
+    return path.join(process.env.STAX_HOME, 'cache', this.context, repoName)
   }
 
-  static cleanupRepoDirectories() {
-    for (const dir of GitLocation.repoDirectories.values())
-      rmSync(dir, { recursive: true, force: true })
+  private ensureRepoCloned() {
+    const repoDir = this.getRepoDirectory()
 
-    GitLocation.repoDirectories.clear()
+    if (GitLocation.clonedRepos.has(repoDir))
+      return // Repository already cloned or updated in this process
+
+    if (!existsSync(repoDir)) {
+      mkdirSync(repoDir, { recursive: true })
+      capture(`git clone --depth 1 "${this.source}" "${repoDir}"`, { silent: false })
+    } else {
+      try {
+        capture('git fetch origin && git reset --hard origin/HEAD', { silent: false, cwd: repoDir })
+      } catch (error) {
+        process.exit(1)
+      }
+    }
+
+    GitLocation.clonedRepos.add(repoDir)
   }
 }
-
-process.on('exit', GitLocation.cleanupRepoDirectories)
