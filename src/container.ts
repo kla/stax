@@ -174,15 +174,14 @@ export default class Container {
   }
 
   async shell() {
-    const shells = [ '/bin/bash', '/bin/sh' ]
-    shells.find(async (shell) => {
-      try {
-        await this.exec(shell)
-        return true
-      } catch (e) {
-        return false
-      }
-    })
+    const shells = ['/bin/zsh', '/bin/bash']
+    const shellCommand = `sh -c '${shells.map(shell => `[ -f ${shell} ] && exec ${shell}`).join(' || ')} || exec /bin/sh'`
+
+    try {
+      await this.exec(shellCommand)
+    } catch (e) {
+      console.error('Failed to start a shell:', e)
+    }
   }
 
   async logs(options: { follow?: boolean, tail?: number, since?: string } = {}) {
