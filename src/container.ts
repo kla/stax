@@ -103,11 +103,12 @@ export default class Container {
   }
 
   get forwardedPorts(): string[] {
-    return this.attributes.Ports
+    const ports = this.attributes.Ports
       ?.split(',')
       .map(port => port.trim())
       .filter(port => port.includes('->'))
       .map(port => {
+        port = port.replace(':::', '0.0.0.0:')
         const [hostPart, containerPart] = port.split('->')
         const [bindAddress, hostPort] = hostPart.split(':')
         const containerPort = containerPart.split('/')[0] // Remove the protocol part
@@ -118,6 +119,8 @@ export default class Container {
 
         return `${hostPortInfo}->${containerPort}`
       }) || []
+
+    return [...new Set(ports)]
   }
 
   static all(context: string): Container[] {
