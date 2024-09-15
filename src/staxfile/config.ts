@@ -23,7 +23,7 @@ export default class Config implements StaxConfig {
    * Gets the Location object for the current source.
    * @returns {Location} A Location instance representing the source.
    */
-  get location(): Location { return Location.from(this.source) }
+  get location(): Location { return Location.from(this.context, this.source) }
 
   public hasProperty(path: string): boolean {
     if (!path) return false

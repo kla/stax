@@ -4,9 +4,11 @@ import path from 'path'
 import os from 'os'
 
 export default class Location {
+  public context: string
   public source: string
 
-  constructor(source: string) {
+  constructor(context: string, source: string) {
+    this.context = context
     this.source = source
   }
 
@@ -14,8 +16,8 @@ export default class Location {
     return url && (url.startsWith('git@') || (url.startsWith('https://') && url.endsWith('.git')))
   }
 
-  static from(location: string): Location {
-    return this.isGitUrl(location) ? new GitLocation(location) : new Location(location && path.resolve(location))
+  static from(context: string, location: string): Location {
+    return this.isGitUrl(location) ? new GitLocation(context, location) : new Location(context, location && path.resolve(location))
   }
 
   get basename(): string {
@@ -38,8 +40,8 @@ export default class Location {
 class GitLocation extends Location {
   private static repoDirectories = new Map<string, string>()
 
-  constructor(source: string) {
-    super(source)
+  constructor(context: string, source: string) {
+    super(context, source)
   }
 
   get basename(): string {
