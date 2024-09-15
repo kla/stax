@@ -1,12 +1,13 @@
 import { execSync, spawn } from 'child_process'
 import { RunOptions } from '~/types'
+import icons from '~/icons'
 import chalk from 'chalk'
 
 function outputCommand(command: string, { cwd, silent }: RunOptions): void {
   if (silent)
     return
 
-  command = chalk.green(`> ${command}`)
+  command = chalk.green(`${icons.play}  ${command}`)
   if (cwd) command += ` (in ${cwd})`
   console.log(command)
 }

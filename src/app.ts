@@ -8,6 +8,7 @@ import Container from '~/container'
 import settings from '~/settings'
 import yaml from 'js-yaml'
 import { linkSshAuthSock } from './host_services'
+import prompts from 'prompts'
 
 export default class App {
   public name: string
@@ -96,7 +97,21 @@ export default class App {
   }
 
   async remove() {
-    return docker.compose(this.context, 'rm --stop --force --volumes', this.composeFile)
+    const volume = `${this.context}_${this.primary.config.workspace_volume}`
+
+    await docker.compose(this.context, 'rm --stop --force --volumes', this.composeFile)
+
+    if (docker.volumeExists(volume)) {
+      const response = await prompts({
+        type: 'confirm',
+        name: 'value',
+        message: `Do you want to delete the workspace volume '${volume}'?`,
+        initial: false
+      })
+
+      if (response.value)
+        await docker.volumeRemove(volume)
+    }
   }
 
   async exec(command: string) {

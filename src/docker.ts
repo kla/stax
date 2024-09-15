@@ -38,5 +38,13 @@ function fileExists(containerName: string, path: string): boolean {
   }
 }
 
-const docker = { compose, container, ps, fileExists }
+function volumeExists(volume: string): boolean {
+  return capture(`docker volume ls --format "{{.Name}}"`).split("\n").includes(volume)
+}
+
+async function volumeRemove(volume: string) {
+  return run(`docker volume rm "${volume}"`)
+}
+
+const docker = { compose, container, ps, fileExists, volumeExists, volumeRemove }
 export default docker
