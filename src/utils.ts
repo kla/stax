@@ -140,3 +140,45 @@ export function dasherize(str: string): string {
 export function cacheDir(context: string, app: string) {
   return path.join(process.env.STAX_HOME, 'cache', context, app)
 }
+
+/**
+ * Parses an array of template expression arguments, handling quoted strings.
+ *
+ * @param args - The array of arguments to parse.
+ * @returns An array of parsed arguments, with quoted strings combined.
+ */
+export function parseTemplateExpressionArgs(args: string[]): string[] {
+  if (!Array.isArray(args)) return args
+
+  const parsedArgs: string[] = []
+  let currentArg = ''
+  let inQuotes = false
+
+  for (const arg of args) {
+    if (!inQuotes) {
+      if (arg.startsWith("'") && arg.endsWith("'")) {
+        parsedArgs.push(arg.slice(1, -1))
+      } else if (arg.startsWith("'")) {
+        inQuotes = true
+        currentArg = arg.slice(1)
+      } else {
+        parsedArgs.push(arg)
+      }
+    } else {
+      if (arg.endsWith("'")) {
+        inQuotes = false
+        currentArg += ' ' + arg.slice(0, -1)
+        parsedArgs.push(currentArg)
+        currentArg = ''
+      } else {
+        currentArg += ' ' + arg
+      }
+    }
+  }
+
+  if (currentArg) {
+    parsedArgs.push(currentArg)
+  }
+
+  return parsedArgs
+}

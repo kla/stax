@@ -6,7 +6,7 @@ import Config from './config'
 import DockerfileCompiler from './dockerfile_compiler'
 import Location from '~/location'
 import icons from '~/icons'
-import path from 'path'
+import * as path from 'path'
 import yaml from 'js-yaml'
 
 export default class Staxfile {
@@ -87,7 +87,7 @@ export default class Staxfile {
     return yaml.load(this.render(yaml.dump(this.compose, { lineWidth: -1 })))
   }
 
-  private render(text): string {
+  private render(text: string): string {
     let matches = 0
 
     text = renderTemplate(text, (name, args) => {

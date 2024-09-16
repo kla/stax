@@ -27,10 +27,12 @@ Syntax and Formatting
 
 Tests
 - Use bun:test for testing
-- Use describe and it syntax
+- Use "describe"
+- Use "it" instead of "test"
 - Use plain javascript
 - Do not use jest for anything
 - Do not use the word "should" in test names
+- Create test files in tests/unit
 
 Imports
 - Use ~ for all local imports

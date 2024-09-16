@@ -328,6 +328,7 @@ describe('flattenObject', () => {
     expect(flattenObject(input, 'prefix')).toEqual(expected)
   })
 })
+
 describe('dasherize', () => {
   it('converts camelCase to kebab-case', () => {
     expect(dasherize('camelCase')).toBe('camel-case')
