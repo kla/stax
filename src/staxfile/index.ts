@@ -1,9 +1,10 @@
 import { readFileSync, writeFileSync, existsSync, mkdirSync, statSync } from 'fs'
-import { cacheDir as _cacheDir, dasherize, exit, flattenObject, getNonNullProperties, verifyFile } from '~/utils'
+import { cacheDir as _cacheDir, exit, flattenObject, getNonNullProperties, verifyFile } from '~/utils'
 import { StaxConfig } from '~/types'
 import { renderTemplate } from './template'
 import Config from './config'
 import DockerfileCompiler from './dockerfile_compiler'
+import Expressions from './expressions'
 import Location from '~/location'
 import icons from '~/icons'
 import * as path from 'path'
@@ -12,8 +13,8 @@ import yaml from 'js-yaml'
 export default class Staxfile {
   public config: Config
   public compose: Record<string, any>
+  public warnings: Set<string>
   private buildsCompiled: Record<string, string> = {}
-  private warnings: Set<string>
 
   constructor(config: StaxConfig) {
     this.config = new Config(config)
@@ -92,59 +93,10 @@ export default class Staxfile {
 
     text = renderTemplate(text, (name, args) => {
       matches += 1
-
-      if (name.startsWith('stax.')) return this.fetchConfigValue(name)
-      else if (name === 'read') return this.read(args[0], args[1])
-      else if (name == 'mount_workspace') return this.mountWorkspace()
-      else if (name == 'mount_ssh_auth_sock') return this.mountSshAuthSock()
-      else if (name == 'path.resolve') return path.resolve(args[0])
-      else if (name == 'user') return process.env.USER
-      else if (name == 'user_id') return process.getuid()
-      else if (name == 'dasherize') return dasherize(args[0])
-      else this.warnings.add(`Invalid template expression: ${name}`)
+      return new Expressions(this).evaluate(name, args)
     })
 
     return matches > 0 ? this.render(text) : text
-  }
-
-  private read(file, defaultValue) {
-    try {
-      return (this.location.readSync(file) || defaultValue).trim()
-    } catch (e) {
-      console.warn(`${icons.warning}  Couldn't read ${file}: ${e.code}... using default value of '${defaultValue}'`)
-      return defaultValue
-    }
-  }
-
-  private mountWorkspace() {
-    const src = this.config.location.local ? this.config.source : this.config.workspace_volume
-    const dest = this.config.workspace
-    return `${src}:${dest}`
-  }
-
-  private mountSshAuthSock() {
-    return process.platform === 'darwin' ?
-      '${{ stax.ssh_auth_sock }}:${{ stax.ssh_auth_sock }}' :
-      '${{ stax.host_services }}:/run/host-services'
-  }
-
-  private fetchConfigValue(name) {
-    const key = name.slice(5) // strip 'stax.' prefix
-
-    if (key == 'host_services')
-      return process.env.STAX_HOST_SERVICES
-
-    if (key == 'ssh_auth_sock')
-      return '/run/host-services/ssh-auth.sock'
-
-    if (!this.config.hasProperty(key)) {
-      if (name == 'config.workspace_volume' && !this.location.local)
-        this.warnings.add(`A '${name}' name must be defined when setting up from a remote source.`)
-
-      this.warnings.add(`Undefined reference to '${name}'`)
-    }
-
-    return this.config.fetch(key)
   }
 
   private updateServices() {
