@@ -20,7 +20,9 @@ async function container(command: string) {
  * @returns An array of strings representing the Docker containers.
  */
 function ps(context: string): Array<Record<string,any>> {
-  return capture('docker ps --all --format json').split("\n").map(attributes => JSON.parse(attributes))
+  return capture('docker ps --all --format json').split("\n")
+    .map(attributes => attributes.includes(`com.docker.compose.project=${context}`) ? JSON.parse(attributes) : null)
+    .filter(Boolean)
 }
 
 function fileExists(containerName: string, path: string): boolean {
