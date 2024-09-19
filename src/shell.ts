@@ -1,21 +1,30 @@
-import { execSync, spawn } from 'child_process'
+import { spawn, spawnSync } from 'child_process'
 import { RunOptions } from '~/types'
 import icons from '~/icons'
 import chalk from 'chalk'
 
 function outputCommand(command: string, { cwd, silent }: RunOptions): void {
-  if (silent)
-    return
+  if (silent) return
 
   command = chalk.green(`${icons.play}  ${command}`)
   if (cwd) command += chalk.green(` (in ${cwd})`)
   console.log(command)
 }
 
-export function capture(command: string, options={}) {
-  options = { silent: true, encoding: 'utf-8', ...options }
+export function capture(command: string, options = {}) {
+  options = { silent: true, encoding: 'utf8', shell: true, ...options }
   outputCommand(command, options)
-  return execSync(command, options).trim()
+
+  const result = spawnSync(command, [], options)
+  const stdout = result.stdout ? result.stdout.toString().trim() : ''
+  const stderr = result.stderr ? result.stderr.toString().trim() : ''
+
+  if (result.error || result.status !== 0) {
+    outputCommand(command, { silent: false })
+    console.error(stdout, '\n', stderr)
+    process.exit(result.status)
+  }
+  return stdout
 }
 
 export async function run(command: string, { env, cwd } = {}) {
