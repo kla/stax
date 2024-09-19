@@ -18,6 +18,7 @@ export default class Staxfile {
 
   constructor(config: StaxConfig) {
     this.config = new Config(config)
+    this.warnings = new Set()
   }
 
   get staxfile(): string { return this.config.staxfile }

@@ -1,5 +1,6 @@
 ---
 stax:
+  app: test
   workspace_volume: ${{ stax.app }}-workspace-volume
   workspace: /workspaces/${{ stax.app }}
   vars:
