@@ -21,7 +21,7 @@ describe('Config', () => {
     expect(config).toBeInstanceOf(Config)
     expect(config.source).toBe(path.resolve('./tests'))
     expect(config.staxfile).toBe(path.resolve('./tests/Staxfile'))
-    expect(config.app).toBe('tests')
+    expect(config.app).toBe('test')
   })
 
   it('checks if a property exists', () => {
@@ -34,7 +34,7 @@ describe('Config', () => {
 
   it('fetches a property value', () => {
     expect(config.fetch('source')).toBe(path.resolve('./tests'))
-    expect(config.fetch('app')).toBe('tests')
+    expect(config.fetch('app')).toBe('test')
     expect(config.fetch('vars.user')).toBe('app')
     expect(config.fetch('vars.nonexistent')).toBeUndefined()
     expect(config.fetch('nonexistent')).toBeUndefined()
