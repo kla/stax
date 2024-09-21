@@ -65,7 +65,19 @@ export function makeTempFile(dir, postfix): string {
   return tmp.fileSync({ tmpdir: dir, postfix }).name
 }
 
-export function flattenObject(obj, prefix = '') {
+/**
+ * Flattens a nested object into a single-level object with dot-notation keys.
+ *
+ * @param obj - The object to flatten.
+ * @param prefix - The prefix to use for the flattened keys (used for recursion).
+ * @returns A new object with flattened key-value pairs.
+ *
+ * @example
+ * const nested = { a: { b: 1, c: { d: 2 } }, e: 3 };
+ * const flattened = flattenObject(nested);
+ * // Result: { 'a.b': 1, 'a.c.d': 2, 'e': 3 }
+ */
+export function flattenObject(obj: Record<string, any>, prefix = ''): Record<string, any> {
   return Object.keys(obj).reduce((acc, k) => {
     const pre = prefix.length ? prefix + '.' : ''
 
