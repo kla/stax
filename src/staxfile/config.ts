@@ -89,7 +89,6 @@ export default class Config implements StaxConfig {
       exit(1, `Could not find a Staxfile at ${this.source}`)
 
     verifyFile(this.staxfile)
-    this.source = this.location.source // so we get the path.resolve version if it is a local dir
     this.staxfile = path.resolve(this.staxfile)
 
     if (!this.app)
