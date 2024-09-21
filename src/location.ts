@@ -4,10 +4,12 @@ import * as path from 'path'
 
 export default class Location {
   public context: string
+  public app: string
   public source: string
 
-  constructor(context: string, source: string) {
+  constructor(context: string, app: string, source: string) {
     this.context = context
+    this.app = app
     this.source = source
   }
 
@@ -15,8 +17,8 @@ export default class Location {
     return url && (url.startsWith('git@') || (url.startsWith('https://') && url.endsWith('.git')))
   }
 
-  static from(context: string, location: string): Location {
-    return this.isGitUrl(location) ? new GitLocation(context, location) : new Location(context, location && path.resolve(location))
+  static from(context: string, app: string, location: string): Location {
+    return this.isGitUrl(location) ? new GitLocation(context, app, location) : new Location(context, app, location && path.resolve(location))
   }
 
   get basename(): string {
@@ -39,8 +41,8 @@ export default class Location {
 class GitLocation extends Location {
   private static clonedRepos = new Set<string>()
 
-  constructor(context: string, source: string) {
-    super(context, source)
+  constructor(context: string, app: string, source: string) {
+    super(context, app, source)
   }
 
   get basename(): string {

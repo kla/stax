@@ -25,7 +25,7 @@ export default function list(apps: App[]) {
   })
 
   apps.forEach((app) => {
-    const source = `${icons[Location.from(app.context, app.primary.config.source).type]} ${app.primary.config.source}`
+    const source = `${icons[Location.from(app.context, app.name, app.primary.config.source).type]} ${app.primary.config.source}`
 
     if (app.containers.length > 1)
       table.push([ icons[app.state], app.name, '', '', '', source ])
