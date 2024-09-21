@@ -1,20 +1,32 @@
-import { describe, it, expect, beforeEach, afterEach } from 'bun:test'
+import { describe, it, expect, beforeEach, afterEach, mock } from 'bun:test'
 import { readFileSync } from 'fs'
 import Config from '~/staxfile/config'
 import yaml from 'js-yaml'
-import path from 'path'
+import * as path from 'path'
+import * as utils from '~/utils'
 
 describe('Config', () => {
   let config
   let originalWarn
+  let exitMock
 
   beforeEach(() => {
     originalWarn = console.warn
+    exitMock = { called: false, code: null, message: null }
+    mock.module('~/utils', () => ({
+      ...utils,
+      exit: (code, message) => {
+        exitMock.called = true
+        exitMock.code = code
+        exitMock.message = message
+      }
+    }))
     config = new Config({ source: './tests', ...yaml.load(readFileSync('./tests/Staxfile', 'utf-8')).stax })
   })
 
   afterEach(() => {
     console.warn = originalWarn
+    mock.restore()
   })
 
   it('creates a new Config instance', () => {
@@ -87,5 +99,27 @@ describe('Config', () => {
   it('sets a property value using stax.vars. prefix', () => {
     config.set('stax.vars.user', 'newValue')
     expect(config.vars.user).toBe('newValue')
+  })
+
+  it('allows valid app names', () => {
+    const validNames = ['myapp', 'my-app', 'my_app', 'app123']
+    validNames.forEach(name => {
+      config.set('app', name)
+      expect(config.app).toBe(name)
+    })
+  })
+
+  it('rejects invalid app names', () => {
+    const invalidNames = ['my app', 'my@app', 'app!', 'app/name']
+
+    invalidNames.forEach(name => {
+      exitMock.called = false
+      config.set('app', name)
+
+      expect(exitMock.called).toBe(true)
+      expect(exitMock.code).toBe(1)
+      expect(exitMock.message).toBe('⚠️ App name can only contain alphanumeric characters, dashes, and underscores.')
+      expect(config.app).not.toBe(name)
+    })
   })
 })

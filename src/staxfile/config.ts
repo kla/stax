@@ -68,6 +68,11 @@ export default class Config implements StaxConfig {
 
     const lastKey = keys[keys.length - 1]
 
+    if (lastKey === 'app' && !this.isValidAppName(value)) {
+      exit(1, `${icons.warning} App name can only contain alphanumeric characters, dashes, and underscores.`)
+      return
+    }
+
     if (lastKey in current &&
         current[lastKey] !== null &&
         current[lastKey] !== undefined &&
@@ -97,5 +102,9 @@ export default class Config implements StaxConfig {
       path = files.find(file => fileExists(file))
     }
     return path
+  }
+
+  private isValidAppName(name: string): boolean {
+    return /^[a-zA-Z0-9_-]+$/.test(name)
   }
 }
