@@ -205,7 +205,7 @@ export default class Container {
 
   async copy(source: string, destination: string, options: { dontOverwrite?: boolean } = {}) {
     if (!existsSync(source)) {
-      console.warn(`${icons.warning}  Can't copy '${source}' because it does not exist`)
+      console.warn(`${icons.warning}  Couldn't copy '${source}' because it does not exist`)
       return
     }
 
