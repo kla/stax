@@ -5,6 +5,7 @@ import Staxfile from './index'
 
 export default class Expressions {
   private staxfile: Staxfile
+  private static readCache: Record<string, string> = {}
 
   constructor(staxfile: Staxfile) {
     this.staxfile = staxfile
@@ -46,10 +47,16 @@ export default class Expressions {
   }
 
   private read(file: string, defaultValue: string): string {
+    const cacheKey = `${this.staxfile.context}:${this.staxfile.app}:${file}:${defaultValue}`
+    if (Expressions.readCache[cacheKey]) return Expressions.readCache[cacheKey]
+
     try {
-      return (this.staxfile.location.readSync(file) || defaultValue).trim()
+      const result = (this.staxfile.location.readSync(file) || defaultValue).trim()
+      Expressions.readCache[cacheKey] = result
+      return result
     } catch (e) {
       console.warn(`Couldn't read ${file}: ${e.code}... using default value of '${defaultValue}'`)
+      Expressions.readCache[cacheKey] = defaultValue
       return defaultValue
     }
   }
