@@ -53,6 +53,18 @@ describe('Expressions', () => {
     expect(result).toBe('test-string')
   })
 
+  it('evaluates dasherize function with stax.app', () => {
+    staxfile.config.set('app', 'MyTestApp')
+    const result = expression.evaluate('dasherize', ['stax.app'])
+    expect(result).toBe('my-test-app')
+  })
+
+  it('evaluates dasherize function with undefined stax config', () => {
+    const result = expression.evaluate('dasherize', ['stax.undefined_key'])
+    expect(result).toBeUndefined()
+    expect(staxfile.warnings).toContain("Undefined reference to 'stax.undefined_key'")
+  })
+
   it('adds warning for invalid expression', () => {
     expression.evaluate('invalid_expression', [])
     expect(staxfile.warnings).toContain('Invalid template expression: invalid_expression')

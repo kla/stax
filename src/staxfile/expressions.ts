@@ -11,6 +11,8 @@ export default class Expressions {
   }
 
   evaluate(name: string, args: any[]): string {
+    args = args.map(arg => typeof arg === 'string' && arg.startsWith('stax.') ? this.fetchConfigValue(arg) : arg)
+
     if (name.startsWith('stax.')) return this.fetchConfigValue(name)
     if (name === 'read') return this.read(args[0], args[1])
     if (name === 'mount_workspace') return this.mountWorkspace()

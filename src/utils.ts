@@ -144,9 +144,9 @@ export function pp(object) {
 
 export function dasherize(str: string): string {
   return str
-    .replace(/([a-z])([A-Z])/g, '$1-$2')
-    .replace(/[\s_]+/g, '-')
-    .toLowerCase()
+    ?.replace(/([a-z])([A-Z])/g, '$1-$2')
+    ?.replace(/[\s_]+/g, '-')
+    ?.toLowerCase()
 }
 
 export function cacheDir(context: string, app: string) {
