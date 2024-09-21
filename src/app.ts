@@ -16,7 +16,7 @@ export default class App {
 
   constructor(name: string, containers: Container[]) {
     this.name = name
-    this.containers = containers.sort((a: Container, b: Container) => a.number - b.number)
+    this.containers = containers
   }
 
   get context(): string {
@@ -36,15 +36,23 @@ export default class App {
     return states.size == 1 ? [...states][0] : 'unhealthy'
   }
 
-  static all(context: string): App[] {
-    const containers = {}
+  static allContainers(context: string): Container[] {
+    return docker.ps(context)
+      .map(attributes => new Container(attributes))
+      .filter(container => container.context === context)
+      .sort((a, b) => a.name.localeCompare(b.name))
+  }
 
-    Container.all(context).forEach((container) => {
-      if (!containers[container.app]) containers[container.app] = []
-      containers[container.app].push(container)
+  static all(context: string): App[] {
+    const apps = {}
+
+    this.allContainers(context).forEach((container) => {
+      apps[container.app] ||= new App(container.app, [])
+      apps[container.app].containers.push(container)
+      apps[container.app].containers = apps[container.app].containers.sort((a: Container, b: Container) => a.number - b.number)
     })
 
-    return Object.keys(containers).map((name) => new App(name, containers[name]))
+    return Object.values(apps)
   }
 
   static find(context: string, appName: string, options={}): App | null {

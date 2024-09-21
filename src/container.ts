@@ -115,26 +115,6 @@ export default class Container {
     return [...new Set(ports)]
   }
 
-  static all(context: string): Container[] {
-    return docker.ps(context)
-      .map(attributes => new Container(attributes))
-      .filter(container => container.context === context)
-      .sort((a, b) => a.name.localeCompare(b.name))
-  }
-
-  static find(context: string, containerName: string, options: FindOptions={}): Container | undefined {
-    const c = this.all(context).find(c => c.containerName == containerName)
-
-    if (!c) {
-      if (options.warn)
-        console.warn(`🤷 Container '${context}/${containerName}' not found`)
-      else if (options.mustExist)
-        return exit(1, `👿 '${context}/${containerName}' is not a valid container name`)
-    }
-
-    return c
-  }
-
   async down() {
     return docker.compose(this.context, `stop ${this.name}`, this.composeFile)
   }
