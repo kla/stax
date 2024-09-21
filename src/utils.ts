@@ -5,7 +5,11 @@ import yaml from 'js-yaml'
 import chalk from 'chalk'
 import * as path from 'path'
 
-// Parses a CSV string into a key/value object (e.g. "a=b,c=d" => { a: "b", c: "d" })
+/**
+ * Parses a CSV string into a key/value object.
+ * @param csv - The CSV string to parse. Default is an empty string.
+ * @returns An object with key-value pairs parsed from the CSV string.
+ */
 export function csvKeyValuePairs(csv: string = '') {
   return (csv || '').trim().split(',').sort().reduce((labels, label) => {
     const [key, value] = label.trim().split(/ *= */, 2)
@@ -14,6 +18,11 @@ export function csvKeyValuePairs(csv: string = '') {
   }, {})
 }
 
+/**
+ * Exits the process with a given code and optional message.
+ * @param code - The exit code.
+ * @param message - Optional message to log before exiting.
+ */
 export function exit(code: number, message: string | undefined=undefined): undefined {
   if (message)
     console.error(message)
@@ -21,10 +30,20 @@ export function exit(code: number, message: string | undefined=undefined): undef
   process.exit(code)
 }
 
+/**
+ * Checks if the given path is a directory.
+ * @param path - The path to check.
+ * @returns True if the path is a directory, false otherwise.
+ */
 export function isDirectory(path: string) {
   return directoryExists(path)
 }
 
+/**
+ * Checks if the given path is a file.
+ * @param path - The path to check.
+ * @returns True if the path is a file, false otherwise.
+ */
 export function isFile(path: string) {
   try {
     return statSync(path).isFile()
@@ -33,20 +52,42 @@ export function isFile(path: string) {
   }
 }
 
+/**
+ * Checks if a file exists at the given path.
+ * @param file - The file path to check.
+ * @returns True if the file exists, false otherwise.
+ */
 export function fileExists(file) {
   return existsSync(file)
 }
 
+/**
+ * Verifies if a file exists and exits the process if it doesn't.
+ * @param file - The file path to verify.
+ * @param message - Optional custom error message.
+ * @returns True if the file exists.
+ */
 export function verifyFile(file: string, message: string = undefined): boolean {
   if (!fileExists(file))
     exit(1, icons.warning + '  ' + (message || 'File not found') + `: ${file}`)
   return true
 }
 
+/**
+ * Checks if a directory exists at the given path.
+ * @param path - The directory path to check.
+ * @returns True if the directory exists, false otherwise.
+ */
 export function directoryExists(path: string): boolean {
   return existsSync(path) && statSync(path).isDirectory();
 }
 
+/**
+ * Recursively removes specified keys from an object or array.
+ * @param obj - The object or array to process.
+ * @param keysToRemove - An array of keys to remove.
+ * @returns A new object or array with the specified keys removed.
+ */
 export function deepRemoveKeys(obj, keysToRemove) {
   if (typeof obj !== 'object' || obj === null)
     return obj
@@ -61,6 +102,12 @@ export function deepRemoveKeys(obj, keysToRemove) {
   )
 }
 
+/**
+ * Creates a temporary file in the specified directory.
+ * @param dir - The directory to create the temporary file in.
+ * @param postfix - The postfix for the temporary file name.
+ * @returns The path of the created temporary file.
+ */
 export function makeTempFile(dir, postfix): string {
   return tmp.fileSync({ tmpdir: dir, postfix }).name
 }
@@ -90,6 +137,12 @@ export function flattenObject(obj: Record<string, any>, prefix = ''): Record<str
   }, {})
 }
 
+/**
+ * Parses and removes wildcard options from an array of arguments.
+ * @param args - The array of arguments to process.
+ * @param startsWith - The prefix that identifies wildcard options.
+ * @returns A tuple containing the filtered arguments and an object of parsed options.
+ */
 export function parseAndRemoveWildcardOptions(args: string[], startsWith: string): [string[], Record<string, string>] {
   const staxVars: Record<string, string> = {}
   const filteredArgs = args.filter(arg => {
@@ -103,6 +156,11 @@ export function parseAndRemoveWildcardOptions(args: string[], startsWith: string
   return [ filteredArgs, staxVars]
 }
 
+/**
+ * Recursively removes null and undefined properties from an object.
+ * @param obj - The object to process.
+ * @returns A new object with null and undefined properties removed.
+ */
 export function getNonNullProperties(obj: Record<string, any>): Record<string, any> {
   const result: Record<string, any> = {}
 
@@ -122,6 +180,10 @@ export function getNonNullProperties(obj: Record<string, any>): Record<string, a
   return result
 }
 
+/**
+ * Pretty prints an object as a colored YAML-like structure.
+ * @param object - The object to pretty print.
+ */
 export function pp(object) {
   const yamlString = yaml.dump(object, { lineWidth: -1 })
   const lines = yamlString.split('\n')
@@ -142,6 +204,11 @@ export function pp(object) {
   console.log(coloredLines.slice(0, coloredLines.length-1).join('\n'))
 }
 
+/**
+ * Converts a string to kebab-case.
+ * @param str - The string to convert.
+ * @returns The kebab-cased string.
+ */
 export function dasherize(str: string): string {
   return str
     ?.replace(/([a-z])([A-Z])/g, '$1-$2')
@@ -149,6 +216,12 @@ export function dasherize(str: string): string {
     ?.toLowerCase()
 }
 
+/**
+ * Generates a cache directory path for a given context and app.
+ * @param context - The context for the cache.
+ * @param app - The app name.
+ * @returns The path to the cache directory.
+ */
 export function cacheDir(context: string, app: string) {
   return path.join(process.env.STAX_HOME, 'cache', context, app)
 }
