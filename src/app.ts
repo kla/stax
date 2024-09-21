@@ -47,14 +47,14 @@ export default class App {
     return Object.keys(containers).map((name) => new App(name, containers[name]))
   }
 
-  static find(context: string, containerName: string): App | null{
-    const container = Container.find(context, containerName, { mustExist: true })
+  static find(context: string, appName: string, options={}): App | null {
+    options = { mustExist: true, ...options }
+    const app = App.all(context).find(app => app.name == appName)
 
-    if (!container) {
-      console.warn(`${icons.warning} App '${containerName}@${context}' not found`)
-      return null
-    }
-    return new App(containerName, [container])
+    if (!app && options.mustExist)
+      exit(1, `${icons.error} App '${appName}@${context}' not found`)
+
+    return app
   }
 
   static exists(context: string, name: string): boolean {
@@ -68,16 +68,11 @@ export default class App {
     if (!composeFile)
       return exit(1, `👿 Couldn't setup a container for '${staxfile.source}'`)
 
-    if (options.inspect) {
-      console.log('# Stax config')
-      pp({ stax: staxfile.config })
-      console.log('\n# compose file')
-      pp(yaml.load(readFileSync(composeFile, 'utf-8')))
-      process.exit()
-    }
+    if (options.inspect)
+      return this.inspect(staxfile, composeFile)
 
     await docker.compose(staxfile.context, 'up --detach --force-recreate --build', composeFile, { exit: true })
-    const app = App.find(staxfile.context, `${staxfile.context}-` + Object.keys(staxfile.compose.services)[0])
+    const app = App.find(staxfile.context, staxfile.app)
 
     if (!options.rebuild && !staxfile.config.location.local)
       app.primary.exec(`git clone ${staxfile.config.source} ${staxfile.compose.stax.workspace}`)
@@ -86,6 +81,14 @@ export default class App {
       app.containers.forEach(async container => container.runHook('after_setup'))
 
     return app
+  }
+
+  static inspect(staxfile: Staxfile, composeFile: string): boolean {
+    console.log('# Stax config')
+    pp({ stax: staxfile.config })
+    console.log('\n# compose file')
+    pp(yaml.load(readFileSync(composeFile, 'utf-8')))
+    return true
   }
 
   async down() {
