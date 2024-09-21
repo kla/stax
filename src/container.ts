@@ -25,15 +25,7 @@ export default class Container {
   }
 
   get config(): Config {
-    if (!this._config) {
-      this._config = new Config()
-
-      for (const [key, value] of Object.entries(this.labels)) {
-        if (key.startsWith('stax.'))
-          this._config.set(key, value)
-      }
-    }
-    return this._config
+    return this._config || (this._config = new Config(this.labels))
   }
 
   get id(): string {
