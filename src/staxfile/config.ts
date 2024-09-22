@@ -93,7 +93,9 @@ export default class Config implements StaxConfig {
 
     if (!this.app)
       this.app = this.location.basename
-}
+
+    this.source = Location.isGitUrl(this.source) ? this.source : path.resolve(this.source)
+  }
 
   private findStaxfile(path): string {
     if (isDirectory(path)) {

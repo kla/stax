@@ -1,6 +1,6 @@
 import { existsSync } from 'fs'
-import { csvKeyValuePairs, exit } from '~/utils'
-import { FindOptions, SetupOptions, StaxConfig } from '~/types'
+import { csvKeyValuePairs } from '~/utils'
+import { SetupOptions, StaxConfig } from '~/types'
 import { run } from '~/shell'
 import { linkSshAuthSock } from '~/host_services'
 import docker from '~/docker'

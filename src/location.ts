@@ -1,6 +1,8 @@
 import { readFileSync, mkdirSync, existsSync } from 'fs'
 import { capture } from './shell'
 import * as path from 'path'
+import App from './app'
+import Container from './container'
 
 export default class Location {
   public context: string
@@ -14,11 +16,17 @@ export default class Location {
   }
 
   static isGitUrl(url: string): boolean {
-    return url && (url.startsWith('git@') || (url.startsWith('https://') && url.endsWith('.git')))
+    return url && (url.startsWith('git@') || url.startsWith('https://'))
   }
 
   static from(context: string, app: string, location: string): Location {
-    return this.isGitUrl(location) ? new GitLocation(context, app, location) : new Location(context, app, location && path.resolve(location))
+    if (this.isGitUrl(location)) {
+      // if the container already exists we can use ContainerLocation
+      const containerLocation = new ContainerLocation(context, app, location)
+      return containerLocation.container ? containerLocation : new GitLocation(context, app, location)
+    }
+
+    return new Location(context, app, location && path.resolve(location))
   }
 
   get basename(): string {
@@ -26,11 +34,7 @@ export default class Location {
   }
 
   get local(): boolean {
-    return !Location.isGitUrl(this.source)
-  }
-
-  get type(): string {
-    return this.local ? 'local' : 'remote'
+    return true
   }
 
   readSync(file: string): string {
@@ -41,8 +45,8 @@ export default class Location {
 class GitLocation extends Location {
   private static clonedRepos = new Set<string>()
 
-  constructor(context: string, app: string, source: string) {
-    super(context, app, source)
+  get local(): boolean {
+    return false
   }
 
   get basename(): string {
@@ -81,5 +85,23 @@ class GitLocation extends Location {
     }
 
     GitLocation.clonedRepos.add(repoDir)
+  }
+}
+
+// Copy files from a container
+class ContainerLocation extends GitLocation {
+  private _container: Container
+
+  get local(): boolean {
+    return false
+  }
+
+  get container(): Container {
+    return this._container ||= App.find(this.context, this.app, { mustExist: false })?.primary
+  }
+
+  readSync(file: string): string {
+    file = path.join(this.container.config.workspace, file)
+    return capture(`docker container exec ${this.container.containerName} cat "${file}"`)
   }
 }
