@@ -33,8 +33,8 @@ describe('Expressions', () => {
     expect(result).toBe('${{ stax.host_services }}:/run/host-services')
   })
 
-  it('evaluates path.resolve function', () => {
-    const result = expression.evaluate('path.resolve', ['/test/path'])
+  it('evaluates resolve function', () => {
+    const result = expression.evaluate('resolve', ['/test/path'])
     expect(result).toBe('/test/path')
   })
 
