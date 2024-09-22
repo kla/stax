@@ -3,6 +3,7 @@ import { capture } from './shell'
 import * as path from 'path'
 import App from './app'
 import Container from './container'
+import icons from './icons'
 
 export default class Location {
   public context: string
@@ -101,6 +102,11 @@ class ContainerLocation extends GitLocation {
   }
 
   readSync(file: string): string {
+    if (!this.container.running) {
+      console.warn(`${icons.warning} ${this.container.name} is not running, reading ${file} from ${this.source} instead`)
+      return super.readSync(file)
+    }
+
     file = path.join(this.container.config.workspace, file)
     return capture(`docker container exec ${this.container.containerName} cat "${file}"`)
   }

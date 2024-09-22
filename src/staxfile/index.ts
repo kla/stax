@@ -156,12 +156,26 @@ export default class Staxfile {
     if (this.buildsCompiled[original])
       return build
 
+    build.modules = this.normalizeModules(build.modules)
+
     const dockerfilePath = path.join(this.cacheDir, original.split(path.sep).slice(-2).join('-'))
     build.dockerfile = new DockerfileCompiler(build).compile(dockerfilePath)
     delete build.modules
 
     this.buildsCompiled[original] = build.dockerfile
     return build
+  }
+
+  private normalizeModules(modules) {
+    return modules.map((module) => {
+      if (typeof module === 'string')
+        module = { name: module, if: true }
+
+      if (!module.hasOwnProperty('name'))
+        exit(1, `${icons.error} Module must have a 'name' property: ${module}`)
+
+      return module
+    }).filter(Boolean)
   }
 
   private normalizedYaml(): string {

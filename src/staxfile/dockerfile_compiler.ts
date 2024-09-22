@@ -43,7 +43,10 @@ export default class DockerfileCompiler {
 
     const dir = path.resolve(path.dirname(this.build.dockerfile))
     const modules: Record<string, string> = {}
-    this.build.modules.forEach(item => this.parseModuleFile(`${dir}/modules/${item}`, modules))
+    this.build.modules.forEach((module) => {
+      if (!module.hasOwnProperty('if') || module['if'])
+        this.parseModuleFile(`${dir}/modules/${module.name}`, modules)
+    })
     return modules
   }
 
