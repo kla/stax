@@ -1,4 +1,4 @@
-import { existsSync } from 'fs'
+import { exists, existsSync } from 'fs'
 import { dasherize } from '~/utils'
 import * as path from 'path'
 import Staxfile from './index'
@@ -22,7 +22,6 @@ export default class Expressions {
     if (name === 'user') return process.env.USER || ''
     if (name === 'user_id') return process.getuid().toString()
     if (name === 'dasherize') return dasherize(args[0])
-    if (name === 'exists') return existsSync(args[0]).toString()
     if (name === 'test') return this.test(args[0], args[1]).toString()
 
     this.staxfile.warnings.add(`Invalid template expression: ${name}`)

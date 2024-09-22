@@ -1,4 +1,4 @@
-import { csvKeyValuePairs, dasherize, deepRemoveKeys, directoryExists, flattenObject, isFile } from '~/utils'
+import { csvKeyValuePairs, dasherize, deepRemoveKeys, directoryExists, flattenObject, isFile, truthy } from '~/utils'
 
 describe('csvKeyValuePairs', () => {
   it('returns an empty object for an empty string', () => {
@@ -294,5 +294,64 @@ describe('dasherize', () => {
 
   it('handles single word strings', () => {
     expect(dasherize('Word')).toBe('word')
+  })
+})
+
+describe('truthy function', () => {
+  it('returns true for non-empty strings', () => {
+    expect(truthy('hello')).toBe(true)
+    expect(truthy('true')).toBe(true)
+    expect(truthy('1')).toBe(true)
+  })
+
+  it('returns false for empty string', () => {
+    expect(truthy('')).toBe(false)
+  })
+
+  it('returns false for string "false"', () => {
+    expect(truthy('false')).toBe(false)
+  })
+
+  it('returns false for string "0"', () => {
+    expect(truthy('0')).toBe(false)
+  })
+
+  it('returns true for true boolean', () => {
+    expect(truthy(true)).toBe(true)
+  })
+
+  it('returns false for false boolean', () => {
+    expect(truthy(false)).toBe(false)
+  })
+
+  it('returns true for non-zero numbers', () => {
+    expect(truthy(1)).toBe(true)
+    expect(truthy(-1)).toBe(true)
+    expect(truthy(3.14)).toBe(true)
+  })
+
+  it('returns false for zero', () => {
+    expect(truthy(0)).toBe(false)
+  })
+
+  it('returns false for null', () => {
+    expect(truthy(null)).toBe(false)
+  })
+
+  it('returns false for undefined', () => {
+    expect(truthy(undefined)).toBe(false)
+  })
+
+  it('returns true for non-empty objects', () => {
+    expect(truthy({})).toBe(true)
+    expect(truthy({ key: 'value' })).toBe(true)
+  })
+
+  it('returns false for empty arrays', () => {
+    expect(truthy([])).toBe(false)
+  })
+
+  it('returns true for non-empty arrays', () => {
+    expect(truthy([1, 2, 3])).toBe(true)
   })
 })

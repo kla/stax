@@ -243,3 +243,9 @@ export function parseTemplateExpressionArgs(args: string[]): string[] {
 
   return parsedArgs
 }
+
+export function truthy(value: any): boolean {
+  if (typeof value === 'string') return value.toLowerCase() !== 'false' && value !== '0' && value !== ''
+  if (Array.isArray(value)) return value.length > 0
+  return !!value
+}

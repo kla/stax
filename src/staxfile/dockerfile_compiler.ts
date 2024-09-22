@@ -1,7 +1,7 @@
 import { readFileSync, writeFileSync } from 'fs'
-import { exit, verifyFile } from '~/utils'
+import { exit, verifyFile, truthy } from '~/utils'
 import { BuildOptions } from '~/types'
-import path from 'path'
+import * as path from 'path'
 import icons from '~/icons'
 
 export default class DockerfileCompiler {
@@ -48,7 +48,7 @@ export default class DockerfileCompiler {
     const excluded = []
 
     this.build.modules.forEach((module) => {
-      if (!module.hasOwnProperty('if') || module['if']) {
+      if (!module.hasOwnProperty('if') || truthy(module['if'])) {
         included.push(module.name)
         this.parseModuleFile(`${dir}/modules/${module.name}`, modules)
       } else
