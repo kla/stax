@@ -42,15 +42,15 @@ export default class DockerfileCompiler {
     if (!this.build.modules)
       return {}
 
-    const dir = path.resolve(path.dirname(this.build.dockerfile))
     const modules: Record<string, string> = {}
     const included = []
     const excluded = []
 
     this.build.modules.forEach((module) => {
       if (!module.hasOwnProperty('if') || truthy(module['if'])) {
+        const file = path.join(this.build.context, 'modules', module.name)
         included.push(module.name)
-        this.parseModuleFile(`${dir}/modules/${module.name}`, modules)
+        this.parseModuleFile(file, modules)
       } else
         excluded.push(module.name)
     })
