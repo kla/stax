@@ -39,8 +39,12 @@ export default class Staxfile {
     return cacheDir
   }
 
+  public get cachedComposeFile(): string | null {
+    return path.join(this.cacheDir, 'compose.yaml')
+  }
+
   public compile(force: boolean = false): string {
-    const composeFile = path.join(this.cacheDir, 'compose.yaml')
+    const composeFile = this.cachedComposeFile
 
     if (!force && existsSync(composeFile)) {
       const cachedStats = statSync(composeFile)

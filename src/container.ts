@@ -91,7 +91,7 @@ export default class Container {
   }
 
   get composeFile(): string {
-    return this._composeFile ||= new Staxfile({ context: this.context, source: this.source, staxfile: this.staxfile, app: this.app }).compile()
+    return this._composeFile ||= new Staxfile({ context: this.context, source: this.source, staxfile: this.staxfile, app: this.app }).cachedComposeFile
   }
 
   get forwardedPorts(): string[] {
