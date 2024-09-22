@@ -23,7 +23,7 @@ export default class Expressions {
     if (name === 'user_id') return process.getuid().toString()
     if (name === 'dasherize') return dasherize(args[0])
     if (name === 'exists') return existsSync(args[0]).toString()
-    if (name === 'grep') return this.grep(args[0], args[1]).toString()
+    if (name === 'test') return this.test(args[0], args[1]).toString()
 
     this.staxfile.warnings.add(`Invalid template expression: ${name}`)
   }
@@ -74,7 +74,7 @@ export default class Expressions {
       '${{ stax.host_services }}:/run/host-services'
   }
 
-  private grep(filename: string, pattern: string): boolean {
+  private test(filename: string, pattern: string): boolean {
     const content = this.read(filename, '')
     const regex = new RegExp(pattern)
     return regex.test(content)

@@ -76,7 +76,7 @@ describe('Expressions', () => {
     expect(staxfile.warnings).toContain("Undefined reference to 'stax.undefined_key'")
   })
 
-  describe('grep', () => {
+  describe('test', () => {
     let expressions
     let mockStaxfile
 
@@ -96,19 +96,19 @@ describe('Expressions', () => {
 
     it('returns true when pattern is found in file', () => {
       mockStaxfile.location.readSync.mockImplementation(() => 'Hello, world!')
-      const result = expressions.evaluate('grep', ['test.txt', 'world'])
+      const result = expressions.evaluate('test', ['test.txt', 'world'])
       expect(result).toBe('true')
     })
 
     it('returns false when pattern is not found in file', () => {
       mockStaxfile.location.readSync.mockImplementation(() => 'Hello, world!')
-      const result = expressions.evaluate('grep', ['test.txt', 'foo'])
+      const result = expressions.evaluate('test', ['test.txt', 'foo'])
       expect(result).toBe('false')
     })
 
     it('uses default value when file cannot be read', () => {
       mockStaxfile.location.readSync.mockImplementation(() => { throw new Error('File not found') })
-      const result = expressions.evaluate('grep', ['nonexistent.txt', 'pattern'])
+      const result = expressions.evaluate('test', ['nonexistent.txt', 'pattern'])
       expect(result).toBe('false')
     })
   })
