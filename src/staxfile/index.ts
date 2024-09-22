@@ -15,10 +15,12 @@ export default class Staxfile {
   public compose: Record<string, any>
   public warnings: Set<string>
   private buildsCompiled: Record<string, string> = {}
+  private expressions: Expressions
 
   constructor(config: StaxConfig) {
     this.config = new Config(config)
     this.warnings = new Set()
+    this.expressions = new Expressions(this)
   }
 
   get staxfile(): string { return this.config.staxfile }
@@ -94,7 +96,7 @@ export default class Staxfile {
 
     text = renderTemplate(text, (name, args) => {
       matches += 1
-      return new Expressions(this).evaluate(name, args)
+      return this.expressions.evaluate(name, args)
     })
 
     return matches > 0 ? this.render(text) : text
