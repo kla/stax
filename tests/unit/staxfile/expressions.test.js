@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from 'bun:test'
+import { describe, it, expect, beforeEach, mock } from 'bun:test'
 import Expressions from '~/staxfile/expressions'
 import Staxfile from '~/staxfile'
 import os from 'os'
@@ -74,5 +74,42 @@ describe('Expressions', () => {
     expression.evaluate('stax.undefined_key', [])
     console.log(staxfile.warnings)
     expect(staxfile.warnings).toContain("Undefined reference to 'stax.undefined_key'")
+  })
+
+  describe('grep', () => {
+    let expressions
+    let mockStaxfile
+
+    beforeEach(() => {
+      mockStaxfile = {
+        warnings: { add: mock(() => {}) },
+        config: {
+          hasProperty: mock(() => true),
+          fetch: mock(() => 'mocked-value'),
+        },
+        location: {
+          readSync: mock(() => 'file content'),
+        },
+      }
+      expressions = new Expressions(mockStaxfile)
+    })
+
+    it('returns true when pattern is found in file', () => {
+      mockStaxfile.location.readSync.mockImplementation(() => 'Hello, world!')
+      const result = expressions.evaluate('grep', ['test.txt', 'world'])
+      expect(result).toBe('true')
+    })
+
+    it('returns false when pattern is not found in file', () => {
+      mockStaxfile.location.readSync.mockImplementation(() => 'Hello, world!')
+      const result = expressions.evaluate('grep', ['test.txt', 'foo'])
+      expect(result).toBe('false')
+    })
+
+    it('uses default value when file cannot be read', () => {
+      mockStaxfile.location.readSync.mockImplementation(() => { throw new Error('File not found') })
+      const result = expressions.evaluate('grep', ['nonexistent.txt', 'pattern'])
+      expect(result).toBe('false')
+    })
   })
 })
