@@ -1,5 +1,5 @@
 import { readFileSync, writeFileSync, existsSync, mkdirSync, statSync } from 'fs'
-import { cacheDir as _cacheDir, exit, flattenObject, getNonNullProperties, verifyFile } from '~/utils'
+import { cacheDir as _cacheDir, exit, flattenObject, verifyFile } from '~/utils'
 import { StaxConfig } from '~/types'
 import { renderTemplate } from './template'
 import Config from './config'

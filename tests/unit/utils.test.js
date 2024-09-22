@@ -1,4 +1,4 @@
-import { csvKeyValuePairs, dasherize, deepRemoveKeys, directoryExists, flattenObject, getNonNullProperties, isFile } from '~/utils'
+import { csvKeyValuePairs, dasherize, deepRemoveKeys, directoryExists, flattenObject, isFile } from '~/utils'
 
 describe('csvKeyValuePairs', () => {
   it('returns an empty object for an empty string', () => {
@@ -142,76 +142,6 @@ describe('deepRemoveKeys', () => {
       const result = deepRemoveKeys(input, ['c', 'd'])
       expect(result).toEqual({ a: 1, b: 2 })
     })
-  })
-})
-
-describe('getNonNullProperties', () => {
-  it('should remove null and undefined properties', () => {
-    const input = {
-      a: 1,
-      b: null,
-      c: undefined,
-      d: 'string'
-    }
-    const expected = {
-      a: 1,
-      d: 'string'
-    }
-    expect(getNonNullProperties(input)).toEqual(expected)
-  })
-
-  it('should handle nested objects', () => {
-    const input = {
-      a: 1,
-      b: {
-        c: null,
-        d: 2,
-        e: {
-          f: undefined,
-          g: 3
-        }
-      }
-    }
-    const expected = {
-      a: 1,
-      b: {
-        d: 2,
-        e: {
-          g: 3
-        }
-      }
-    }
-    expect(getNonNullProperties(input)).toEqual(expected)
-  })
-
-  it('should return an empty object for all null/undefined properties', () => {
-    const input = {
-      a: null,
-      b: undefined,
-      c: {
-        d: null,
-        e: undefined
-      }
-    }
-    expect(getNonNullProperties(input)).toEqual({})
-  })
-
-  it('should handle arrays', () => {
-    const input = {
-      a: [1, null, 3],
-      b: null,
-      c: [{ d: null, e: 4 }]
-    }
-    expect(getNonNullProperties(input)).toEqual({ a: input.a, c: input.c})
-  })
-
-  it('should return the same object if no null/undefined properties', () => {
-    const input = {
-      a: 1,
-      b: 'string',
-      c: { d: 2 }
-    }
-    expect(getNonNullProperties(input)).toEqual(input)
   })
 })
 

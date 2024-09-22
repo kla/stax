@@ -157,30 +157,6 @@ export function parseAndRemoveWildcardOptions(args: string[], startsWith: string
 }
 
 /**
- * Recursively removes null and undefined properties from an object.
- * @param obj - The object to process.
- * @returns A new object with null and undefined properties removed.
- */
-export function getNonNullProperties(obj: Record<string, any>): Record<string, any> {
-  const result: Record<string, any> = {}
-
-  for (const [key, value] of Object.entries(obj)) {
-    if (value === null || value === undefined) continue
-
-    if (typeof value === 'object' && !Array.isArray(value)) {
-      const nestedNonNull = getNonNullProperties(value)
-      if (Object.keys(nestedNonNull).length > 0) {
-        result[key] = nestedNonNull
-      }
-    } else {
-      result[key] = value
-    }
-  }
-
-  return result
-}
-
-/**
  * Pretty prints an object as a colored YAML-like structure.
  * @param object - The object to pretty print.
  */
