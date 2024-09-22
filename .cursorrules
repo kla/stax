@@ -33,6 +33,7 @@ Tests
 - Do not use jest for anything
 - Do not use the word "should" in test names
 - Create test files in tests/unit
+- If the test body is only one line, put the entire "it" call on one line
 
 Imports
 - Use ~ for all local imports

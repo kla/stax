@@ -1,17 +1,9 @@
 import { csvKeyValuePairs, dasherize, deepRemoveKeys, directoryExists, flattenObject, isFile, truthy } from '~/utils'
 
 describe('csvKeyValuePairs', () => {
-  it('returns an empty object for an empty string', () => {
-    expect(csvKeyValuePairs('')).toEqual({})
-  })
-
-  it('returns an empty object for undefined input', () => {
-    expect(csvKeyValuePairs()).toEqual({})
-  })
-
-  it('parses a single key-value pair', () => {
-    expect(csvKeyValuePairs('key=value')).toEqual({ key: 'value' })
-  })
+  it('returns an empty object for an empty string', () => expect(csvKeyValuePairs('')).toEqual({}))
+  it('returns an empty object for undefined input', () => expect(csvKeyValuePairs()).toEqual({}))
+  it('parses a single key-value pair', () => expect(csvKeyValuePairs('key=value')).toEqual({ key: 'value' }))
 
   it('parses multiple key-value pairs', () => {
     expect(csvKeyValuePairs('key1=value1,key2=value2')).toEqual({
@@ -20,17 +12,9 @@ describe('csvKeyValuePairs', () => {
     })
   })
 
-  it('handles empty values', () => {
-    expect(csvKeyValuePairs('key1=,key2=')).toEqual({ key1: '', key2: '' })
-  })
-
-  it('handles keys without values', () => {
-    expect(csvKeyValuePairs('key1,key2')).toEqual({ key1: undefined, key2: undefined })
-  })
-
-  it('handles duplicate keys', () => {
-    expect(csvKeyValuePairs('key=value1,key=value2')).toEqual({ key: 'value2' })
-  })
+  it('handles empty values', () => expect(csvKeyValuePairs('key1=,key2=')).toEqual({ key1: '', key2: '' }))
+  it('handles keys without values', () => expect(csvKeyValuePairs('key1,key2')).toEqual({ key1: undefined, key2: undefined }))
+  it('handles duplicate keys', () => expect(csvKeyValuePairs('key=value1,key=value2')).toEqual({ key: 'value2' }))
 
   it('sorts the keys alphabetically', () => {
     expect(csvKeyValuePairs('key2=value2,key1=value1')).toEqual({
@@ -41,31 +25,15 @@ describe('csvKeyValuePairs', () => {
 })
 
 describe('isFile', () => {
-  it('returns true for an existing file', () => {
-    expect(isFile(__filename)).toBe(true)
-  })
-
-  it('returns false for a non-existing file', () => {
-    expect(isFile('/path/to/non-existing/file.txt')).toBe(false)
-  })
-
-  it('returns false for a directory', () => {
-    expect(isFile('/path/to/directory')).toBe(false)
-  })
-
-  it('returns false for an invalid path', () => {
-    expect(isFile('/invalid/path')).toBe(false)
-  })
+  it('returns true for an existing file', () => expect(isFile(__filename)).toBe(true))
+  it('returns false for a non-existing file', () => expect(isFile('/path/to/non-existing/file.txt')).toBe(false))
+  it('returns false for a directory', () => expect(isFile('/path/to/directory')).toBe(false))
+  it('returns false for an invalid path', () => expect(isFile('/invalid/path')).toBe(false))
 })
 
 describe('directoryExists', () => {
-  it('should return true if the directory exists', () => {
-    expect(directoryExists(__dirname)).toBe(true)
-  })
-
-  it('should return false if the directory does not exist', () => {
-    expect(directoryExists('/path/to/nonexistent/directory')).toBe(false)
-  })
+  it('should return true if the directory exists', () => expect(directoryExists(__dirname)).toBe(true))
+  it('should return false if the directory does not exist', () => expect(directoryExists('/path/to/nonexistent/directory')).toBe(false))
 })
 
 describe('deepRemoveKeys', () => {
@@ -260,41 +228,15 @@ describe('flattenObject', () => {
 })
 
 describe('dasherize', () => {
-  it('converts camelCase to kebab-case', () => {
-    expect(dasherize('camelCase')).toBe('camel-case')
-  })
-
-  it('converts snake_case to kebab-case', () => {
-    expect(dasherize('snake_case')).toBe('snake-case')
-  })
-
-  it('converts space separated words to kebab-case', () => {
-    expect(dasherize('space separated')).toBe('space-separated')
-  })
-
-  it('handles already kebab-case strings', () => {
-    expect(dasherize('kebab-case')).toBe('kebab-case')
-  })
-
-  it('handles mixed separators', () => {
-    expect(dasherize('Mixed_Snake Case')).toBe('mixed-snake-case')
-  })
-
-  it('handles multiple spaces', () => {
-    expect(dasherize('multiple   spaces')).toBe('multiple-spaces')
-  })
-
-  it('handles tabs and multiple spaces', () => {
-    expect(dasherize('mixed\t  whitespace')).toBe('mixed-whitespace')
-  })
-
-  it('returns an empty string when input is empty', () => {
-    expect(dasherize('')).toBe('')
-  })
-
-  it('handles single word strings', () => {
-    expect(dasherize('Word')).toBe('word')
-  })
+  it('converts camelCase to kebab-case', () => expect(dasherize('camelCase')).toBe('camel-case'))
+  it('converts snake_case to kebab-case', () => expect(dasherize('snake_case')).toBe('snake-case'))
+  it('converts space separated words to kebab-case', () => expect(dasherize('space separated')).toBe('space-separated'))
+  it('handles already kebab-case strings', () => expect(dasherize('kebab-case')).toBe('kebab-case'))
+  it('handles mixed separators', () => expect(dasherize('Mixed_Snake Case')).toBe('mixed-snake-case'))
+  it('handles multiple spaces', () => expect(dasherize('multiple   spaces')).toBe('multiple-spaces'))
+  it('handles tabs and multiple spaces', () => expect(dasherize('mixed\t  whitespace')).toBe('mixed-whitespace'))
+  it('returns an empty string when input is empty', () => expect(dasherize('')).toBe(''))
+  it('handles single word strings', () => expect(dasherize('Word')).toBe('word'))
 })
 
 describe('truthy function', () => {
@@ -304,25 +246,11 @@ describe('truthy function', () => {
     expect(truthy('1')).toBe(true)
   })
 
-  it('returns false for empty string', () => {
-    expect(truthy('')).toBe(false)
-  })
-
-  it('returns false for string "false"', () => {
-    expect(truthy('false')).toBe(false)
-  })
-
-  it('returns false for string "0"', () => {
-    expect(truthy('0')).toBe(false)
-  })
-
-  it('returns true for true boolean', () => {
-    expect(truthy(true)).toBe(true)
-  })
-
-  it('returns false for false boolean', () => {
-    expect(truthy(false)).toBe(false)
-  })
+  it('returns false for empty string', () => expect(truthy('')).toBe(false))
+  it('returns false for string "false"', () => expect(truthy('false')).toBe(false))
+  it('returns false for string "0"', () => expect(truthy('0')).toBe(false))
+  it('returns true for true boolean', () => expect(truthy(true)).toBe(true))
+  it('returns false for false boolean', () => expect(truthy(false)).toBe(false))
 
   it('returns true for non-zero numbers', () => {
     expect(truthy(1)).toBe(true)
@@ -330,28 +258,15 @@ describe('truthy function', () => {
     expect(truthy(3.14)).toBe(true)
   })
 
-  it('returns false for zero', () => {
-    expect(truthy(0)).toBe(false)
-  })
-
-  it('returns false for null', () => {
-    expect(truthy(null)).toBe(false)
-  })
-
-  it('returns false for undefined', () => {
-    expect(truthy(undefined)).toBe(false)
-  })
+  it('returns false for zero', () => expect(truthy(0)).toBe(false))
+  it('returns false for null', () => expect(truthy(null)).toBe(false))
+  it('returns false for undefined', () => expect(truthy(undefined)).toBe(false))
 
   it('returns true for non-empty objects', () => {
     expect(truthy({})).toBe(true)
     expect(truthy({ key: 'value' })).toBe(true)
   })
 
-  it('returns false for empty arrays', () => {
-    expect(truthy([])).toBe(false)
-  })
-
-  it('returns true for non-empty arrays', () => {
-    expect(truthy([1, 2, 3])).toBe(true)
-  })
+  it('returns false for empty arrays', () => expect(truthy([])).toBe(false))
+  it('returns true for non-empty arrays', () => expect(truthy([1, 2, 3])).toBe(true))
 })
