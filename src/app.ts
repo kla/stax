@@ -82,10 +82,10 @@ export default class App {
     await docker.compose(staxfile.context, 'up --detach --force-recreate --build', composeFile, { exit: true })
     const app = App.find(staxfile.context, staxfile.app)
 
-    if (!options.rebuild && !staxfile.config.location.local)
+    if (options.duplicate || (!options.rebuild && !staxfile.config.location.local))
       app.primary.exec(`git clone ${staxfile.config.source} ${staxfile.compose.stax.workspace}`)
 
-    if (!options.rebuild)
+    if (options.duplicate || !options.rebuild)
       app.containers.forEach(async container => container.runHook('after_setup'))
 
     return app
@@ -154,7 +154,7 @@ export default class App {
     if (this.constructor.exists(this.context, newName))
       exit(1, `${icons.error} An app named '${newName}' already exists.`)
 
-    this.rebuild({ ...config, app: newName }, options)
+    this.rebuild({ ...config, app: newName }, { ...options, duplicate: true })
   }
 
   async restart() {

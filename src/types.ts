@@ -59,4 +59,5 @@ export interface StaxConfig {
 export interface SetupOptions {
   inspect?: boolean
   rebuild?: boolean
+  duplicate?: boolean
 }
