@@ -2,6 +2,7 @@ import { readFileSync, writeFileSync } from 'fs'
 import { exit, verifyFile } from '~/utils'
 import { BuildOptions } from '~/types'
 import path from 'path'
+import icons from '~/icons'
 
 export default class DockerfileCompiler {
   public build: BuildOptions
@@ -43,10 +44,23 @@ export default class DockerfileCompiler {
 
     const dir = path.resolve(path.dirname(this.build.dockerfile))
     const modules: Record<string, string> = {}
+    const included = []
+    const excluded = []
+
     this.build.modules.forEach((module) => {
-      if (!module.hasOwnProperty('if') || module['if'])
+      if (!module.hasOwnProperty('if') || module['if']) {
+        included.push(module.name)
         this.parseModuleFile(`${dir}/modules/${module.name}`, modules)
+      } else
+        excluded.push(module.name)
     })
+
+    if (included.length > 0)
+      console.log(`${icons.success} Included modules: ${included.join(', ')}`)
+
+    if (excluded.length > 0)
+      console.log(`${icons.failed} Excluded modules: ${excluded.join(', ')}`)
+
     return modules
   }
 
