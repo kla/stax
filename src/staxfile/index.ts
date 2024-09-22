@@ -167,6 +167,9 @@ export default class Staxfile {
   }
 
   private normalizeModules(modules) {
+    if (!modules)
+      return []
+
     return modules.map((module) => {
       if (typeof module === 'string')
         module = { name: module, if: true }
