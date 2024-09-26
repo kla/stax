@@ -20,7 +20,7 @@ export default class Location {
   }
 
   static isGitUrl(url: string): boolean {
-    return url && (url.startsWith('git@') || url.startsWith('https://'))
+    return url && (url.endsWith('.git') || url.startsWith('https://'))
   }
 
   static from(context: string, app: string, location: string): Location {
@@ -111,6 +111,6 @@ class ContainerLocation extends GitLocation {
     }
 
     file = path.join(this.container.config.workspace, file)
-    return capture(`docker container exec ${this.container.containerName} cat "${file}"`)
+    return capture(`docker container exec ${this.container.containerName} sh -c 'cat "${file}" || true'`)
   }
 }

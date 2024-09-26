@@ -174,7 +174,7 @@ export default class Container {
   }
 
   async runHook(type) {
-    let hook = this.labels[`stax.hooks.${type}`]
+    let hook = this.labels[`stax.${type}`]
     if (!hook) return
 
     if (existsSync(hook))

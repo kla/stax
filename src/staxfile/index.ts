@@ -78,13 +78,15 @@ export default class Staxfile {
     this.warnings = new Set<string>()
     this.compose = yaml.load(readFileSync(this.staxfile, 'utf-8'))
 
+    // render the stax section first since we need to update this.config with the values there
     this.compose.stax = await this.renderCompose(this.compose.stax)
     this.config = new Config({ ...this.config, ...this.compose.stax })
 
     this.compose = await this.renderCompose(this.compose)
     this.updateServices()
-    this.compose = await this.renderCompose(this.compose) // Re-render after updating services
-    // console.log(this.compose); console.log(this.config);process.exit()
+
+    // need to re-render after updating services since template expressions may have been added
+    this.compose = await this.renderCompose(this.compose)
 
     if (this.generatedWarnings.length > 0)
       exit(1, this.generatedWarnings.join('\n'))
@@ -104,12 +106,7 @@ export default class Staxfile {
 
     text = await renderTemplate(text, async (name, args) => {
       matches += 1
-
-      const x = await this.expressions.evaluate(name, args)
-      if (name == 'prompt') {
-        console.log(name, args, x)
-      }
-      return x
+      return await this.expressions.evaluate(name, args)
     })
 
     return matches > 0 ? await this.render(text) : text
@@ -152,11 +149,11 @@ export default class Staxfile {
     const hooks = [ 'after_setup' ]
 
     for (const hook of hooks) {
-      if (labels[`stax.hooks.${hook}`]) {
-        if (existsSync(labels[`stax.hooks.${hook}`])) {
-          const file = path.resolve(labels[`stax.hooks.${hook}`])
+      if (labels[`stax.${hook}`]) {
+        if (existsSync(labels[`stax.${hook}`])) {
+          const file = path.resolve(labels[`stax.${hook}`])
           verifyFile(file, `Hook file not found for '${hook}'`)
-          labels[`stax.hooks.${hook}`] = file
+          labels[`stax.${hook}`] = file
         }
       }
     }

@@ -1,5 +1,5 @@
 import { readFileSync, rmSync } from 'fs'
-import { cacheDir, exit, fileExists, pp } from '~/utils'
+import { cacheDir, exit, fileExists, pp, isEmpty } from '~/utils'
 import { StaxConfig, SetupOptions, FindContainerOptions } from '~/types'
 import { linkSshAuthSock } from './host_services'
 import Staxfile from '~/staxfile'
@@ -83,10 +83,10 @@ export default class App {
     const app = App.find(staxfile.context, staxfile.app)
 
     if (options.duplicate || (!options.rebuild && !staxfile.config.location.local))
-      await app.primary.exec(`git clone ${staxfile.config.source} ${staxfile.compose.stax.workspace}`)
+      await app.primary.exec(`sh -c '[ -z "$(ls -A ${staxfile.compose.stax.workspace})" ] && git clone ${staxfile.config.source} ${staxfile.compose.stax.workspace} || echo "Directory not empty. Skipping git clone."'`)
 
     if (options.duplicate || !options.rebuild)
-      await Promise.all(app.containers.map(container => container.runHook('after_setup')))
+      await app.primary.runHook('after_setup')
 
     return app
   }
@@ -160,10 +160,6 @@ export default class App {
   async restart() {
     linkSshAuthSock()
     return Promise.all(this.containers.map(container => container.restart()))
-  }
-
-  async runHooks() {
-    this.containers.forEach(async container => container.runHooks())
   }
 
   addAlias(alias: string) {

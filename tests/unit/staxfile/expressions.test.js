@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, mock } from 'bun:test'
+import { describe, it, expect, afterEach, beforeEach, mock } from 'bun:test'
 import Expressions from '~/staxfile/expressions'
 import Staxfile from '~/staxfile'
 import os from 'os'
@@ -13,9 +13,13 @@ describe('Expressions', () => {
     expression = new Expressions(staxfile)
   })
 
-  it('evaluates undefined stax config values', () => {
-    const result = expression.evaluate('stax.app', [])
-    expect(result).toBe('tests')
+  afterEach(() => {
+    mock.restore()
+    expression.clearCache()
+  })
+
+  it('evaluates undefined stax config values', async () => {
+    expect(await expression.evaluate('stax.app', [])).toBe('tests')
   })
 
   // it('evaluates read function', () => {
@@ -23,55 +27,56 @@ describe('Expressions', () => {
   //   expect(result).toContain('import { describe, it, expect, beforeEach } from \'bun:test\'')
   // })
 
-  it('evaluates mount_workspace function', () => {
-    const result = expression.evaluate('mount_workspace', [])
+  it('evaluates mount_workspace function', async () => {
+    const result = await expression.evaluate('mount_workspace', [])
     expect(result).toBe(`${path.resolve('./tests')}:/workspaces/tests`)
   })
 
-  it('evaluates mount_ssh_auth_sock function', () => {
-    const result = expression.evaluate('mount_ssh_auth_sock', [])
-    expect(result).toBe('${{ stax.host_services }}:/run/host-services')
+  it('evaluates mount_ssh_auth_sock function for Darwin', async () => {
+    expression.platform = mock(() => 'darwin')
+    expect(await expression.evaluate('mount_ssh_auth_sock', [])).toBe('${{ stax.ssh_auth_sock }}:${{ stax.ssh_auth_sock }}')
   })
 
-  it('evaluates resolve function', () => {
-    const result = expression.evaluate('resolve', ['/test/path'])
-    expect(result).toBe('/test/path')
+  it('evaluates mount_ssh_auth_sock function for Linux', async () => {
+    expression.platform = mock(() => 'linux')
+    expect(await expression.evaluate('mount_ssh_auth_sock', [])).toBe('${{ stax.host_services }}:/run/host-services')
   })
 
-  it('evaluates user function', () => {
-    const result = expression.evaluate('user', [])
-    expect(result).toBe(os.userInfo().username)
+  it('evaluates resolve function', async () => {
+    expect(await expression.evaluate('resolve', ['/test/path'])).toBe('/test/path')
   })
 
-  it('evaluates user_id function', () => {
-    const result = expression.evaluate('user_id', [])
-    expect(result).toBe(process.getuid().toString())
+  it('evaluates user function', async () => {
+    expect(await expression.evaluate('user', [])).toBe(os.userInfo().username)
   })
 
-  it('evaluates dasherize function', () => {
-    const result = expression.evaluate('dasherize', ['TestString'])
-    expect(result).toBe('test-string')
+  it('evaluates user_id function', async () => {
+    expect(await expression.evaluate('user_id', [])).toBe(process.getuid().toString())
   })
 
-  it('evaluates dasherize function with stax.app', () => {
+  it('evaluates dasherize function', async () => {
+    expect(await expression.evaluate('dasherize', ['TestString'])).toBe('test-string')
+  })
+
+  it('evaluates dasherize function with stax.app', async () => {
     staxfile.config.set('app', 'MyTestApp')
-    const result = expression.evaluate('dasherize', ['stax.app'])
+    const result = await expression.evaluate('dasherize', ['stax.app'])
     expect(result).toBe('my-test-app')
   })
 
-  it('evaluates dasherize function with undefined stax config', () => {
-    const result = expression.evaluate('dasherize', ['stax.undefined_key'])
+  it('evaluates dasherize function with undefined stax config', async () => {
+    const result = await expression.evaluate('dasherize', ['stax.undefined_key'])
     expect(result).toBeUndefined()
     expect(staxfile.warnings).toContain("Undefined reference to 'stax.undefined_key'")
   })
 
-  it('adds warning for invalid expression', () => {
-    expression.evaluate('invalid_expression', [])
+  it('adds warning for invalid expression', async () => {
+    await expression.evaluate('invalid_expression', [])
     expect(staxfile.warnings).toContain('Invalid template expression: invalid_expression')
   })
 
-  it('adds warning for undefined stax config', () => {
-    expression.evaluate('stax.undefined_key', [])
+  it('adds warning for undefined stax config', async () => {
+    await expression.evaluate('stax.undefined_key', [])
     console.log(staxfile.warnings)
     expect(staxfile.warnings).toContain("Undefined reference to 'stax.undefined_key'")
   })
@@ -94,21 +99,21 @@ describe('Expressions', () => {
       expressions = new Expressions(mockStaxfile)
     })
 
-    it('returns true when pattern is found in file', () => {
+    it('returns true when pattern is found in file', async () => {
       mockStaxfile.location.readSync.mockImplementation(() => 'Hello, world!')
-      const result = expressions.evaluate('test', ['test.txt', 'world'])
+      const result = await expressions.evaluate('test', ['test.txt', 'world'])
       expect(result).toBe('true')
     })
 
-    it('returns false when pattern is not found in file', () => {
+    it('returns false when pattern is not found in file', async () => {
       mockStaxfile.location.readSync.mockImplementation(() => 'Hello, world!')
-      const result = expressions.evaluate('test', ['test.txt', 'foo'])
+      const result = await expressions.evaluate('test', ['test.txt', 'foo'])
       expect(result).toBe('false')
     })
 
-    it('uses default value when file cannot be read', () => {
+    it('uses default value when file cannot be read', async () => {
       mockStaxfile.location.readSync.mockImplementation(() => { throw new Error('File not found') })
-      const result = expressions.evaluate('test', ['nonexistent.txt', 'pattern'])
+      const result = await expressions.evaluate('test', ['nonexistent.txt', 'pattern'])
       expect(result).toBe('false')
     })
   })

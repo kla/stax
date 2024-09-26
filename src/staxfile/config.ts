@@ -14,6 +14,7 @@ export default class Config implements StaxConfig {
   public workspace!: string
   public workspace_volume!: string
   public vars!: Record<string, string>
+  public after_setup!: string
 
   constructor(config: StaxConfig | Record<string, string> | undefined = undefined) {
     if (config)

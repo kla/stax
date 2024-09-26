@@ -11,6 +11,10 @@ export default class Expressions {
     this.staxfile = staxfile
   }
 
+  clearCache() {
+    Expressions.cache = {}
+  }
+
   async evaluate(name: string, args: any[]): Promise<string> {
     const cacheKey = this.getCacheKey(name, args)
 
@@ -87,8 +91,12 @@ export default class Expressions {
     return `${src}:${dest}`
   }
 
+  private platform(): string {
+    return process.platform
+  }
+
   private mountSshAuthSock(): string {
-    return process.platform === 'darwin' ?
+    return this.platform() === 'darwin' ?
       '${{ stax.ssh_auth_sock }}:${{ stax.ssh_auth_sock }}' :
       '${{ stax.host_services }}:/run/host-services'
   }
