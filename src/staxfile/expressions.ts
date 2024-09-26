@@ -13,14 +13,11 @@ export default class Expressions {
 
   async evaluate(name: string, args: any[]): Promise<string> {
     const cacheKey = this.getCacheKey(name, args)
-    if (!name.startsWith('stax.') && Expressions.cache[cacheKey] !== undefined) {
-      console.log(`Cache hit for ${cacheKey}: ${Expressions.cache[cacheKey]}`)
-      return Expressions.cache[cacheKey]
-    }
 
-    const result = this.evaluateUncached(name, args)
-    Expressions.cache[cacheKey] = result
-    return result
+    if (!name.startsWith('stax.') && Expressions.cache[cacheKey] !== undefined)
+      return Expressions.cache[cacheKey]
+
+    return Expressions.cache[cacheKey] = await this.evaluateUncached(name, args)
   }
 
   private async evaluateUncached(name: string, args: any[]): Promise<string> {
@@ -35,12 +32,25 @@ export default class Expressions {
     if (name === 'user_id') return process.getuid().toString()
     if (name === 'dasherize') return dasherize(args[0])
     if (name === 'test') return this.test(args[0], args[1]).toString()
+    if (name === 'prompt') return await this.prompt(args[0], args[1])
 
     this.staxfile.warnings.add(`Invalid template expression: ${name}`)
   }
 
   private getCacheKey(name: string, args: any[]): string {
     return `${this.staxfile.context}:${this.staxfile.app}:${name}:${JSON.stringify(args)}`
+  }
+
+  private async prompt(message: string, defaultValue: string): Promise<string> {
+    const response = await inquirer.prompt([
+      {
+        type: 'input',
+        name: 'result',
+        message,
+        default: defaultValue,
+      },
+    ])
+    return response.result
   }
 
   private fetchConfigValue(name: string): string {

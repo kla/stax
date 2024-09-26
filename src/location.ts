@@ -14,6 +14,9 @@ export default class Location {
     this.context = context
     this.app = app
     this.source = source
+
+    if (!Location.isGitUrl(source) && existsSync(source))
+      this.source = path.resolve(source)
   }
 
   static isGitUrl(url: string): boolean {
@@ -27,7 +30,7 @@ export default class Location {
       return containerLocation.container ? containerLocation : new GitLocation(context, app, location)
     }
 
-    return new Location(context, app, location && path.resolve(location))
+    return new Location(context, app, location)
   }
 
   get basename(): string {

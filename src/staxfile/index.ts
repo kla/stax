@@ -78,10 +78,13 @@ export default class Staxfile {
     this.warnings = new Set<string>()
     this.compose = yaml.load(readFileSync(this.staxfile, 'utf-8'))
 
+    this.compose.stax = await this.renderCompose(this.compose.stax)
     this.config = new Config({ ...this.config, ...this.compose.stax })
-    this.compose = await this.renderCompose()
+
+    this.compose = await this.renderCompose(this.compose)
     this.updateServices()
-    this.compose = await this.renderCompose() // need to re-render after updating services since template expressions may have been added
+    this.compose = await this.renderCompose(this.compose) // Re-render after updating services
+    // console.log(this.compose); console.log(this.config);process.exit()
 
     if (this.generatedWarnings.length > 0)
       exit(1, this.generatedWarnings.join('\n'))
@@ -91,8 +94,8 @@ export default class Staxfile {
     return [...this.warnings]
   }
 
-  private async renderCompose(): Promise<Record<string, any>> {
-    const renderedYaml = await this.render(yaml.dump(this.compose, { lineWidth: -1 }))
+  private async renderCompose(attributes: Record<string, any>): Promise<Record<string, any>> {
+    const renderedYaml = await this.render(yaml.dump(attributes, { lineWidth: -1 }))
     return yaml.load(renderedYaml)
   }
 
@@ -101,7 +104,12 @@ export default class Staxfile {
 
     text = await renderTemplate(text, async (name, args) => {
       matches += 1
-      return await this.expressions.evaluate(name, args)
+
+      const x = await this.expressions.evaluate(name, args)
+      if (name == 'prompt') {
+        console.log(name, args, x)
+      }
+      return x
     })
 
     return matches > 0 ? await this.render(text) : text
