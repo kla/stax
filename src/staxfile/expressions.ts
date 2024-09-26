@@ -1,17 +1,28 @@
-import { exists, existsSync } from 'fs'
 import { dasherize } from '~/utils'
 import * as path from 'path'
 import Staxfile from './index'
 
 export default class Expressions {
   private staxfile: Staxfile
-  private static readCache: Record<string, string> = {}
+  private static cache: Record<string, any> = {}
 
   constructor(staxfile: Staxfile) {
     this.staxfile = staxfile
   }
 
-  evaluate(name: string, args: any[]): string {
+  evaluate(name: string, args: any[]): any {
+    const cacheKey = this.getCacheKey(name, args)
+    if (!name.startsWith('stax.') && Expressions.cache[cacheKey] !== undefined) {
+      console.log(`Cache hit for ${cacheKey}: ${Expressions.cache[cacheKey]}`)
+      return Expressions.cache[cacheKey]
+    }
+
+    const result = this.evaluateUncached(name, args)
+    Expressions.cache[cacheKey] = result
+    return result
+  }
+
+  private evaluateUncached(name: string, args: any[]): any {
     args = args.map(arg => typeof arg === 'string' && arg.startsWith('stax.') ? this.fetchConfigValue(arg) : arg)
 
     if (name.startsWith('stax.')) return this.fetchConfigValue(name)
@@ -22,9 +33,13 @@ export default class Expressions {
     if (name === 'user') return process.env.USER || ''
     if (name === 'user_id') return process.getuid().toString()
     if (name === 'dasherize') return dasherize(args[0])
-    if (name === 'test') return this.test(args[0], args[1]).toString()
+    if (name === 'test') return this.test(args[0], args[1])
 
     this.staxfile.warnings.add(`Invalid template expression: ${name}`)
+  }
+
+  private getCacheKey(name: string, args: any[]): string {
+    return `${this.staxfile.context}:${this.staxfile.app}:${name}:${JSON.stringify(args)}`
   }
 
   private fetchConfigValue(name: string): string {
@@ -47,16 +62,10 @@ export default class Expressions {
   }
 
   private read(file: string, defaultValue: string): string {
-    const cacheKey = `${this.staxfile.context}:${this.staxfile.app}:${file}:${defaultValue}`
-    if (Expressions.readCache[cacheKey]) return Expressions.readCache[cacheKey]
-
     try {
-      const result = (this.staxfile.location.readSync(file) || defaultValue).trim()
-      Expressions.readCache[cacheKey] = result
-      return result
+      return (this.staxfile.location.readSync(file) || defaultValue).trim()
     } catch (e) {
       console.warn(`Couldn't read ${file}: ${e.code}... using default value of '${defaultValue}'`)
-      Expressions.readCache[cacheKey] = defaultValue
       return defaultValue
     }
   }
