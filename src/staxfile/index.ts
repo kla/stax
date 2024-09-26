@@ -43,7 +43,7 @@ export default class Staxfile {
     return path.join(this.cacheDir, 'compose.yaml')
   }
 
-  public compile(force: boolean = false): string {
+  public async compile(force: boolean = false): Promise<string> {
     const composeFile = this.cachedComposeFile
 
     if (!force && existsSync(composeFile)) {
@@ -56,32 +56,32 @@ export default class Staxfile {
 
     console.log(`${icons.build}  Compiling ${this.staxfile}`)
 
-    this.insideBaseDir(() => {
-      this.load()
+    await this.insideBaseDir(async () => {
+      await this.load()
       writeFileSync(composeFile, this.normalizedYaml())
     })
     return composeFile
   }
 
-  private insideBaseDir(callback) {
+  private async insideBaseDir(callback: () => Promise<void>): Promise<void> {
     const cwd = process.cwd()
 
     try {
       process.chdir(this.baseDir)
-      return callback()
+      await callback()
     } finally {
       process.chdir(cwd)
     }
   }
 
-  private load() {
-    this.warnings = new Set<string>
-    this.compose = yaml.load(readFileSync(this.staxfile))
+  private async load(): Promise<void> {
+    this.warnings = new Set<string>()
+    this.compose = yaml.load(readFileSync(this.staxfile, 'utf-8'))
 
     this.config = new Config({ ...this.config, ...this.compose.stax })
-    this.compose = this.renderCompose()
+    this.compose = await this.renderCompose()
     this.updateServices()
-    this.compose = this.renderCompose() // need to re-render after updating services since template expressions may have been added
+    this.compose = await this.renderCompose() // need to re-render after updating services since template expressions may have been added
 
     if (this.generatedWarnings.length > 0)
       exit(1, this.generatedWarnings.join('\n'))
@@ -91,19 +91,20 @@ export default class Staxfile {
     return [...this.warnings]
   }
 
-  private renderCompose(): Record<string, any> {
-    return yaml.load(this.render(yaml.dump(this.compose, { lineWidth: -1 })))
+  private async renderCompose(): Promise<Record<string, any>> {
+    const renderedYaml = await this.render(yaml.dump(this.compose, { lineWidth: -1 }))
+    return yaml.load(renderedYaml)
   }
 
-  private render(text: string): string {
+  private async render(text: string): Promise<string> {
     let matches = 0
 
-    text = renderTemplate(text, (name, args) => {
+    text = await renderTemplate(text, async (name, args) => {
       matches += 1
-      return this.expressions.evaluate(name, args)
+      return await this.expressions.evaluate(name, args)
     })
 
-    return matches > 0 ? this.render(text) : text
+    return matches > 0 ? await this.render(text) : text
   }
 
   private updateServices() {

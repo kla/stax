@@ -1,9 +1,10 @@
+import { existsSync } from 'fs'
 import { isDirectory, fileExists, verifyFile } from '~/utils'
 import { StaxConfig } from '~/types'
 import { exit } from '~/utils'
 import Location from '~/location'
 import icons from '~/icons'
-import path from 'path'
+import * as path from 'path'
 
 export default class Config implements StaxConfig {
   public context!: string
@@ -94,7 +95,8 @@ export default class Config implements StaxConfig {
     if (!this.app)
       this.app = this.location.basename
 
-    this.source = Location.isGitUrl(this.source) ? this.source : path.resolve(this.source)
+    if (!Location.isGitUrl(this.source) && existsSync(this.source))
+      this.source = path.resolve(this.source)
   }
 
   private findStaxfile(path): string {

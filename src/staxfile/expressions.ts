@@ -1,6 +1,7 @@
 import { dasherize } from '~/utils'
 import * as path from 'path'
 import Staxfile from './index'
+import inquirer from 'inquirer'
 
 export default class Expressions {
   private staxfile: Staxfile
@@ -10,7 +11,7 @@ export default class Expressions {
     this.staxfile = staxfile
   }
 
-  evaluate(name: string, args: any[]): any {
+  async evaluate(name: string, args: any[]): Promise<string> {
     const cacheKey = this.getCacheKey(name, args)
     if (!name.startsWith('stax.') && Expressions.cache[cacheKey] !== undefined) {
       console.log(`Cache hit for ${cacheKey}: ${Expressions.cache[cacheKey]}`)
@@ -22,7 +23,7 @@ export default class Expressions {
     return result
   }
 
-  private evaluateUncached(name: string, args: any[]): any {
+  private async evaluateUncached(name: string, args: any[]): Promise<string> {
     args = args.map(arg => typeof arg === 'string' && arg.startsWith('stax.') ? this.fetchConfigValue(arg) : arg)
 
     if (name.startsWith('stax.')) return this.fetchConfigValue(name)
@@ -33,7 +34,7 @@ export default class Expressions {
     if (name === 'user') return process.env.USER || ''
     if (name === 'user_id') return process.getuid().toString()
     if (name === 'dasherize') return dasherize(args[0])
-    if (name === 'test') return this.test(args[0], args[1])
+    if (name === 'test') return this.test(args[0], args[1]).toString()
 
     this.staxfile.warnings.add(`Invalid template expression: ${name}`)
   }

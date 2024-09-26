@@ -48,10 +48,24 @@ function parseTemplateExpressionArgs(args: string[]): string[] {
   return parsedArgs
 }
 
-export function renderTemplate(template: string, callback: (name: string, args: string[]) => string): string {
-  return template.replace(/\$\{\{\s*([^}]+)\s*\}\}/g, (_, match) => {
-    const [name, argString] = parseToken(match)
+export async function renderTemplate(template: string, callback: (name: string, args: string[]) => Promise<string>): Promise<string> {
+  const regex = /\$\{\{\s*([^}]+)\s*\}\}/g
+  let result = ''
+  let lastIndex = 0
+  let match
+
+  while ((match = regex.exec(template)) !== null) {
+    const before = template.slice(lastIndex, match.index)
+    result += before
+
+    const [funcName, argString] = parseToken(match[1])
     const args = parseTemplateExpressionArgs(argString)
-    return callback(name, args)
-  })
+    const replacement = await callback(funcName, args)
+
+    result += replacement
+    lastIndex = regex.lastIndex
+  }
+
+  result += template.slice(lastIndex)
+  return result
 }

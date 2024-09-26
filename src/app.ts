@@ -71,10 +71,10 @@ export default class App {
 
   static async setup(config: StaxConfig, options: SetupOptions = {}) {
     const staxfile = new Staxfile(config)
-    const composeFile = staxfile.compile(true)
+    const composeFile = await staxfile.compile(true)
 
     if (!composeFile)
-      return exit(1, `👿 Couldn't setup a container for '${staxfile.source}'`)
+      exit(1, `👿 Couldn't setup a container for '${staxfile.source}'`)
 
     if (options.inspect)
       return this.inspect(staxfile, composeFile)
@@ -83,10 +83,10 @@ export default class App {
     const app = App.find(staxfile.context, staxfile.app)
 
     if (options.duplicate || (!options.rebuild && !staxfile.config.location.local))
-      app.primary.exec(`git clone ${staxfile.config.source} ${staxfile.compose.stax.workspace}`)
+      await app.primary.exec(`git clone ${staxfile.config.source} ${staxfile.compose.stax.workspace}`)
 
     if (options.duplicate || !options.rebuild)
-      app.containers.forEach(async container => container.runHook('after_setup'))
+      await Promise.all(app.containers.map(container => container.runHook('after_setup')))
 
     return app
   }
