@@ -11,4 +11,4 @@ do
   fi
 done
 
-bun test "${args[@]}"
+bun test --preload tests/setup.js "${args[@]}"

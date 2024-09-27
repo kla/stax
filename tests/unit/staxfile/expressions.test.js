@@ -13,11 +13,6 @@ describe('Expressions', () => {
     expression = new Expressions(staxfile)
   })
 
-  afterEach(() => {
-    mock.restore()
-    expression.clearCache()
-  })
-
   it('evaluates undefined stax config values', async () => {
     expect(await expression.evaluate('stax.app', [])).toBe('tests')
   })

@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, afterEach, mock } from 'bun:test'
+import { describe, it, expect, beforeEach, mock } from 'bun:test'
 import { readFileSync } from 'fs'
 import Config from '~/staxfile/config'
 import yaml from 'js-yaml'
@@ -7,11 +7,9 @@ import * as utils from '~/utils'
 
 describe('Config', () => {
   let config
-  let originalWarn
   let exitMock
 
   beforeEach(() => {
-    originalWarn = console.warn
     exitMock = { called: false, code: null, message: null }
     mock.module('~/utils', () => ({
       ...utils,
@@ -22,11 +20,6 @@ describe('Config', () => {
       }
     }))
     config = new Config({ source: './tests', ...yaml.load(readFileSync('./tests/Staxfile', 'utf-8')).stax })
-  })
-
-  afterEach(() => {
-    console.warn = originalWarn
-    mock.restore()
   })
 
   it('creates a new Config instance', () => {

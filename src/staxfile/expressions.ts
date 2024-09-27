@@ -11,7 +11,7 @@ export default class Expressions {
     this.staxfile = staxfile
   }
 
-  clearCache() {
+  static clearCache() {
     Expressions.cache = {}
   }
 
