@@ -68,10 +68,7 @@ export function loadFile(filePath: string): string {
     processedContent = insertAnchors(processedContent, nestedImportStatements, baseDir, filePath)
   } while (processedContent !== previousContent)
 
-  const loadedYaml = yaml.load(processedContent)
-  const cleanedYaml = stripStaxImports(loadedYaml)
-
-  return dump(cleanedYaml)
+  return stripStaxImports(yaml.load(processedContent))
 }
 
 export function dump(obj: any): string {
