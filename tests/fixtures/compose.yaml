@@ -1,0 +1,5 @@
+@import imports/web.yaml as web
+
+services:
+  web:
+    <<: *web

@@ -1,0 +1,5 @@
+@import build.yaml as build
+
+build:
+  <<: *build
+command: bin/rails server
