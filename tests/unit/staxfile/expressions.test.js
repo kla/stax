@@ -9,12 +9,12 @@ describe('Expressions', () => {
   let staxfile
 
   beforeEach(() => {
-    staxfile = new Staxfile({ source: './tests', staxfile: './tests/Staxfile', workspace: '/workspaces/tests' })
+    staxfile = new Staxfile({ source: './tests/fixtures', staxfile: './tests/fixtures/Staxfile', workspace: '/workspaces/tests' })
     expression = new Expressions(staxfile)
   })
 
   it('evaluates undefined stax config values', async () => {
-    expect(await expression.evaluate('stax.app', [])).toBe('tests')
+    expect(await expression.evaluate('stax.app', [])).toBe('fixtures')
   })
 
   // it('evaluates read function', () => {
@@ -24,7 +24,7 @@ describe('Expressions', () => {
 
   it('evaluates mount_workspace function', async () => {
     const result = await expression.evaluate('mount_workspace', [])
-    expect(result).toBe(`${path.resolve('./tests')}:/workspaces/tests`)
+    expect(result).toBe(`${path.resolve('./tests/fixtures')}:/workspaces/tests`)
   })
 
   it('evaluates mount_ssh_auth_sock function for Darwin', async () => {

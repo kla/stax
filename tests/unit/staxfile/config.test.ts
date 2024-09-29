@@ -19,13 +19,13 @@ describe('Config', () => {
         exitMock.message = message
       }
     }))
-    config = new Config({ source: './tests', ...yaml.load(readFileSync('./tests/Staxfile', 'utf-8')).stax })
+    config = new Config({ source: './tests/fixtures', ...yaml.load(readFileSync('./tests/fixtures/Staxfile', 'utf-8')).stax })
   })
 
   it('creates a new Config instance', () => {
     expect(config).toBeInstanceOf(Config)
-    expect(config.source).toBe(path.resolve('./tests'))
-    expect(config.staxfile).toBe(path.resolve('./tests/Staxfile'))
+    expect(config.source).toBe(path.resolve('./tests/fixtures'))
+    expect(config.staxfile).toBe(path.resolve('./tests/fixtures/Staxfile'))
     expect(config.app).toBe('test')
   })
 
@@ -38,7 +38,7 @@ describe('Config', () => {
   })
 
   it('fetches a property value', () => {
-    expect(config.fetch('source')).toBe(path.resolve('./tests'))
+    expect(config.fetch('source')).toBe(path.resolve('./tests/fixtures'))
     expect(config.fetch('app')).toBe('test')
     expect(config.fetch('vars.user')).toBe('app')
     expect(config.fetch('vars.nonexistent')).toBeUndefined()
