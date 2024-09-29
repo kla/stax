@@ -1,5 +1,9 @@
 !import imports/web.yaml as web
+!import imports/child2.yaml as child2
 
 services:
-  web:
-    <<: *web
+  web: !extends web
+
+something:
+  child1:
+    child2: !extends child2

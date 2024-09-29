@@ -23,7 +23,7 @@ function insertAnchors(content: string, imports: ImportStatement[], baseDir: str
     const absolutePath = path.resolve(baseDir, filePath)
 
     try {
-      let yamlContent = fs.readFileSync(absolutePath, 'utf8')
+      let yamlContent = readYamlFile(absolutePath)
       const nestedImportStatements = parseImportStatements(yamlContent)
 
       if (nestedImportStatements.length > 0)
@@ -55,8 +55,18 @@ function stripStaxImports(obj: any): any {
   return obj
 }
 
-export function loadFile(filePath: string): string {
+export function readYamlFile(filePath: string): string {
   const content = fs.readFileSync(filePath, 'utf8')
+  return convertExtends(content)
+}
+
+function convertExtends(content: string): string {
+  const extendsRegex = /^(\s*)(.+):\s*!extends\s+(.+)$/gm
+  return content.replace(extendsRegex, (match, indent, key, name) => `${indent}${key}:\n${indent}  <<: *${name}`)
+}
+
+export function loadFile(filePath: string): string {
+  const content = readYamlFile(filePath)
   const importStatements = parseImportStatements(content)
   const baseDir = path.dirname(filePath)
   let processedContent = insertAnchors(content, importStatements, baseDir, filePath)

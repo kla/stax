@@ -10,5 +10,6 @@ describe('loadFile', () => {
     const result = loadFile(composeYaml)
     expect(result.services.web.build.image).toBe('ubuntu:latest')
     expect(result.services.web.command).toBe('bin/rails server')
+    expect(result.something.child1.child2.child).toBe(2)
   })
 })
