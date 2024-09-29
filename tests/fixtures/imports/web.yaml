@@ -1,5 +1,2 @@
-!import build.yaml as build
-
-build:
-  <<: *build
+build: !extends build.yaml
 command: bin/rails server

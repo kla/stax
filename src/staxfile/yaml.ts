@@ -1,43 +1,15 @@
-import fs from 'fs'
-import path from 'path'
+import * as fs from 'fs'
+import * as path from 'path'
 import yaml from 'js-yaml'
 import icons from '~/icons'
 
 const dumpOptions = { lineWidth: -1, noRefs: true }
+const extendsRegex = /^(\s*)(.+):\s*!extends\s+(.+)$/gm
+const rootExtendsRegex = /^!extends\s+(.+)$/gm
 
-interface ImportStatement {
+interface Import {
+  name: string
   filePath: string
-  alias: string
-}
-
-function parseImportStatements(content: string): ImportStatement[] {
-  const importRegex = /^!import (.+) as (.+)/gm
-  const matches = [...content.matchAll(importRegex)]
-  return matches.map(match => ({ filePath: match[1], alias: match[2] }))
-}
-
-function insertAnchors(content: string, imports: ImportStatement[], baseDir: string, parentFile: string): string {
-  let result = content
-
-  imports.forEach(({ filePath, alias }) => {
-    const absolutePath = path.resolve(baseDir, filePath)
-
-    try {
-      let yamlContent = readYamlFile(absolutePath)
-      const nestedImportStatements = parseImportStatements(yamlContent)
-
-      if (nestedImportStatements.length > 0)
-        yamlContent = insertAnchors(yamlContent, nestedImportStatements, path.dirname(absolutePath), absolutePath)
-
-      const anchorName = `stax_import_${alias}`
-      const anchorContent = yaml.dump({ [anchorName]: yaml.load(yamlContent) }, dumpOptions).replace(`${anchorName}:`, `${anchorName}: &${alias}`)
-      result = result.replace(`!import ${filePath} as ${alias}`, anchorContent)
-    } catch (error) {
-      console.error(`${icons.error} Could not import ${absolutePath} from ${parentFile} - ${error.code}: ${error.message}`)
-      process.exit(1)
-    }
-  })
-  return result
 }
 
 function stripStaxImports(obj: any): any {
@@ -46,7 +18,7 @@ function stripStaxImports(obj: any): any {
 
   if (obj && typeof obj === 'object') {
     return Object.keys(obj).reduce((acc, key) => {
-      if (!key.startsWith('stax_import_'))
+      if (!key.startsWith('_stax_import_'))
         acc[key] = stripStaxImports(obj[key])
 
       return acc
@@ -55,30 +27,49 @@ function stripStaxImports(obj: any): any {
   return obj
 }
 
-export function readYamlFile(filePath: string): string {
-  const content = fs.readFileSync(filePath, 'utf8')
-  return convertExtends(content)
+export function readYamlFile(filePath: string, parentFile: string = undefined): string {
+  try {
+    let { imports, content } = parseExtends(fs.readFileSync(filePath, 'utf8'), path.dirname(filePath))
+
+    imports.forEach((item) => {
+      const importContent = { [item.name]: yaml.load(readYamlFile(item.filePath, filePath)) }
+      content = dump(importContent).replace(`${item.name}:`, `${item.name}: &${item.name}`) + '\n' + content
+    })
+    return dump(stripStaxImports(yaml.load(content)))
+  } catch (error) {
+    let message = `Could not import ${filePath}`
+    if (parentFile) message += ` from ${parentFile}`
+    console.error(`${icons.error} ${message} - ${error.code}: ${error.message}`)
+    process.exit(1)
+  }
 }
 
-function convertExtends(content: string): string {
-  const extendsRegex = /^(\s*)(.+):\s*!extends\s+(.+)$/gm
-  return content.replace(extendsRegex, (match, indent, key, name) => `${indent}${key}:\n${indent}  <<: *${name}`)
+function parseExtends(content: string, baseDir: string): { imports: Import[], content: string } {
+  const imports: Import[] = []
+
+  // Handle root level !extends
+  content = content.replace(rootExtendsRegex, (_match, name) => {
+    const sanitizedName = makeImportAnchorName(name)
+    imports.push({ name: sanitizedName, filePath: path.resolve(baseDir, name) })
+    return `<<: *${sanitizedName}`
+  })
+
+  // Handle non-root level !extends
+  const parsedContent: string = content.replace(extendsRegex, (_match, indent, key, name) => {
+    const sanitizedName = makeImportAnchorName(name)
+    imports.push({ name: sanitizedName, filePath: path.resolve(baseDir, name) })
+    return `${indent}${key}:\n${indent}  <<: *${sanitizedName}`
+  })
+
+  return { imports, content: parsedContent }
+}
+
+function makeImportAnchorName(name: string): string {
+  return '_stax_import_' + name.replace(/[^a-zA-Z0-9_]/g, '_')
 }
 
 export function loadFile(filePath: string): string {
-  const content = readYamlFile(filePath)
-  const importStatements = parseImportStatements(content)
-  const baseDir = path.dirname(filePath)
-  let processedContent = insertAnchors(content, importStatements, baseDir, filePath)
-  let previousContent
-
-  do {
-    previousContent = processedContent
-    const nestedImportStatements = parseImportStatements(processedContent)
-    processedContent = insertAnchors(processedContent, nestedImportStatements, baseDir, filePath)
-  } while (processedContent !== previousContent)
-
-  return stripStaxImports(yaml.load(processedContent))
+  return yaml.load(readYamlFile(filePath))
 }
 
 export function dump(obj: any): string {

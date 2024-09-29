@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'bun:test'
-import { loadFile } from '~/staxfile/yaml'
+import { loadFile, dump } from '~/staxfile/yaml'
 import path from 'path'
 
 describe('loadFile', () => {
