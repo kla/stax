@@ -11,7 +11,7 @@ interface ImportStatement {
 }
 
 function parseImportStatements(content: string): ImportStatement[] {
-  const importRegex = /^@import (.+) as (.+)/gm
+  const importRegex = /^!import (.+) as (.+)/gm
   const matches = [...content.matchAll(importRegex)]
   return matches.map(match => ({ filePath: match[1], alias: match[2] }))
 }
@@ -31,7 +31,7 @@ function insertAnchors(content: string, imports: ImportStatement[], baseDir: str
 
       const anchorName = `stax_import_${alias}`
       const anchorContent = yaml.dump({ [anchorName]: yaml.load(yamlContent) }, dumpOptions).replace(`${anchorName}:`, `${anchorName}: &${alias}`)
-      result = result.replace(`@import ${filePath} as ${alias}`, anchorContent)
+      result = result.replace(`!import ${filePath} as ${alias}`, anchorContent)
     } catch (error) {
       console.error(`${icons.error} Could not import ${absolutePath} from ${parentFile} - ${error.code}: ${error.message}`)
       process.exit(1)

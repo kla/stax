@@ -1,4 +1,4 @@
-@import imports/web.yaml as web
+!import imports/web.yaml as web
 
 services:
   web:

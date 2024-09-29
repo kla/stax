@@ -1,4 +1,4 @@
-@import build.yaml as build
+!import build.yaml as build
 
 build:
   <<: *build

@@ -1,14 +1,15 @@
-import { readFileSync, writeFileSync, existsSync, mkdirSync, statSync } from 'fs'
+import { writeFileSync, existsSync, mkdirSync, statSync } from 'fs'
 import { cacheDir as _cacheDir, exit, flattenObject, verifyFile } from '~/utils'
 import { StaxConfig } from '~/types'
 import { renderTemplate } from './template'
+import { dump, loadFile } from './yaml'
+import yaml from 'js-yaml'
 import Config from './config'
 import DockerfileCompiler from './dockerfile_compiler'
 import Expressions from './expressions'
 import Location from '~/location'
 import icons from '~/icons'
 import * as path from 'path'
-import yaml from 'js-yaml'
 
 export default class Staxfile {
   public config: Config
@@ -76,7 +77,7 @@ export default class Staxfile {
 
   private async load(): Promise<void> {
     this.warnings = new Set<string>()
-    this.compose = yaml.load(readFileSync(this.staxfile, 'utf-8'))
+    this.compose = loadFile(this.staxfile)
 
     // render the stax section first since we need to update this.config with the values there
     this.compose.stax = await this.renderCompose(this.compose.stax)
@@ -97,7 +98,7 @@ export default class Staxfile {
   }
 
   private async renderCompose(attributes: Record<string, any>): Promise<Record<string, any>> {
-    const renderedYaml = await this.render(yaml.dump(attributes, { lineWidth: -1 }))
+    const renderedYaml = await this.render(dump(attributes))
     return yaml.load(renderedYaml)
   }
 
@@ -199,6 +200,6 @@ export default class Staxfile {
         acc[key] = value
         return acc
       }, {})
-    return yaml.dump(normalizedCompose, { lineWidth: -1, noRefs: true })
+    return dump(normalizedCompose)
   }
 }
