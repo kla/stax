@@ -3,6 +3,8 @@ import path from 'path'
 import yaml from 'js-yaml'
 import icons from '~/icons'
 
+const dumpOptions = { lineWidth: -1, noRefs: true }
+
 interface ImportStatement {
   filePath: string
   alias: string
@@ -28,7 +30,7 @@ function insertAnchors(content: string, imports: ImportStatement[], baseDir: str
         yamlContent = insertAnchors(yamlContent, nestedImportStatements, path.dirname(absolutePath), absolutePath)
 
       const anchorName = `stax_import_${alias}`
-      const anchorContent = yaml.dump({ [anchorName]: yaml.load(yamlContent) }).replace(`${anchorName}:`, `${anchorName}: &${alias}`)
+      const anchorContent = yaml.dump({ [anchorName]: yaml.load(yamlContent) }, dumpOptions).replace(`${anchorName}:`, `${anchorName}: &${alias}`)
       result = result.replace(`@import ${filePath} as ${alias}`, anchorContent)
     } catch (error) {
       console.error(`${icons.error} Could not import ${absolutePath} from ${parentFile} - ${error.code}: ${error.message}`)
@@ -73,5 +75,5 @@ export function loadFile(filePath: string): string {
 }
 
 export function dump(obj: any): string {
-  return yaml.dump(obj)
+  return yaml.dump(obj, dumpOptions)
 }
