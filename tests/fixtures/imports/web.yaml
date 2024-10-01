@@ -1,0 +1,6 @@
+!import ./ubuntu.yaml as ubuntu
+!import ./service.yaml as service
+
+!extends service
+build: !extends ubuntu
+command: bin/rails server

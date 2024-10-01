@@ -1,5 +1,5 @@
-!import imports/stax.staxfile as stax
-!import imports/web.staxfile as web
+!import imports/stax.yaml as stax
+!import imports/web.yaml as web
 
 stax: !extends stax
   app: test2
