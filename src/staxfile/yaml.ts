@@ -44,7 +44,7 @@ class Yaml {
     return path.dirname(this.filePath)
   }
 
-  compile(): string {
+  compile(): Record<string, any> {
     let content = this.readFile(this.filePath)
 
     this.imports = {}
@@ -54,7 +54,7 @@ class Yaml {
     return deepRemoveKeys(yaml.load(content), Object.values(this.imports).map(item => item.anchorName))
   }
 
-  load(): any {
+  load(): Record<string, any> {
     return this.compile()
   }
 
@@ -101,7 +101,7 @@ class Yaml {
   }
 }
 
-export function loadFile(filePath: string): string {
+export function loadFile(filePath: string): Record<string, any> {
   return new Yaml(filePath).load()
 }
 
