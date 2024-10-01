@@ -94,10 +94,7 @@ class Yaml {
   // Need to handle resolve_relative here rather than in Expressions because we know
   // the actual paths here when importing
   private parseResolveRelative(content: string): string {
-    return content.replace(/\$\{\{ resolve_relative (.+?) \}\}/g, (match, p1) => {
-      console.log(match, this.baseDir, p1, path.resolve(this.baseDir, p1))
-      return path.resolve(this.baseDir, p1)
-    })
+    return content.replace(/\$\{\{ resolve_relative (.+?) \}\}/g, (match, p1) => path.resolve(this.baseDir, p1))
   }
 }
 
