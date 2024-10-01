@@ -1,2 +1,2 @@
-context: .
+context: ${{ resolve_relative ./ }}
 dockerfile: Dockerfile

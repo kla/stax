@@ -50,6 +50,7 @@ class Yaml {
     this.imports = {}
     content = this.parseImports(content)
     content = this.parseExtends(content)
+    content = this.parseResolveRelative(content)
     return deepRemoveKeys(yaml.load(content), Object.values(this.imports).map(item => item.anchorName))
   }
 
@@ -61,7 +62,7 @@ class Yaml {
     return dump(this.load())
   }
 
-  readFile(filePath: string): string {
+  private readFile(filePath: string): string {
     try {
       return fs.readFileSync(filePath, 'utf8')
     } catch (error) {
@@ -72,7 +73,7 @@ class Yaml {
     }
   }
 
-  parseImports(content: string): string {
+  private parseImports(content: string): string {
     return content.replace(importRegex, (match, filePath, name) => {
       const yamlImport = new Import({ name, match, filePath })
       this.imports[yamlImport.name] = yamlImport
@@ -84,10 +85,19 @@ class Yaml {
     })
   }
 
-  parseExtends(content: string): string {
+  private parseExtends(content: string): string {
     content = content.replace(rootExtendsRegex, (_match, name) => `<<: *${name}`) // root level !extends
     content = content.replace(extendsRegex, (_match, indent, key, name) => `${indent}${key}:\n${indent}  <<: *${name}`) // non-root level !extends
     return content
+  }
+
+  // Need to handle resolve_relative here rather than in Expressions because we know
+  // the actual paths here when importing
+  private parseResolveRelative(content: string): string {
+    return content.replace(/\$\{\{ resolve_relative (.+?) \}\}/g, (match, p1) => {
+      console.log(match, this.baseDir, p1, path.resolve(this.baseDir, p1))
+      return path.resolve(this.baseDir, p1)
+    })
   }
 }
 
