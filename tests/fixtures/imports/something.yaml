@@ -1,3 +1,0 @@
-something:
-  child1:
-    child2: !extends child2.yaml

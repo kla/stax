@@ -1,0 +1,6 @@
+!import ./ubuntu.staxfile as ubuntu
+!import ./service.staxfile as service
+
+!extends service
+build: !extends ubuntu
+command: bin/rails server

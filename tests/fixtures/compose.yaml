@@ -1,4 +1,0 @@
-services:
-  web: !extends imports/web.yaml
-
-!extends ./imports/something.yaml

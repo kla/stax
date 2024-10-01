@@ -1,0 +1,5 @@
+app: test
+workspace: /workspaces/${{ stax.app }}
+vars:
+  rails_server_port: 3000
+  ruby_version: 3.3.3

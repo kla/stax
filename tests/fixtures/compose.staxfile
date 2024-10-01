@@ -1,0 +1,8 @@
+!import imports/stax.staxfile as stax
+!import imports/web.staxfile as web
+
+stax: !extends stax
+  app: test2
+
+services:
+  web: !extends web
