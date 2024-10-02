@@ -7,6 +7,9 @@ stax:
     user: app
     domain: stax.localhost
     rails_server_port: 3000
+  requires:
+    - mysql
+    - redis
 
 services:
   web:

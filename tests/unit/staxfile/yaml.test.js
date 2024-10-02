@@ -10,7 +10,6 @@ describe('loadFile', () => {
   beforeEach(() => yaml = loadFile(composeYaml))
 
   it('loads and processes a YAML file with imports', () => {
-    console.log(dump(yaml))
     expect(yaml.stax.vars.ruby_version).toBe('3.3.3')
     expect(yaml.services.web.build.dockerfile).toBe('Dockerfile')
     expect(yaml.services.web.command).toBe('bin/rails server')

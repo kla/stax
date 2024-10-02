@@ -72,7 +72,6 @@ describe('Expressions', () => {
 
   it('adds warning for undefined stax config', async () => {
     await expression.evaluate('stax.undefined_key', [])
-    console.log(staxfile.warnings)
     expect(staxfile.warnings).toContain("Undefined reference to 'stax.undefined_key'")
   })
 

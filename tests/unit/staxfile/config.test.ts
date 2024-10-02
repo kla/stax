@@ -27,6 +27,7 @@ describe('Config', () => {
     expect(config.source).toBe(path.resolve('./tests/fixtures'))
     expect(config.staxfile).toBe(path.resolve('./tests/fixtures/Staxfile'))
     expect(config.app).toBe('test')
+    expect(config.requires).toEqual(['mysql', 'redis'])
   })
 
   it('checks if a property exists', () => {
@@ -114,5 +115,10 @@ describe('Config', () => {
       expect(exitMock.message).toBe('⚠️ App name can only contain alphanumeric characters, dashes, and underscores.')
       expect(config.app).not.toBe(name)
     })
+  })
+
+  it('parses requires as an array', () => {
+    config.set('requires', JSON.stringify(['mysql', 'redis']))
+    expect(config.requires).toEqual(['mysql', 'redis'])
   })
 })

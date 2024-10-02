@@ -15,6 +15,7 @@ export default class Config implements StaxConfig {
   public workspace_volume!: string
   public vars!: Record<string, string>
   public after_setup!: string
+  public requires!: string[]
 
   constructor(config: StaxConfig | Record<string, string> | undefined = undefined) {
     if (config)
@@ -55,6 +56,9 @@ export default class Config implements StaxConfig {
 
     if (!Object.prototype.hasOwnProperty.call(this, keys[0]))
       return
+
+    if (keys[0] === 'requires' && typeof value === 'string')
+      value = JSON.parse(value)
 
     for (let i = 0; i < keys.length - 1; i++) {
       const key = keys[i]

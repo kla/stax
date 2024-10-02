@@ -54,6 +54,11 @@ export interface StaxConfig {
 
   /** User defined variables */
   vars: Record<string, string>
+
+  /**
+   * A list of app names that this app requires.
+   */
+  requires: string[]
 }
 
 export interface SetupOptions {
