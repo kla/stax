@@ -48,5 +48,15 @@ async function volumeRemove(volume: string) {
   return run(`docker volume rm "${volume}"`)
 }
 
-const docker = { compose, container, ps, fileExists, volumeExists, volumeRemove }
+const inspectCache: Record<string, Record<string, any>> = {}
+function inspect(containerName: string): Record<string, any> {
+  if (containerName in inspectCache)
+    return inspectCache[containerName]
+
+  const data = JSON.parse(capture(`docker inspect ${containerName}`))[0]
+  inspectCache[containerName] = data
+  return data
+}
+
+const docker = { compose, container, ps, fileExists, volumeExists, volumeRemove, inspect }
 export default docker

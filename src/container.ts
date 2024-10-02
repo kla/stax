@@ -12,7 +12,6 @@ import icons from './icons'
 export default class Container {
   public attributes: Record<string, any>
 
-  private _labels: Record<string, string> | undefined
   private _config: Config | undefined
   private _composeFile: string | undefined
 
@@ -21,7 +20,7 @@ export default class Container {
   }
 
   get labels(): Record<string, string> {
-    return this._labels ? this._labels : (this._labels = csvKeyValuePairs(this.attributes.Labels))
+    return docker.inspect(this.containerName).Config.Labels
   }
 
   get config(): Config {
