@@ -75,6 +75,23 @@ describe('Expressions', () => {
     expect(staxfile.warnings).toContain("Undefined reference to 'stax.undefined_key'")
   })
 
+  describe('requires?', () => {
+    it('returns true when requirement is in staxfile config', async () => {
+      staxfile.config.requires = ['docker', 'node']
+      expect(await expression.evaluate('requires?', ['docker'])).toBe('true')
+    })
+
+    it('returns false when requirement is not in staxfile config', async () => {
+      staxfile.config.requires = ['docker', 'node']
+      expect(await expression.evaluate('requires?', ['python'])).toBe('false')
+    })
+
+    it('returns false when staxfile config has no requirements', async () => {
+      staxfile.config.requires = []
+      expect(await expression.evaluate('requires?', ['docker'])).toBe('false')
+    })
+  })
+
   describe('test', () => {
     let expressions
     let mockStaxfile

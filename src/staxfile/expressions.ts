@@ -37,6 +37,7 @@ export default class Expressions {
     if (name === 'dasherize') return dasherize(args[0])
     if (name === 'test') return this.test(args[0], args[1]).toString()
     if (name === 'prompt') return await this.prompt(args[0], args[1])
+    if (name === 'requires?') return this.staxfile.config.requires.includes(args[0]).toString()
 
     this.staxfile.warnings.add(`Invalid template expression: ${name}`)
   }
