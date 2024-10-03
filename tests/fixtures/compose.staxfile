@@ -1,8 +1,10 @@
-!import imports/stax.yaml as stax
-!import imports/web.yaml as web
+!import imports/common.yaml as common
 
-stax: !extends stax
+stax: !extends common.stax
   app: test2
+  vars: !extends common.stax.vars
+    ruby_version: 2.0.1
 
-services:
-  web: !extends web
+volumes: !extends common.volumes
+
+!extends common.stax.vars

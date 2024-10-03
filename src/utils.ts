@@ -88,7 +88,7 @@ export function directoryExists(path: string): boolean {
  * @param keysToRemove - An array of keys to remove.
  * @returns A new object or array with the specified keys removed.
  */
-export function deepRemoveKeys(obj, keysToRemove) {
+export function deepRemoveKeys(obj: any, keysToRemove: (string | RegExp)[]): any {
   if (typeof obj !== 'object' || obj === null)
     return obj
 
@@ -97,7 +97,7 @@ export function deepRemoveKeys(obj, keysToRemove) {
 
   return Object.fromEntries(
     Object.entries(obj)
-      .filter(([key]) => !keysToRemove.includes(key))
+      .filter(([key]) => !keysToRemove.some(pattern => typeof pattern === 'string' ? pattern === key : pattern.test(key)))
       .map(([key, value]) => [key, deepRemoveKeys(value, keysToRemove)])
   )
 }
@@ -248,4 +248,20 @@ export function truthy(value: any): boolean {
   if (typeof value === 'string') return value.toLowerCase() !== 'false' && value !== '0' && value !== ''
   if (Array.isArray(value)) return value.length > 0
   return !!value
+}
+
+/**
+ * Retrieves a value from an object using a dot-notated path.
+ * @param obj - The object to dig into.
+ * @param path - The dot-notated path to the desired value.
+ * @returns The value at the specified path, or undefined if not found.
+ */
+export function dig(obj: any, path: string): any {
+  if (path === '.') return obj
+  return path.split('.').reduce((acc, part) => {
+    if (acc && typeof acc === 'object' && part in acc) {
+      return acc[part]
+    }
+    return undefined
+  }, obj)
 }

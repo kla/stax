@@ -10,13 +10,17 @@ describe('loadFile', () => {
   beforeEach(() => yaml = loadFile(composeYaml))
 
   it('loads and processes a YAML file with imports', () => {
-    expect(yaml.stax.vars.ruby_version).toBe('3.3.3')
-    expect(yaml.services.web.build.dockerfile).toBe('Dockerfile')
-    expect(yaml.services.web.command).toBe('bin/rails server')
-    expect(yaml.services.web.environment.PATH).toBe('/usr/local/bin:/usr/bin:/bin')
+    expect(yaml.stax.app).toBe('test2')
+    expect(yaml.stax.vars.ruby_version).toBe('2.0.1')
+    expect(yaml.stax.vars.rails_server_port).toBe(3000)
+    expect(yaml.volumes.home).toBeNull()
   })
 
   it('parses resolve_relative', () => {
-    expect(yaml.services.web.build.context).toBe(path.resolve(fixturesDir, 'imports'))
+    expect(yaml.stax.vars.relative).toBe(path.resolve(fixturesDir, 'imports'))
+  })
+
+  it('strips _stax_import_ anchors', () => {
+    expect(dump(yaml)).not.toContain('_stax_import_')
   })
 })

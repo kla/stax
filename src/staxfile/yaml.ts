@@ -2,31 +2,35 @@ import * as fs from 'fs'
 import * as path from 'path'
 import yaml from 'js-yaml'
 import icons from '~/icons'
-import { deepRemoveKeys } from '~/utils'
+import { deepRemoveKeys, dig } from '~/utils'
 
 const dumpOptions = { lineWidth: -1, noRefs: true }
 const sanitizeRegex = /[^a-zA-Z0-9_]/g
-const importRegex = /^!import\s+(.+)\sas\s+(.+)$/gm
+const importRegex = /^ *!import\s+(.+)\sas\s+(.+)$/gm
 const extendsRegex = /^(\s*)(.+):\s*!extends\s+(.+)$/gm
-const rootExtendsRegex = /^!extends\s+(.+)$/gm
+const rootExtendsRegex = /^ *!extends\s+(.+)$/gm
+const anchorNamePrefix = '_stax_import_'
 
 class Import {
   public match: string
   public name: string
   public filePath: string
+  public yaml: Yaml
 
-  constructor({ match, name, filePath }: { match: string, name: string, filePath: string }) {
+  constructor({ match, name, filePath, parentFile }: { match: string, name: string, filePath: string, parentFile: string }) {
     this.match = match
     this.name = name
     this.filePath = filePath
+    this.yaml = new Yaml(filePath, parentFile)
   }
 
   get anchorName(): string {
-    return [
-      '_stax_import',
-      this.filePath.replace(sanitizeRegex, '_'),
-      this.name.replace(sanitizeRegex, '_')
-    ].join('_')
+    return this.buildAnchorName([ this.filePath, this.yaml.parentFile, this.name ])
+  }
+
+  buildAnchorName(parts: string | string[]): string {
+    if (typeof parts === 'string') parts = [ parts ]
+    return [ anchorNamePrefix, ...parts.map(part => part.replace(sanitizeRegex, '_')) ].join('_')
   }
 }
 
@@ -34,6 +38,8 @@ class Yaml {
   public filePath: string
   public parentFile: string
   public imports: Record<string, Import>
+  public content: string
+  public attributes: Record<string, any>
 
   constructor(filePath: string, parentFile: string = undefined) {
     this.filePath = path.resolve(path.dirname(parentFile || filePath), filePath)
@@ -45,13 +51,11 @@ class Yaml {
   }
 
   compile(): Record<string, any> {
-    let content = this.readFile(this.filePath)
-
-    this.imports = {}
-    content = this.parseImports(content)
-    content = this.parseExtends(content)
-    content = this.parseResolveRelative(content)
-    return deepRemoveKeys(yaml.load(content), Object.values(this.imports).map(item => item.anchorName))
+    this.content = this.readFile(this.filePath)
+    this.parseImports()
+    this.parseExtends()
+    this.parseResolveRelative()
+    return this.attributes = deepRemoveKeys(yaml.load(this.content), [ new RegExp(`^${anchorNamePrefix}`) ])
   }
 
   load(): Record<string, any> {
@@ -73,28 +77,49 @@ class Yaml {
     }
   }
 
-  private parseImports(content: string): string {
-    return content.replace(importRegex, (match, filePath, name) => {
-      const yamlImport = new Import({ name, match, filePath })
+  private parseImports() {
+    this.imports = {}
+    this.content = this.content.replace(importRegex, (match, filePath, name) => {
+      const yamlImport = new Import({ name, match, filePath, parentFile: this.filePath })
       this.imports[yamlImport.name] = yamlImport
 
-      const data: any = new Yaml(yamlImport.filePath, this.filePath).compile()
-      let text: string = dump({ [yamlImport.anchorName]: data })
+      const attrs: any = yamlImport.yaml.compile()
+      let text: string = dump({ [yamlImport.anchorName]: attrs })
       text = text.replace(`${yamlImport.anchorName}:`, `${yamlImport.anchorName}: &${yamlImport.name}`)
       return `# ${match}\n${text}`
     })
   }
 
-  private parseExtends(content: string): string {
-    content = content.replace(rootExtendsRegex, (_match, name) => `<<: *${name}`) // root level !extends
-    content = content.replace(extendsRegex, (_match, indent, key, name) => `${indent}${key}:\n${indent}  <<: *${name}`) // non-root level !extends
-    return content
+  private parseExtends() {
+    const prepends = new Set<string>()
+
+    // root level !extends
+    this.content = this.content.replace(rootExtendsRegex, (_match, name) => `<<: *${name}`)
+
+    // non-root level !extends
+    this.content = this.content.replace(extendsRegex, (_match, indent, key, name) => {
+      if (name.includes('.')) {
+        const imp = this.findImport(name)
+        const subKey = name.split('.').slice(1).join('.')
+        let text = dump({ [name]: dig(imp.yaml.attributes, subKey) }).replace(`${name}:`, `${imp.buildAnchorName(name)}: &${name}`)
+        prepends.add(text)
+      }
+      return `${indent}${key}:\n${indent}  <<: *${name}`
+    })
+
+    if (prepends.size > 0)
+      this.content = Array.from(prepends).join('\n\n') + '\n\n' + this.content
+  }
+
+  private findImport(name: string): Import {
+    const imp = this.imports[name.split('.')[0]]
+    return dig(imp.yaml.attributes, name.split('.')[1]) ? imp : null
   }
 
   // Need to handle resolve_relative here rather than in Expressions because we know
   // the actual paths here when importing
-  private parseResolveRelative(content: string): string {
-    return content.replace(/\$\{\{ resolve_relative (.+?) \}\}/g, (match, p1) => path.resolve(this.baseDir, p1))
+  private parseResolveRelative() {
+    this.content = this.content.replace(/\$\{\{ resolve_relative (.+?) \}\}/g, (_match, p1) => path.resolve(this.baseDir, p1))
   }
 }
 

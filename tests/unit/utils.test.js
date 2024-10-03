@@ -1,4 +1,4 @@
-import { csvKeyValuePairs, dasherize, deepRemoveKeys, directoryExists, flattenObject, isFile, truthy } from '~/utils'
+import { csvKeyValuePairs, dasherize, deepRemoveKeys, dig, directoryExists, flattenObject, isFile, truthy } from '~/utils'
 
 describe('csvKeyValuePairs', () => {
   it('returns an empty object for an empty string', () => expect(csvKeyValuePairs('')).toEqual({}))
@@ -83,6 +83,41 @@ describe('deepRemoveKeys', () => {
       { a: 1 },
       { d: 4 }
     ])
+  })
+
+  it('removes keys using both strings and regular expressions', () => {
+    const input = {
+      a: 1,
+      b: 2,
+      test1: 3,
+      test2: 4,
+      nested: {
+        c: 5,
+        test3: 6,
+        deepNested: {
+          d: 7,
+          test4: 8
+        }
+      },
+      arr: [
+        { e: 9, test5: 10 },
+        { f: 11, test6: 12 }
+      ]
+    }
+    const result = deepRemoveKeys(input, ['b', /^test/])
+    expect(result).toEqual({
+      a: 1,
+      nested: {
+        c: 5,
+        deepNested: {
+          d: 7
+        }
+      },
+      arr: [
+        { e: 9 },
+        { f: 11 }
+      ]
+    })
   })
 
   describe('handling edge cases', () => {
@@ -269,4 +304,26 @@ describe('truthy function', () => {
 
   it('returns false for empty arrays', () => expect(truthy([])).toBe(false))
   it('returns true for non-empty arrays', () => expect(truthy([1, 2, 3])).toBe(true))
+})
+
+describe('dig', () => {
+  const testObj = {
+    a: {
+      b: {
+        c: 42
+      },
+      d: [1, 2, 3]
+    },
+    e: null,
+    f: 0
+  }
+
+  it('returns the correct value for a nested path', () => expect(dig(testObj, 'a.b.c')).toBe(42))
+  it('returns the correct value for an array index', () => expect(dig(testObj, 'a.d.1')).toBe(2))
+  it('returns undefined for a non-existent path', () => expect(dig(testObj, 'a.b.d')).toBeUndefined())
+  it('returns undefined for a path that goes through a non-object', () => expect(dig(testObj, 'a.b.c.d')).toBeUndefined())
+  it('returns null if the value is null', () => expect(dig(testObj, 'e')).toBeNull())
+  it('returns 0 if the value is 0', () => expect(dig(testObj, 'f')).toBe(0))
+  it('returns undefined for an empty path', () => expect(dig(testObj, '')).toBeUndefined())
+  it('returns the object itself for a "." path', () => expect(dig(testObj, '.')).toBe(testObj))
 })
