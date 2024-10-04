@@ -106,7 +106,12 @@ export default class Expressions {
 
   private test(filename: string, pattern: string): boolean {
     const content = this.read(filename, '')
-    const regex = new RegExp(pattern)
-    return regex.test(content)
+
+    if (pattern.startsWith('/') && pattern.endsWith('/')) {
+      const regex = new RegExp(pattern.slice(1, -1))
+      return regex.test(content)
+    }
+
+    return content.includes(pattern)
   }
 }

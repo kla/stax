@@ -127,5 +127,11 @@ describe('Expressions', () => {
       const result = await expressions.evaluate('test', ['nonexistent.txt', 'pattern'])
       expect(result).toBe('false')
     })
+
+    it('accepts regex patterns', async () => {
+      mockStaxfile.location.readSync.mockImplementation(() => 'Hello, world!')
+      const result = await expressions.evaluate('test', ['test.txt', '/world/'])
+      expect(result).toBe('true')
+    })
   })
 })
