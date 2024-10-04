@@ -141,7 +141,7 @@ export default class Staxfile {
     labels['stax.container_number'] = number
 
     for (const [key, value] of Object.entries(flattenObject(this.config)))
-      labels[`stax.${key}`] = typeof value === 'object' ? JSON.stringify(value) : value?.toString()
+      labels[`stax.${key}`] = value && typeof value === 'object' ? JSON.stringify(value) : value
 
     return labels
   }
