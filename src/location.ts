@@ -41,6 +41,10 @@ export default class Location {
     return true
   }
 
+  get baseUrl(): string {
+    return `file://${this.source}`
+  }
+
   readSync(file: string): string {
     return readFileSync(path.join(this.source, file), 'utf-8')
   }
@@ -57,6 +61,10 @@ class GitLocation extends Location {
     const urlParts = this.source.split('/')
     let repoName = urlParts[urlParts.length - 1]
     return repoName.endsWith('.git') ? repoName.slice(0, -4) : repoName
+  }
+
+  get baseUrl(): string {
+    return `git://${this.source}`
   }
 
   readSync(file: string): string {

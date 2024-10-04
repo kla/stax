@@ -1,4 +1,5 @@
 import { dasherize } from '~/utils'
+import icons from '~/icons'
 import * as path from 'path'
 import Staxfile from './index'
 import inquirer from 'inquirer'
@@ -77,11 +78,12 @@ export default class Expressions {
     return this.staxfile.config.fetch(key)
   }
 
-  private read(file: string, defaultValue: string): string {
+  private read(file: string, defaultValue: string=''): string {
     try {
-      return (this.staxfile.location.readSync(file) || defaultValue).trim()
+      return this.staxfile.location.readSync(file)?.trim() || defaultValue
     } catch (e) {
-      console.warn(`Couldn't read ${file}: ${e.code}... using default value of '${defaultValue}'`)
+      const url = this.staxfile.config.location?.baseUrl
+      console.warn(`${icons.warning} Couldn't read ${file} from ${url}: ${e.code}... using default value of '${defaultValue}'`)
       return defaultValue
     }
   }

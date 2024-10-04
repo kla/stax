@@ -80,7 +80,8 @@ export default class Staxfile {
     this.compose = loadFile(this.staxfile)
 
     // render the stax section first since we need to update this.config with the values there
-    this.compose.stax = await this.renderCompose(this.compose.stax)
+    // exclude read on this first render since it can be dependent on stax.source
+    this.compose.stax = await this.renderCompose(this.compose.stax, { exclude: [ 'read' ]})
     this.config = new Config({ ...this.config, ...this.compose.stax })
 
     this.compose = await this.renderCompose(this.compose)
@@ -97,20 +98,23 @@ export default class Staxfile {
     return [...this.warnings]
   }
 
-  private async renderCompose(attributes: Record<string, any>): Promise<Record<string, any>> {
-    const renderedYaml = await this.render(dump(attributes))
+  private async renderCompose(attributes: Record<string, any>, options: { exclude: string[] } = { exclude: [] }): Promise<Record<string, any>> {
+    const renderedYaml = await this.render(dump(attributes), options)
     return yaml.load(renderedYaml)
   }
 
-  private async render(text: string): Promise<string> {
+  private async render(text: string, options: { exclude: string[] } = { exclude: [] }): Promise<string> {
     let matches = 0
 
-    text = await renderTemplate(text, async (name, args) => {
+    text = await renderTemplate(text, async (name, args, originalMatch) => {
+      if (options.exclude.includes(name))
+        return originalMatch
+
       matches += 1
       return await this.expressions.evaluate(name, args)
     })
 
-    return matches > 0 ? await this.render(text) : text
+    return matches > 0 ? await this.render(text, options) : text
   }
 
   private updateServices() {
