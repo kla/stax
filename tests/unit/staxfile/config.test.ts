@@ -112,7 +112,7 @@ describe('Config', () => {
 
       expect(exitMock.called).toBe(true)
       expect(exitMock.code).toBe(1)
-      expect(exitMock.message).toBe('⚠️ App name can only contain alphanumeric characters, dashes, and underscores.')
+      expect(exitMock.message).toBe(`⚠️ App name can only contain alphanumeric characters, dashes, and underscores: ${name}`)
       expect(config.app).not.toBe(name)
     })
   })
