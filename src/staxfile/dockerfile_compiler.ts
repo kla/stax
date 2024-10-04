@@ -1,4 +1,4 @@
-import { readFileSync, writeFileSync } from 'fs'
+import { existsSync, readFileSync, writeFileSync } from 'fs'
 import { exit, verifyFile, truthy } from '~/utils'
 import { BuildOptions } from '~/types'
 import * as path from 'path'
@@ -48,11 +48,17 @@ export default class DockerfileCompiler {
 
     this.build.modules.forEach((module) => {
       if (!module.hasOwnProperty('if') || truthy(module['if'])) {
-        const file = path.join(this.build.context, 'modules', module.name)
-        included.push(module.name)
-        this.parseModuleFile(file, modules)
+        const file = path.join(this.build.context, 'modules', module['name'])
+
+        if (existsSync(file)) {
+          included.push(module['name'])
+          this.parseModuleFile(file, modules)
+        } else if (module['optional'])
+          excluded.push(module['name'])
+        else
+          verifyFile(file, 'Module file not found')
       } else
-        excluded.push(module.name)
+        excluded.push(module['name'])
     })
 
     if (included.length > 0)
@@ -65,8 +71,6 @@ export default class DockerfileCompiler {
   }
 
   private parseModuleFile(file: string, modules: Record<string, string>) {
-    verifyFile(file, 'Module file not found')
-
     const contents = readFileSync(file, 'utf-8')
     let sectionName: string
 
