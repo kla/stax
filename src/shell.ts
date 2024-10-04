@@ -3,8 +3,8 @@ import { RunOptions } from '~/types'
 import icons from '~/icons'
 import chalk from 'chalk'
 
-function outputCommand(command: string, { cwd, silent }: RunOptions): void {
-  if (silent) return
+function outputCommand(command: string, { cwd, quiet }: RunOptions): void {
+  if (quiet) return
 
   command = chalk.green(`${icons.play}  ${command}`)
   if (cwd) command += chalk.green(` (in ${cwd})`)
@@ -12,7 +12,7 @@ function outputCommand(command: string, { cwd, silent }: RunOptions): void {
 }
 
 export function capture(command: string, options = {}) {
-  options = { silent: true, encoding: 'utf8', shell: true, ...options }
+  options = { quiet: true, encoding: 'utf8', shell: true, ...options }
   outputCommand(command, options)
 
   const result = spawnSync(command, [], options)
@@ -20,19 +20,20 @@ export function capture(command: string, options = {}) {
   const stderr = result.stderr ? result.stderr.toString().trim() : ''
 
   if (result.error || result.status !== 0) {
-    outputCommand(command, { silent: false })
+    outputCommand(command, { quiet: false })
     console.error(stdout, '\n', stderr)
     process.exit(result.status)
   }
   return stdout
 }
 
-export async function run(command: string, { env, cwd } = {}) {
+export async function run(command: string, options: RunOptions = {}) {
   const shellOptions: any = {
     stdio: 'inherit',
     shell: true,
-    env: env ? { ...process.env, ...env } : process.env,
-    cwd: cwd,
+    env: options.env ? { ...process.env, ...options.env } : process.env,
+    cwd: options.cwd,
+    quiet: options.quiet,
   }
 
   outputCommand(command, shellOptions)

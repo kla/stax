@@ -87,10 +87,10 @@ class GitLocation extends Location {
 
     if (!existsSync(repoDir)) {
       mkdirSync(repoDir, { recursive: true })
-      capture(`git clone --depth 1 "${this.source}" "${repoDir}"`, { silent: false })
+      capture(`git clone --depth 1 "${this.source}" "${repoDir}"`, { quiet: false })
     } else {
       try {
-        capture('git fetch origin && git reset --hard origin/HEAD', { silent: false, cwd: repoDir })
+        capture('git fetch origin && git reset --hard origin/HEAD', { quiet: false, cwd: repoDir })
       } catch (error) {
         process.exit(1)
       }

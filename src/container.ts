@@ -1,6 +1,5 @@
 import { existsSync } from 'fs'
-import { csvKeyValuePairs } from '~/utils'
-import { SetupOptions, StaxConfig } from '~/types'
+import { SetupOptions, StaxConfig, RunOptions } from '~/types'
 import { run } from '~/shell'
 import { linkSshAuthSock } from '~/host_services'
 import docker from '~/docker'
@@ -126,14 +125,14 @@ export default class Container {
     return docker.compose(this.context, 'rm --stop --force --volumes', this.composeFile)
   }
 
-  async exec(command: string) {
+  async exec(command: string, options: RunOptions = {}) {
     const args = '--interactive --tty'
 
     linkSshAuthSock()
 
     if (this.running)
-      return docker.container(`exec ${args} ${this.containerName} ${command}`)
-    return docker.compose(this.context, `run --rm ${args} ${this.name} ${command}`, this.composeFile)
+      return docker.container(`exec ${args} ${this.containerName} ${command}`, options)
+    return docker.compose(this.context, `run --rm ${args} ${this.name} ${command}`, this.composeFile, options)
   }
 
   async rebuild(config: StaxConfig, options: SetupOptions = {}) {

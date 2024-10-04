@@ -1,18 +1,18 @@
 import { verifyFile } from '~/utils'
 import { run, capture } from '~/shell'
 import { execSync } from 'child_process'
-
+import { RunOptions } from '~/types'
 async function compose(context: string, command: string, composeFile: string, options: Record<string,any> = {}) {
   const base = `docker compose --project-name ${context}`
 
   options = { append: true, ...options, env: { COMPOSE_IGNORE_ORPHANS: "1" } }
   options.exit && verifyFile(composeFile)
 
-  return run(`${base} -f ${composeFile} ${command}`, options)
+  return run(`${base} -f ${composeFile} ${command}`, options as unknown as RunOptions)
 }
 
-async function container(command: string) {
-  return run(`docker container ${command}`)
+async function container(command: string, options: RunOptions = {}) {
+  return run(`docker container ${command}`, options)
 }
 
 /**

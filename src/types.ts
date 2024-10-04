@@ -17,14 +17,16 @@ export interface FindContainerOptions {
  * Represents the options for running a command.
  */
 export interface RunOptions {
+  env?: Record<string, string>,
+
   // The current working directory for the command.
   cwd?: string
 
   // The command to be executed.
   cmd?: string
 
-  // Specifies whether the command should be executed silently.
-  silent?: boolean
+  // Specifies whether the command should be executed quietly.
+  quiet?: boolean
 
   // The standard input/output streams for the command.
   stdio?: 'inherit' | 'pipe' | 'ignore' | 'ipc' | (number | null | undefined)
