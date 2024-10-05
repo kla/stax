@@ -80,6 +80,7 @@ export default class App {
       return this.inspect(staxfile, composeFile)
 
     await docker.compose(staxfile.context, 'up --detach --force-recreate --build', composeFile, { exit: true })
+    docker.clearInspectCache()
     const app = App.find(staxfile.context, staxfile.app)
 
     if (options.duplicate || (!options.rebuild && !staxfile.config.location.local))
@@ -155,6 +156,7 @@ export default class App {
       return exit(1, { message: `${icons.error} An app named '${newName}' already exists.` })
 
     this.rebuild({ ...config, app: newName }, { ...options, duplicate: true })
+    docker.clearInspectCache()
   }
 
   async restart() {

@@ -30,6 +30,10 @@ function ps(context: string): Array<Record<string,any>> {
   return psCache[context]
 }
 
+function clearInspectCache() {
+  psCache = {}
+}
+
 function fileExists(containerName: string, path: string): boolean {
   const checkCommand = `docker exec ${containerName} sh -c "test -e ${path}"`
 
@@ -63,5 +67,5 @@ function inspect(containerName: string): Record<string, any> {
   return data
 }
 
-const docker = { compose, container, ps, fileExists, volumeExists, volumeRemove, inspect }
+const docker = { compose, container, ps, fileExists, volumeExists, volumeRemove, inspect, clearInspectCache }
 export default docker
