@@ -1,5 +1,6 @@
 import { StaxConfig } from './types'
 import { exit, presence } from './utils'
+import Staxfile from './staxfile'
 import * as fs from 'fs'
 import * as path from 'path'
 import settings from './settings'
@@ -24,12 +25,13 @@ function search(dir: string): string[] {
   return staxfiles
 }
 
-function findStaxfiles(context: string): string[] {
+function findStaxfiles(context: string): any {
   const servicesHome = settings.read('services_home') || exit(1, { message: `${icons.error} services_home is not set in settings` })
-  const allStaxfiles = presence(search(servicesHome)) || exit(1, { message: `${icons.error} No Staxfiles found in ${servicesHome}` })
-  const installedStaxfiles = App.allContainers(context).map(container => container.staxfile)
+  const all = presence(search(servicesHome)) || exit(1, { message: `${icons.error} No Staxfiles found in ${servicesHome}` })
+  const installed = App.allContainers(context).map(container => container.staxfile)
+  const uninstalled = presence(all.filter(file => !installed.includes(file))) || exit(1, { message: `${icons.error} All services in ${servicesHome} are already installed`})
 
-  return presence(allStaxfiles.filter(file => !installedStaxfiles.includes(file))) || exit(1, { message: `${icons.error} All services in ${servicesHome} are already installed`})
+  return { installed, uninstalled }
 }
 
 function getStaxfileName(filePath: string): string {
@@ -53,7 +55,13 @@ async function pickStaxfile(staxfiles: string[]) {
 }
 
 export default async function setupWizard(stax: stax) {
-  const staxfile: string = await pickStaxfile(findStaxfiles(stax.context))
-  console.log(`Selected service to install: ${staxfile}`)
-  await stax.setup({ source: staxfile } as unknown as StaxConfig)
+  const { installed, uninstalled } = findStaxfiles(stax.context)
+  const file = await pickStaxfile(uninstalled)
+  const staxfile = new Staxfile({ context: stax.context, source: file } as unknown as StaxConfig)
+
+  await staxfile.compile(true)
+  // const requires = staxfile.config.requires - i
+  // console.log(staxfile.config.requires)
+
+  // await stax.setup({ source: staxfile } as unknown as StaxConfig)
 }
