@@ -94,7 +94,7 @@ export default class Config implements StaxConfig {
     if (!this.staxfile && !(this.staxfile = this.findStaxfile(this.source)))
       exit(1, `Could not find a Staxfile at ${this.source}`)
 
-    verifyFile(this.staxfile)
+    verifyFile(this.staxfile, `Staxfile missing for ${this.app}`)
     this.staxfile = path.resolve(this.staxfile)
 
     if (!this.app)

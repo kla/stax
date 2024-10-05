@@ -68,9 +68,18 @@ export function fileExists(file) {
  * @returns True if the file exists.
  */
 export function verifyFile(file: string, message: string = undefined): boolean {
-  if (!fileExists(file))
-    exit(1, icons.warning + '  ' + (message || 'File not found') + `: ${file}`)
-  return true
+  if (fileExists(file))
+      return true
+
+  const error = new Error(icons.warning + '  ' + (message || 'File not found') + `: ${file}`)
+
+  if (!message) {
+    const stackLines = error.stack.split('\n')
+    const shortTrace = [stackLines[0], ...stackLines.slice(1, 5)].join('\n')
+    console.error(shortTrace)
+    exit(1)
+  } else
+    exit(1, error.message)
 }
 
 /**
