@@ -2,6 +2,7 @@ import { existsSync } from 'fs'
 import { SetupOptions, StaxConfig, RunOptions } from '~/types'
 import { run } from '~/shell'
 import { linkSshAuthSock } from '~/host_services'
+import { timeAgo } from '~/utils'
 import docker from '~/docker'
 import Staxfile from '~/staxfile'
 import App from './app'
@@ -19,7 +20,7 @@ export default class Container {
   }
 
   get labels(): Record<string, string> {
-    return docker.inspect(this.containerName).Config.Labels
+    return this.attributes.Config.Labels
   }
 
   get config(): Config {
@@ -27,7 +28,7 @@ export default class Container {
   }
 
   get id(): string {
-    return this.attributes.ID
+    return this.attributes.Id
   }
 
   get staxfile(): string {
@@ -47,7 +48,7 @@ export default class Container {
   }
 
   get containerName(): string {
-    return this.attributes.Names
+    return this.attributes.Name.slice(1)
   }
 
   get context(): string{
@@ -62,18 +63,32 @@ export default class Container {
     return this.labels['com.docker.compose.project.working_dir']
   }
 
+  get status(): string {
+    return this.attributes.State.Status
+  }
+
+  get health(): string {
+    return this.attributes.State?.Health?.Status
+  }
+
   get state(): string {
-    if (this.attributes.Status.includes('unhealthy')) return 'unhealthy'
-    if (this.attributes.Status.includes('healthy')) return 'healthy'
-    return this.attributes.State
+    if (this.health?.includes('unhealthy')) return 'unhealthy'
+    if (this.health?.includes('healthy')) return 'healthy'
+    return this.status
   }
 
   get running(): boolean {
-    return this.attributes.State == 'running'
+    return this.attributes.State?.Running
   }
 
   get uptime(): string {
-    return this.running ? this.attributes.RunningFor : null
+    if (!this.running || !this.attributes.State?.StartedAt) return null
+
+    const startedAt = new Date(this.attributes.State.StartedAt)
+    const now = new Date()
+    const uptimeMs = now.getTime() - startedAt.getTime()
+
+    return timeAgo(uptimeMs)
   }
 
   get source(): string {
@@ -93,22 +108,23 @@ export default class Container {
   }
 
   get forwardedPorts(): string[] {
-    const ports = this.attributes.Ports
-      ?.split(',')
-      .map(port => port.trim())
-      .filter(port => port.includes('->'))
-      .map(port => {
-        port = port.replace(':::', '0.0.0.0:')
-        const [hostPart, containerPart] = port.split('->')
-        const [bindAddress, hostPort] = hostPart.split(':')
-        const containerPort = containerPart.split('/')[0] // Remove the protocol part
-        const hostPortInfo = bindAddress === '0.0.0.0' ? hostPort : `${bindAddress}:${hostPort}`
+    const ports: string[] = []
+    const networkPorts = this.attributes.NetworkSettings?.Ports || {}
 
-        if (hostPort === containerPort)
-          return hostPortInfo
+    for (const [containerPort, bindings] of Object.entries(networkPorts)) {
+      if (!bindings) continue
 
-        return `${hostPortInfo}->${containerPort}`
-      }) || []
+      const [containerPortNumber] = containerPort.split('/')
+      for (const binding of bindings) {
+        const { HostIp, HostPort } = binding
+        const hostPortInfo = HostIp === '0.0.0.0' || HostIp === '' ? HostPort : `${HostIp}:${HostPort}`
+
+        if (HostPort === containerPortNumber)
+          ports.push(hostPortInfo)
+        else
+          ports.push(`${hostPortInfo}->${containerPortNumber}`)
+      }
+    }
 
     return [...new Set(ports)]
   }

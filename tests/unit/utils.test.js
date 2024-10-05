@@ -1,4 +1,4 @@
-import { csvKeyValuePairs, dasherize, deepRemoveKeys, dig, directoryExists, flattenObject, isFile, truthy } from '~/utils'
+import { csvKeyValuePairs, dasherize, deepRemoveKeys, dig, directoryExists, flattenObject, isFile, timeAgo, truthy } from '~/utils'
 
 describe('csvKeyValuePairs', () => {
   it('returns an empty object for an empty string', () => expect(csvKeyValuePairs('')).toEqual({}))
@@ -326,4 +326,34 @@ describe('dig', () => {
   it('returns 0 if the value is 0', () => expect(dig(testObj, 'f')).toBe(0))
   it('returns undefined for an empty path', () => expect(dig(testObj, '')).toBeUndefined())
   it('returns the object itself for a "." path', () => expect(dig(testObj, '.')).toBe(testObj))
+})
+
+describe('timeAgo', () => {
+  it('formats seconds correctly', () => {
+    expect(timeAgo(45000)).toBe('45s')
+    expect(timeAgo(1000)).toBe('1s')
+  })
+
+  it('formats minutes and seconds correctly', () => {
+    expect(timeAgo(65000)).toBe('1m 5s')
+    expect(timeAgo(3599000)).toBe('59m 59s')
+  })
+
+  it('formats hours and minutes correctly', () => {
+    expect(timeAgo(3600000)).toBe('1h 0m')
+    expect(timeAgo(5400000)).toBe('1h 30m')
+    expect(timeAgo(86399000)).toBe('23h 59m')
+  })
+
+  it('formats days and hours correctly', () => {
+    expect(timeAgo(86400000)).toBe('1d 0h')
+    expect(timeAgo(90000000)).toBe('1d 1h')
+    expect(timeAgo(172800000)).toBe('2d 0h')
+  })
+
+  it('handles edge cases', () => {
+    expect(timeAgo(0)).toBe('0s')
+    expect(timeAgo(999)).toBe('0s')
+    expect(timeAgo(1000 * 60 * 60 * 24 * 365)).toBe('365d 0h')
+  })
 })

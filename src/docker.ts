@@ -2,6 +2,7 @@ import { verifyFile } from '~/utils'
 import { run, capture } from '~/shell'
 import { execSync } from 'child_process'
 import { RunOptions } from '~/types'
+
 async function compose(context: string, command: string, composeFile: string, options: Record<string,any> = {}) {
   const base = `docker compose --project-name ${context}`
 
@@ -19,10 +20,14 @@ async function container(command: string, options: RunOptions = {}) {
  * Returns a list of all Docker containers.
  * @returns An array of strings representing the Docker containers.
  */
+let psCache: any = {}
 function ps(context: string): Array<Record<string,any>> {
-  return capture('docker ps --all --format json').split("\n")
-    .map(attributes => attributes.includes(`com.docker.compose.project=${context}`) ? JSON.parse(attributes) : null)
-    .filter(Boolean)
+  if (!psCache[context]) {
+    const containerNames = capture(`docker ps --all --format "{{.Names}}" --filter "label=com.docker.compose.project=${context}"`).split("\n").join(" ")
+    psCache[context] = containerNames.length > 0 ? JSON.parse(capture(`docker inspect ${containerNames}`)) : []
+  }
+
+  return psCache[context]
 }
 
 function fileExists(containerName: string, path: string): boolean {

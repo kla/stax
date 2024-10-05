@@ -265,3 +265,33 @@ export function dig(obj: any, path: string): any {
     return undefined
   }, obj)
 }
+
+/**
+ * Converts a duration in milliseconds to a human-readable string representation.
+ *
+ * @param milliseconds - The duration in milliseconds to convert.
+ * @returns A string representing the duration in days, hours, minutes, and seconds.
+ *
+ * @example
+ * // Returns "2d 3h 45m 30s"
+ * timeAgo(189930000)
+ *
+ * @example
+ * // Returns "1h 30m 0s"
+ * timeAgo(5400000)
+ *
+ * @example
+ * // Returns "45s"
+ * timeAgo(45000)
+ */
+export function timeAgo(milliseconds: number): string {
+  const seconds = Math.floor(milliseconds / 1000)
+  const minutes = Math.floor(seconds / 60)
+  const hours = Math.floor(minutes / 60)
+  const days = Math.floor(hours / 24)
+
+  if (days > 0) return `${days}d ${hours % 24}h`
+  if (hours > 0) return `${hours}h ${minutes % 60}m`
+  if (minutes > 0) return `${minutes}m ${seconds % 60}s`
+  return `${seconds}s`
+}
