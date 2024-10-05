@@ -178,6 +178,14 @@ program.command('restart')
   .description('Restart an application')
   .action(async name => { await stax.find(name).restart() })
 
+program.command('set')
+  .option('--services-home <path>', 'Set the path to the services home directory')
+  .description('Set a Styx configuration value')
+  .action((options) => {
+    if (options.servicesHome)
+      settings.write('services_home', options.servicesHome)
+  })
+
 program.command('setup')
   .argument('<location>', 'Path to a local directory or git repo of application')
   .option('-s, --staxfile <staxfile>', 'Staxfile to use for setup')
