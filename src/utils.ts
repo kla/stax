@@ -316,3 +316,26 @@ export function timeAgo(milliseconds: number): string {
   if (minutes > 0) return `${minutes}m ${seconds % 60}s`
   return `${seconds}s`
 }
+
+/**
+ * Returns the value if it's present, otherwise returns null.
+ * A value is considered present if it's not null, undefined, an empty string, or an empty array.
+ *
+ * @param value - The value to check for presence.
+ * @returns The value if it's present, null otherwise.
+ *
+ * @example
+ * presence('hello')  // Returns 'hello'
+ * presence('')       // Returns null
+ * presence([1, 2])   // Returns [1, 2]
+ * presence([])       // Returns null
+ * presence(0)        // Returns 0
+ * presence(null)     // Returns null
+ * presence(undefined) // Returns null
+ */
+export function presence<T>(value: T): T | null {
+  if (value === null || value === undefined) return null
+  if (typeof value === 'string' && value.trim() === '') return null
+  if (Array.isArray(value) && value.length === 0) return null
+  return value
+}

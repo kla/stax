@@ -1,4 +1,4 @@
-import { csvKeyValuePairs, dasherize, deepRemoveKeys, dig, directoryExists, flattenObject, isFile, timeAgo, truthy } from '~/utils'
+import { csvKeyValuePairs, dasherize, deepRemoveKeys, dig, directoryExists, flattenObject, isFile, timeAgo, truthy, presence } from '~/utils'
 
 describe('csvKeyValuePairs', () => {
   it('returns an empty object for an empty string', () => expect(csvKeyValuePairs('')).toEqual({}))
@@ -355,5 +355,33 @@ describe('timeAgo', () => {
     expect(timeAgo(0)).toBe('0s')
     expect(timeAgo(999)).toBe('0s')
     expect(timeAgo(1000 * 60 * 60 * 24 * 365)).toBe('365d 0h')
+  })
+})
+
+describe('presence', () => {
+  it('returns the value for non-empty strings', () => expect(presence('hello')).toBe('hello'))
+  it('returns null for empty strings', () => expect(presence('')).toBeNull())
+  it('returns null for strings with only whitespace', () => expect(presence('   ')).toBeNull())
+  it('returns null for empty arrays', () => expect(presence([])).toBeNull())
+  it('returns the number for non-zero numbers', () => expect(presence(42)).toBe(42))
+  it('returns zero for zero', () => expect(presence(0)).toBe(0))
+  it('returns null for null', () => expect(presence(null)).toBeNull())
+  it('returns null for undefined', () => expect(presence(undefined)).toBeNull())
+  it('returns true for true', () => expect(presence(true)).toBe(true))
+  it('returns false for false', () => expect(presence(false)).toBe(false))
+
+  it('returns the array for non-empty arrays', () => {
+    const arr = [1, 2, 3]
+    expect(presence(arr)).toBe(arr)
+  })
+
+  it('returns the object for non-empty objects', () => {
+    const obj = { key: 'value' }
+    expect(presence(obj)).toBe(obj)
+  })
+
+  it('returns an empty object (not null) for empty objects', () => {
+    const obj = {}
+    expect(presence(obj)).toBe(obj)
   })
 })
