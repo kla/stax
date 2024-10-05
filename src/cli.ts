@@ -4,9 +4,10 @@ import { capture, run } from '~/shell'
 import { exit, parseAndRemoveWildcardOptions, pp } from '~/utils'
 import { StaxConfig } from '~/types'
 import Stax from '~/stax'
-import path from 'path'
+import * as path from 'path'
 import tmp from 'tmp'
 import settings from './settings'
+import setupWizard from './setup_wizard'
 
 const DEFAULT_CONTEXT_NAME = 'stax'
 
@@ -187,11 +188,18 @@ program.command('set')
   })
 
 program.command('setup')
-  .argument('<location>', 'Path to a local directory or git repo of application')
+  .argument('[location]', 'Path to a local directory or git repo of application')
   .option('-s, --staxfile <staxfile>', 'Staxfile to use for setup')
   .option('-i, --inspect', 'Show the compose file')
   .description('Setup an application')
-  .action(async (location, options) => stax.setup({ source: location, ...options }, { ...options, overrides: overrides }))
+  .action(async (location, options) => {
+    if (location)
+      stax.setup({ source: location, ...options }, { ...options, overrides: overrides })
+    else if (settings.read('services_home'))
+      await setupWizard(stax)
+    else
+      console.log('Please specify an application location or set the services home directory.')
+  })
 
 program.command('shell')
   .alias('sh')

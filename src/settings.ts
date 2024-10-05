@@ -11,7 +11,7 @@ function load() {
 }
 
 const settings = {
-  read: function(name: string, defaultValue: any | undefined) {
+  read: function(name: string, defaultValue: any | undefined = undefined) {
     const settings = load()
     return settings[name] || defaultValue
   },
