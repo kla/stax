@@ -19,7 +19,11 @@ export default class Staxfile {
   private expressions: Expressions
 
   constructor(config: StaxConfig) {
-    this.config = new Config(config)
+    let source = config.source
+    if (source.endsWith("/Staxfile"))
+      source = source.slice(0, -9)
+
+    this.config = new Config({ ...config, source: source })
     this.warnings = new Set()
     this.expressions = new Expressions(this)
   }
