@@ -74,10 +74,8 @@ export default class Config implements StaxConfig {
 
     const lastKey = keys[keys.length - 1]
 
-    if (lastKey === 'app' && !this.isValidAppName(value)) {
-      exit(1, `${icons.warning} App name can only contain alphanumeric characters, dashes, and underscores: ${value}`)
-      return
-    }
+    if (lastKey === 'app' && !this.isValidAppName(value))
+      return exit(1, { message: `${icons.warning} App name can only contain alphanumeric characters, dashes, and underscores: ${value}` })
 
     if (lastKey in current &&
         current[lastKey] !== null &&
@@ -92,7 +90,7 @@ export default class Config implements StaxConfig {
     Object.keys(config).forEach((key) => this.set(key, config[key]))
 
     if (!this.staxfile && !(this.staxfile = this.findStaxfile(this.source)))
-      exit(1, `Could not find a Staxfile at ${this.source}`)
+      return exit(1, { message: `Could not find a Staxfile at ${this.source}` })
 
     verifyFile(this.staxfile, `Staxfile missing for ${this.app}`)
     this.staxfile = path.resolve(this.staxfile)

@@ -25,7 +25,7 @@ export default class Stax {
     const app = this.apps().find(app => app.name == appName)
 
     if (!app)
-      return exit(1, `No app named '${appName}@${this.context}' was found.`)
+      return exit(1, { message: `No app named '${appName}@${this.context}' was found.` })
 
     return app
   }

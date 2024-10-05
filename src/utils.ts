@@ -19,13 +19,30 @@ export function csvKeyValuePairs(csv: string = '') {
 }
 
 /**
- * Exits the process with a given code and optional message.
- * @param code - The exit code.
- * @param message - Optional message to log before exiting.
+ * Terminates the process with a specified exit code and optional error message.
+ *
+ * @param code - The exit code to use when terminating the process.
+ * @param options - Optional configuration object.
+ * @param options.message - Custom error message to display before exiting.
+ * @param options.trace - If true, displays a shortened stack trace (up to 6 lines).
+ *
+ * @example
+ * // Exit with code 1 and a custom message
+ * exit(1, { message: 'An error occurred' });
+ *
+ * @example
+ * // Exit with code 2 and display a short stack trace
+ * exit(2, { message: 'Critical error', trace: true });
  */
-export function exit(code: number, message: string | undefined=undefined): undefined {
-  if (message)
-    console.error(message)
+export function exit(code: number, options?: { message?: string; trace?: boolean }): never {
+  const error = new Error(options?.message)
+
+  if (options?.trace) {
+    const stackLines = error.stack.split('\n')
+    const shortTrace = stackLines.slice(0, 6).join('\n')
+    console.error(shortTrace)
+  } else
+    console.error(error.message)
 
   process.exit(code)
 }
@@ -71,15 +88,10 @@ export function verifyFile(file: string, message: string = undefined): boolean {
   if (fileExists(file))
       return true
 
-  const error = new Error(icons.warning + '  ' + (message || 'File not found') + `: ${file}`)
+  if (!message)
+    message = 'File not found'
 
-  if (!message) {
-    const stackLines = error.stack.split('\n')
-    const shortTrace = [stackLines[0], ...stackLines.slice(1, 5)].join('\n')
-    console.error(shortTrace)
-    exit(1)
-  } else
-    exit(1, error.message)
+  exit(1, { message: `${icons.warning}  ${message}: ${file}`, trace: !message })
 }
 
 /**

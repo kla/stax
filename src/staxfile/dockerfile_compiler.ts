@@ -75,7 +75,7 @@ export default class DockerfileCompiler {
     let sectionName: string
 
     if (!contents.includes('# $stax.append_to'))
-      exit(1, `Must specify at least one "# $stax.append_to" expression in module: ${file}`)
+      exit(1, { message: `Must specify at least one "# $stax.append_to" expression in module: ${file}` })
 
     contents.split("\n").forEach((line) => {
       let matches = line.match(/# \$stax\.append_to (.*?)$/)

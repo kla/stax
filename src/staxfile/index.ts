@@ -91,7 +91,7 @@ export default class Staxfile {
     this.compose = await this.renderCompose(this.compose)
 
     if (this.generatedWarnings.length > 0)
-      exit(1, this.generatedWarnings.join('\n'))
+      return exit(1, { message: this.generatedWarnings.join('\n') })
   }
 
   private get generatedWarnings(): Array<string> {
@@ -190,7 +190,7 @@ export default class Staxfile {
         module = { name: module, if: true }
 
       if (!module.hasOwnProperty('name'))
-        exit(1, `${icons.error} Module must have a 'name' property: ${module}`)
+        return exit(1, { message: `${icons.error} Module must have a 'name' property: ${module}` })
 
       return module
     }).filter(Boolean)

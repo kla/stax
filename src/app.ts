@@ -60,7 +60,7 @@ export default class App {
     const app = App.all(context).find(app => app.name == appName)
 
     if (!app && options.mustExist)
-      exit(1, `${icons.error} App '${appName}@${context}' not found`)
+      return exit(1, { message: `${icons.error} App '${appName}@${context}' not found`, trace: true })
 
     return app
   }
@@ -74,7 +74,7 @@ export default class App {
     const composeFile = await staxfile.compile(true)
 
     if (!composeFile)
-      exit(1, `👿 Couldn't setup a container for '${staxfile.source}'`)
+      return exit(1, { message: `👿 Couldn't setup a container for '${staxfile.source}'` })
 
     if (options.inspect)
       return this.inspect(staxfile, composeFile)
@@ -140,7 +140,7 @@ export default class App {
     if (options.service) {
       const container = this.containers.find(container => container.service == options.service)
       if (!container)
-        exit(1, `👿 No container found for a service named '${options.service}'. Valid services are: ${this.containers.map(container => container.service).join(', ')}`)
+        return exit(1, { message: `👿 No container found for a service named '${options.service}'. Valid services are: ${this.containers.map(container => container.service).join(', ')}` })
       return container
     }
     return this.primary
@@ -152,7 +152,7 @@ export default class App {
 
   async duplicate(newName: string, config: StaxConfig, options: SetupOptions = {}) {
     if (this.constructor.exists(this.context, newName))
-      exit(1, `${icons.error} An app named '${newName}' already exists.`)
+      return exit(1, { message: `${icons.error} An app named '${newName}' already exists.` })
 
     this.rebuild({ ...config, app: newName }, { ...options, duplicate: true })
   }

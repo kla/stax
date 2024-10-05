@@ -93,7 +93,7 @@ program.command('edit')
     }
 
     if (!app.primary.config.workspace)
-      exit(0, `${name} has no 'workspace' defined.`)
+      return exit(0, { message: `${name} has no 'workspace' defined.` })
 
     // kill vscode servers to fix problem where vscode can't access any files sometimes
     // when starting and trying to attach to the container
