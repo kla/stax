@@ -2,6 +2,7 @@ import { readFileSync, rmSync } from 'fs'
 import { cacheDir, exit, fileExists, pp, isEmpty } from '~/utils'
 import { StaxConfig, SetupOptions, FindContainerOptions } from '~/types'
 import { linkSshAuthSock } from './host_services'
+import chalk from 'chalk'
 import Staxfile from '~/staxfile'
 import icons from '~/icons'
 import docker from '~/docker'
@@ -9,6 +10,7 @@ import Container from '~/container'
 import settings from '~/settings'
 import yaml from 'js-yaml'
 import prompts from 'prompts'
+import Config from './staxfile/config'
 
 export default class App {
   public name: string
@@ -29,6 +31,10 @@ export default class App {
 
   get primary(): Container {
     return this.containers[0]
+  }
+
+  get config(): Config {
+    return this.primary.config
   }
 
   get state() {
@@ -69,7 +75,7 @@ export default class App {
     return this.all(context).find(app => app.name == name) != null
   }
 
-  static async setup(config: StaxConfig, options: SetupOptions = {}) {
+  static async setup(config: StaxConfig, options: SetupOptions = {}): Promise<App> {
     const staxfile = new Staxfile(config)
     const composeFile = await staxfile.compile(true)
 
@@ -170,5 +176,11 @@ export default class App {
     aliases[alias] = this.name
     settings.write('aliases', aliases)
     console.log(`${icons.success} Added alias '${alias}' for '${this.name}'`)
+  }
+
+  installedMessage(): string {
+    const sh = chalk.blue(`'stax sh ${this.name}'`)
+    const edit = chalk.blue(`'stax edit ${this.name}'`)
+    return `${icons.info} ${this.name} installed. You can open a shell to its container with ${sh} or open it in vscode, if installed, with ${edit}`
   }
 }

@@ -16,8 +16,8 @@ export default class Stax {
     list(this.apps(), options)
   }
 
-  async setup(config: StaxConfig, options: { inspect?: boolean } = { inspect: false }) {
-    App.setup({ context: this.context, ...config } as unknown as StaxConfig, options)
+  async setup(config: StaxConfig, options: { inspect?: boolean } = { inspect: false }): Promise<App> {
+    return await App.setup({ context: this.context, ...config } as unknown as StaxConfig, options)
   }
 
   find(appName: string): App | undefined {

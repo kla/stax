@@ -17,6 +17,8 @@ const icons = {
   success: '✅',
   build: '🛠️',
   failed: '❌',
+  launch: '🚀',
+  info: '💡',
 }
 
 export default icons

@@ -194,9 +194,10 @@ program.command('setup')
   .option('-i, --inspect', 'Show the compose file')
   .description('Setup an application')
   .action(async (location, options) => {
-    if (location)
-      stax.setup({ source: location, ...options }, { ...options, overrides: overrides })
-    else if (settings.read('services_home'))
+    if (location) {
+      const app = await stax.setup({ source: location, ...options }, { ...options, overrides: overrides })
+      console.log('\n' + app.installedMessage())
+    } else if (settings.read('services_home'))
       await setupWizard(stax)
     else
       console.log('Please specify an application location or set the services home directory.')

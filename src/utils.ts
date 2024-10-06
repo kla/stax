@@ -42,7 +42,7 @@ export function exit(code: number, options?: { message?: string; trace?: boolean
     const shortTrace = stackLines.slice(0, 6).join('\n')
     console.error(shortTrace)
   } else
-    console.error(error.message)
+    console[code != 0 ? 'error' : 'info'](error.message)
 
   process.exit(code)
 }
