@@ -2,7 +2,7 @@ import * as fs from 'fs'
 import * as path from 'path'
 import yaml from 'js-yaml'
 import icons from '~/icons'
-import { deepRemoveKeys, dig } from '~/utils'
+import { deepRemoveKeys, dig, exit } from '~/utils'
 
 const dumpOptions = { lineWidth: -1, noRefs: true }
 const sanitizeRegex = /[^a-zA-Z0-9_]/g
@@ -112,7 +112,8 @@ class Yaml {
   }
 
   private findImport(name: string): Import {
-    const imp = this.imports[name.split('.')[0]]
+    const importName = name.split('.')[0]
+    const imp = this.imports[importName] || exit(1, { message: `${icons.error} Couldn't find import for '${importName}' referenced in '${this.filePath}'` })
     return dig(imp.yaml.attributes, name.split('.')[1]) ? imp : null
   }
 
