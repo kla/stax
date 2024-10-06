@@ -1,13 +1,16 @@
-#!/bin/bash
-set -e
+#!/usr/bin/env bash
+set -euo pipefail
 
-if [ "$(readlink $0)" != "" ]; then
-  # is a symlink
-  stax_home=$(readlink $0)
-else
-  stax_home="$0"
+# Resolve the directory of the script, following symlinks
+script_path=$(readlink -f "$0")
+stax_home=$(dirname "$(dirname "$script_path")")
+
+# Check if src/cli.ts exists
+cli_path="$stax_home/src/cli.ts"
+if [ ! -f "$cli_path" ]; then
+    echo "Error: $cli_path not found" >&2
+    exit 1
 fi
 
-stax_home=$(dirname "$stax_home")
-stax_home=$(realpath "$stax_home/..")
-WORKING_DIRECTORY=$(pwd) bun --cwd $stax_home src/cli.ts $@
+# Run the bun command
+exec bun run "$cli_path" "$@"

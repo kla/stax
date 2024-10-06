@@ -1,5 +1,5 @@
 import { Command } from 'commander'
-import { existsSync, mkdirSync, readFileSync } from 'fs'
+import { existsSync, mkdirSync } from 'fs'
 import { capture, run } from '~/shell'
 import { exit, parseAndRemoveWildcardOptions, pp } from '~/utils'
 import { StaxConfig } from '~/types'
@@ -237,5 +237,4 @@ if (!existsSync(process.env.STAX_HOME)) mkdirSync(process.env.STAX_HOME)
 if (!existsSync(process.env.STAX_HOST_SERVICES)) mkdirSync(process.env.STAX_HOST_SERVICES)
 
 process.on('SIGINT', () => { tmp.setGracefulCleanup(); process.exit() })
-process.chdir(process.env.WORKING_DIRECTORY)
 program.parse(args)
