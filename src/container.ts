@@ -117,7 +117,7 @@ export default class Container {
       const [containerPortNumber] = containerPort.split('/')
       for (const binding of bindings) {
         const { HostIp, HostPort } = binding
-        const hostPortInfo = HostIp === '0.0.0.0' || HostIp === '' ? HostPort : `${HostIp}:${HostPort}`
+        const hostPortInfo = HostIp === '0.0.0.0' || HostIp === '::' || HostIp === '' ? HostPort : `${HostIp}:${HostPort}`
 
         if (HostPort === containerPortNumber)
           ports.push(hostPortInfo)
