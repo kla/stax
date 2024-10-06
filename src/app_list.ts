@@ -12,9 +12,10 @@ function name(app: App, container: Container) {
   return app.name
 }
 
-export default function list(apps: App[]) {
+export default function list(apps: App[], options: { fields?: string[] } = {}) {
+  const head = ['', 'App', 'Status', 'Uptime', 'Forwarding', 'Source'].concat(options.fields || [])
   const table = new Table({
-    head: ['', 'App', 'Status', 'Uptime', 'Forwarding', 'Source'],
+    head: head,
     style: { head: ['cyan'] },
     chars: {
       'top': '', 'top-mid': '', 'top-left': '', 'top-right': '',
@@ -31,14 +32,19 @@ export default function list(apps: App[]) {
       table.push([ icons[app.state], app.name, '', '', '', source ])
 
     app.containers.forEach((container) => {
-      table.push([
+      const items = [
         icons[container.state] || icons.unknown,
         name(app, container),
         container.state,
         container.uptime?.replace(' ago', ''),
         container.forwardedPorts.join(', '),
         app.containers.length == 1 ? source : '',
-      ])
+      ]
+
+      if (options.fields?.length)
+        options.fields.forEach(field => items.push(container.config.fetch(field)))
+
+      table.push(items)
     })
   })
   console.log(table.toString().replaceAll('\n *\n', '\n'))

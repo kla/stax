@@ -12,8 +12,8 @@ export default class Stax {
     this.context = context
   }
 
-  list() {
-    list(this.apps())
+  list(options: { fields?: string[] } = {}) {
+    list(this.apps(), options)
   }
 
   async setup(config: StaxConfig, options: { inspect?: boolean } = { inspect: false }) {
