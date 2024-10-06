@@ -86,20 +86,25 @@ export default class Config implements StaxConfig {
       current[lastKey] = value
   }
 
-  private update(config: StaxConfig) {
+  private update(config: StaxConfig): boolean {
     Object.keys(config).forEach((key) => this.set(key, config[key]))
 
     if (!this.staxfile && !(this.staxfile = this.findStaxfile(this.source)))
       return exit(1, { message: `Could not find a Staxfile at ${this.source}` })
 
-    verifyFile(this.staxfile, `Staxfile missing for ${this.app}`)
-    this.staxfile = path.resolve(this.staxfile)
+    if (!existsSync(this.staxfile)) {
+      console.log(`${icons.warning}  Staxfile missing for ${this.app}: ${this.staxfile}`)
+      return false
+    } else
+      this.staxfile = path.resolve(this.staxfile)
 
     if (!this.app)
       this.app = this.location.basename.replace(/\.staxfile$/, '')
 
     if (!Location.isGitUrl(this.source) && existsSync(this.source))
       this.source = path.resolve(this.source)
+
+    return true
   }
 
   private findStaxfile(path): string {
