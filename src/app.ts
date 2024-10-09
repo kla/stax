@@ -181,6 +181,8 @@ export default class App {
   installedMessage(): string {
     const sh = chalk.blue(`'stax sh ${this.name}'`)
     const edit = chalk.blue(`'stax edit ${this.name}'`)
-    return `${icons.info} ${this.name} installed. You can open a shell to its container with ${sh} or open it in vscode, if installed, with ${edit}`
+    let message = `${icons.info} ${this.name} installed. You can open a shell to its container with ${sh} (if it has a shell)`
+    if (this.config.workspace) message += ` or open it in vscode with ${edit}`
+    return message
   }
 }
