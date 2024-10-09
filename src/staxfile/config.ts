@@ -18,6 +18,7 @@ export default class Config implements StaxConfig {
   public requires!: string[]
 
   constructor(config: StaxConfig | Record<string, string> | undefined = undefined) {
+    this.requires = []
     if (config)
       this.update(config)
   }
