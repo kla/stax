@@ -1,12 +1,14 @@
 {
+  "name": "@_kla_/stax",
   "author": {
     "name": "Kien La",
     "email": "la.kien+npm@gmail.com"
   },
   "repository": "https://github.com/kla/stax",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "main": "src/index",
   "type": "module",
+  "private": false,
   "dependencies": {
     "@types/node": "^22.7.5",
     "chalk": "5.3.0",
@@ -20,5 +22,8 @@
   "devDependencies": {},
   "scripts": {
     "test": "bun test"
+  },
+  "bin": {
+    "stax": "./bin/stax"
   }
 }
