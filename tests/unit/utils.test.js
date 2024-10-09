@@ -1,4 +1,5 @@
-import { csvKeyValuePairs, dasherize, deepRemoveKeys, dig, directoryExists, flattenObject, isFile, timeAgo, truthy, presence } from '~/utils'
+import { beforeEach, describe, expect, it, mock } from 'bun:test'
+import { csvKeyValuePairs, dasherize, deepRemoveKeys, dig, directoryExists, flattenObject, isFile, timeAgo, truthy, verifyDirectory, presence } from '~/utils'
 
 describe('csvKeyValuePairs', () => {
   it('returns an empty object for an empty string', () => expect(csvKeyValuePairs('')).toEqual({}))
@@ -383,5 +384,44 @@ describe('presence', () => {
   it('returns an empty object (not null) for empty objects', () => {
     const obj = {}
     expect(presence(obj)).toBe(obj)
+  })
+})
+
+describe('verifyDirectory', () => {
+  const mockExit = mock(() => {})
+  const mockConsoleError = mock(() => {})
+
+  beforeEach(() => {
+    mockExit.mockClear()
+    mockConsoleError.mockClear()
+    global.process.exit = mockExit
+    global.console.error = mockConsoleError
+  })
+
+  it('returns true for an existing directory', () => {
+    const result = verifyDirectory(__dirname)
+    expect(result).toBe(true)
+    expect(mockExit).not.toHaveBeenCalled()
+  })
+
+  it('exits process with error for non-existing directory', () => {
+    const nonExistentDir = '/path/to/non/existent/directory'
+    verifyDirectory(nonExistentDir)
+    expect(mockExit).toHaveBeenCalledWith(1)
+    expect(mockConsoleError).toHaveBeenCalledWith(expect.stringContaining('Directory not found'))
+  })
+
+  it('uses custom error message when provided', () => {
+    const nonExistentDir = '/custom/path'
+    const customMessage = 'Custom error message'
+    verifyDirectory(nonExistentDir, customMessage)
+    expect(mockExit).toHaveBeenCalledWith(1)
+    expect(mockConsoleError).toHaveBeenCalledWith(expect.stringContaining(customMessage))
+  })
+
+  it('handles edge cases like empty string', () => {
+    verifyDirectory('')
+    expect(mockExit).toHaveBeenCalledWith(1)
+    expect(mockConsoleError).toHaveBeenCalledWith(expect.stringContaining('Directory not found'))
   })
 })

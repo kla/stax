@@ -95,6 +95,25 @@ export function verifyFile(file: string, message: string = undefined): boolean {
 }
 
 /**
+ * Verifies if a directory exists and exits the process if it doesn't.
+ * @param dir - The directory path to verify.
+ * @param message - Optional custom error message.
+ * @returns True if the directory exists.
+ */
+export function verifyDirectory(dir: string, message?: string): boolean {
+  if (directoryExists(dir))
+    return true
+
+  if (isFile(dir))
+    exit(1, { message: `${icons.warning}  Expected a directory but found a file: ${dir}`, trace: !message })
+
+  if (!message)
+    message = 'Directory not found'
+
+  exit(1, { message: `${icons.warning}  ${message}: ${dir}`, trace: !message })
+}
+
+/**
  * Checks if a directory exists at the given path.
  * @param path - The directory path to check.
  * @returns True if the directory exists, false otherwise.
