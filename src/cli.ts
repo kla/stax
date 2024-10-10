@@ -48,10 +48,15 @@ program.command('cat')
 program.command('config')
   .argument('<name>', 'Name of application')
   .option('-s, --service <name>', 'Name of service to act on')
+  .option('-g, --get <name>', 'Get the value of a config variable')
   .description('Show config variables for the container.')
   .action((name, options) => {
     const container = stax.findContainer(name, options)
-    pp({ ...container.config, labels: container.labels })
+
+    if (options.get)
+      console.log(container.config.fetch(options.get) || '')
+    else
+      pp({ ...container.config, labels: container.labels })
   })
 
 program.command('copy')
