@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, mock } from 'bun:test'
-import { csvKeyValuePairs, dasherize, deepRemoveKeys, dig, directoryExists, flattenObject, isFile, timeAgo, truthy, verifyDirectory, presence, iterateObjectProperties } from '~/utils'
+import { csvKeyValuePairs, dasherize, deepRemoveKeys, dig, directoryExists, flattenObject, isFile, timeAgo, truthy, verifyDirectory, presence, deepForEach } from '~/utils'
 
 describe('csvKeyValuePairs', () => {
   it('returns an empty object for an empty string', () => expect(csvKeyValuePairs('')).toEqual({}))
@@ -426,16 +426,16 @@ describe('verifyDirectory', () => {
   })
 })
 
-describe('iterateObjectProperties', () => {
+describe('deepForEach', () => {
   it('modifies simple object properties', () => {
     const input = { a: 1, b: 2, c: 3 }
-    const result = iterateObjectProperties(input, (path, value) => value * 2)
+    const result = deepForEach(input, (path, value) => value * 2)
     expect(result).toEqual({ a: 2, b: 4, c: 6 })
   })
 
   it('handles nested objects', () => {
     const input = { a: 1, b: { c: 2, d: { e: 3 } } }
-    const result = iterateObjectProperties(input, (path, value) => {
+    const result = deepForEach(input, (path, value) => {
       if (typeof value === 'number') return value + 1
       return value
     })
@@ -445,7 +445,7 @@ describe('iterateObjectProperties', () => {
   it('provides correct path for nested properties', () => {
     const input = { a: { b: { c: 1 } } }
     const paths = []
-    iterateObjectProperties(input, (path, value) => {
+    deepForEach(input, (path, value) => {
       paths.push(path)
       return value
     })
@@ -454,7 +454,7 @@ describe('iterateObjectProperties', () => {
 
   it('handles arrays', () => {
     const input = { a: [1, 2, 3], b: { c: [4, 5] } }
-    const result = iterateObjectProperties(input, (path, value) => {
+    const result = deepForEach(input, (path, value) => {
       if (Array.isArray(value)) return value.map(v => v * 2)
       return value
     })
@@ -463,7 +463,7 @@ describe('iterateObjectProperties', () => {
 
   it('returns the same object if no modifications are made', () => {
     const input = { a: 1, b: { c: 2 } }
-    const result = iterateObjectProperties(input, (path, value) => value)
+    const result = deepForEach(input, (path, value) => value)
     expect(result).toEqual(input)
   })
 })
