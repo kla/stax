@@ -75,4 +75,9 @@ export interface CompileOptions {
    * @defaultValue false
    **/
   force?: boolean
+
+  /**
+   * Names of expressions to exclude (skip) from rendering.
+   */
+  excludes?: string[]
 }
