@@ -48,6 +48,24 @@ function parseTemplateExpressionArgs(args: string[]): string[] {
   return parsedArgs
 }
 
+/**
+ * Parses a template expression and returns the function name and arguments.
+ *
+ * @param expression - The template expression to parse.
+ * @returns An object containing the function name and parsed arguments.
+ */
+export function parseTemplateExpression(expression: string): { funcName: string; args: string[] } {
+  const [content] = expression.match(/\$\{\{\s*([^}]+)\s*\}\}/) || []
+  if (!content) {
+    throw new Error('Invalid template expression')
+  }
+
+  const [funcName, argString] = parseToken(content.slice(3, -2).trim())
+  const args = parseTemplateExpressionArgs(argString)
+
+  return { funcName, args }
+}
+
 export async function renderTemplate(template: string, callback: (name: string, args: string[], originalMatch: string) => Promise<string>): Promise<string> {
   const regex = /\$\{\{\s*([^}]+)\s*\}\}/g
   let result = ''
@@ -58,8 +76,7 @@ export async function renderTemplate(template: string, callback: (name: string, 
     const before = template.slice(lastIndex, match.index)
     result += before
 
-    const [funcName, argString] = parseToken(match[1])
-    const args = parseTemplateExpressionArgs(argString)
+    const { funcName, args } = parseTemplateExpression(match[0])
     const replacement = await callback(funcName, args, match[0])
 
     result += replacement
