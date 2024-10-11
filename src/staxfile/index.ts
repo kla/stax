@@ -1,6 +1,6 @@
 import { writeFileSync, existsSync, mkdirSync, statSync } from 'fs'
 import { cacheDir as _cacheDir, exit, flattenObject, verifyFile } from '~/utils'
-import { StaxConfig } from '~/types'
+import { StaxConfig, CompileOptions } from '~/types'
 import { renderTemplate } from './template'
 import { dump, loadFile } from './yaml'
 import yaml from 'js-yaml'
@@ -48,10 +48,10 @@ export default class Staxfile {
     return path.join(this.cacheDir, 'compose.yaml')
   }
 
-  public async compile(force: boolean = false): Promise<string> {
+  public async compile(options: CompileOptions = { force: false }): Promise<string> {
     const composeFile = this.cachedComposeFile
 
-    if (!force && existsSync(composeFile)) {
+    if (!options.force && existsSync(composeFile)) {
       const cachedStats = statSync(composeFile)
       const staxfileStats = statSync(this.staxfile)
 

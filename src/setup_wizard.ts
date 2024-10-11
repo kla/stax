@@ -80,7 +80,7 @@ export default async function setupWizard(stax: stax) {
   const file = await pickStaxfile(uninstalled)
   const staxfile = new Staxfile({ context: stax.context, source: file } as unknown as StaxConfig)
 
-  await staxfile.compile(true)
+  await staxfile.compile({ force: true })
   installed = Object.fromEntries(installed.map(file => [getStaxfileName(file), file]))
   uninstalled = Object.fromEntries(uninstalled.map(file => [getStaxfileName(file), file]))
   const missing = staxfile.config.requires.filter(name => !(name in installed))

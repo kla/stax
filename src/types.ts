@@ -68,3 +68,11 @@ export interface SetupOptions {
   rebuild?: boolean
   duplicate?: boolean
 }
+
+export interface CompileOptions {
+  /**
+   * Force the compilation to run even if the compose file is up to date
+   * @defaultValue false
+   **/
+  force?: boolean
+}
