@@ -358,3 +358,31 @@ export function presence<T>(value: T): T | null {
   if (Array.isArray(value) && value.length === 0) return null
   return value
 }
+
+/**
+ * Recursively iterates over each property in an object and runs a callback function.
+ * The value of each property is set to the return value of the callback.
+ * @param obj - The object to iterate over.
+ * @param callback - The callback function to run for each property.
+ * @param path - The current path in dot notation (used for recursion).
+ * @returns The modified object.
+ */
+export function iterateObjectProperties(
+  obj: Record<string, any>,
+  callback: (path: string, value: any) => any,
+  path: string = ''
+): Record<string, any> {
+  for (const [key, value] of Object.entries(obj)) {
+    const currentPath = path ? `${path}.${key}` : key
+
+    const newValue = callback(currentPath, value)
+
+    if (typeof newValue === 'object' && newValue !== null && !Array.isArray(newValue)) {
+      obj[key] = iterateObjectProperties(newValue, callback, currentPath)
+    } else {
+      obj[key] = newValue
+    }
+  }
+
+  return obj
+}
