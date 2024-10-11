@@ -1,7 +1,7 @@
 import { writeFileSync, existsSync, mkdirSync, statSync } from 'fs'
-import { cacheDir as _cacheDir, exit, flattenObject, verifyFile } from '~/utils'
+import { cacheDir as _cacheDir, exit, flattenObject, deepForEach, verifyFile } from '~/utils'
 import { StaxConfig, CompileOptions, DefaultCompileOptions } from '~/types'
-import { renderTemplate } from './template'
+import { renderTemplate, parseTemplateExpression } from './template'
 import { dump, loadFile } from './yaml'
 import yaml from 'js-yaml'
 import Config from './config'
@@ -63,7 +63,7 @@ export default class Staxfile {
     console.log(`${icons.build}  Compiling ${this.staxfile}`)
 
     await this.insideBaseDir(async () => {
-      await this.load()
+      await this.load(options)
       writeFileSync(composeFile, this.normalizedYaml())
     })
     return composeFile
@@ -82,12 +82,16 @@ export default class Staxfile {
 
   private async load(options: CompileOptions = {}): Promise<void> {
     options = { ...DefaultCompileOptions, ...options }
+
     this.warnings = new Set<string>()
     this.compose = loadFile(this.staxfile)
 
+    if (options.excludes.includes('prompts'))
+      this.keepExistingPromptValues()
+
     // render the stax section first since we need to update this.config with the values there
     // exclude read on this first render since it can be dependent on stax.source
-    this.compose.stax = await this.renderCompose(this.compose.stax, { excludes: [ 'read', ...options.excludes ] })
+    this.compose.stax = await this.renderCompose(this.compose.stax, { excludes: [ 'read' ] })
     this.config = new Config({ ...this.config, ...this.compose.stax })
 
     this.compose = await this.renderCompose(this.compose)
@@ -98,6 +102,19 @@ export default class Staxfile {
 
     if (this.generatedWarnings.length > 0)
       return exit(1, { message: this.generatedWarnings.join('\n') })
+  }
+
+  // set all prompts to it's current config value or default if it is being excluded
+  private keepExistingPromptValues() {
+    deepForEach(this.compose, (path, value) => {
+      if (typeof value === 'string' && value.includes('prompt')) {
+        const expression = parseTemplateExpression(value)
+
+        if (expression.funcName === 'prompt')
+          return this.config.fetch(path) || expression.args[expression.args.length - 1]
+      }
+      return value
+    })
   }
 
   private get generatedWarnings(): Array<string> {
