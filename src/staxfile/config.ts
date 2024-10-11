@@ -1,5 +1,5 @@
 import { existsSync } from 'fs'
-import { isDirectory, fileExists, verifyFile } from '~/utils'
+import { isDirectory, fileExists } from '~/utils'
 import { StaxConfig } from '~/types'
 import { exit } from '~/utils'
 import Location from '~/location'
@@ -45,6 +45,9 @@ export default class Config implements StaxConfig {
   }
 
   public fetch(path: string) {
+    if (path.startsWith('stax.'))
+      path = path.substring(5)
+
     return path.split('.').reduce((acc, key) => acc && acc[key], this)
   }
 
