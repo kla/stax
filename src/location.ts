@@ -46,7 +46,7 @@ export default class Location {
   }
 
   readSync(file: string): string {
-    return readFileSync(path.join(this.source, file), 'utf-8')
+    return readFileSync(path.resolve(path.join(this.source, file)), 'utf-8')
   }
 }
 
