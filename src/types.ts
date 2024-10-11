@@ -81,3 +81,8 @@ export interface CompileOptions {
    */
   excludes?: string[]
 }
+
+export const DefaultCompileOptions: CompileOptions = {
+  force: false,
+  excludes: []
+}

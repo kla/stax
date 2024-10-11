@@ -1,6 +1,6 @@
 import { writeFileSync, existsSync, mkdirSync, statSync } from 'fs'
 import { cacheDir as _cacheDir, exit, flattenObject, verifyFile } from '~/utils'
-import { StaxConfig, CompileOptions } from '~/types'
+import { StaxConfig, CompileOptions, DefaultCompileOptions } from '~/types'
 import { renderTemplate } from './template'
 import { dump, loadFile } from './yaml'
 import yaml from 'js-yaml'
@@ -48,7 +48,8 @@ export default class Staxfile {
     return path.join(this.cacheDir, 'compose.yaml')
   }
 
-  public async compile(options: CompileOptions = { force: false }): Promise<string> {
+  public async compile(options: CompileOptions = {}): Promise<string> {
+    options = { ...DefaultCompileOptions, ...options }
     const composeFile = this.cachedComposeFile
 
     if (!options.force && existsSync(composeFile)) {
@@ -79,13 +80,14 @@ export default class Staxfile {
     }
   }
 
-  private async load(): Promise<void> {
+  private async load(options: CompileOptions = {}): Promise<void> {
+    options = { ...DefaultCompileOptions, ...options }
     this.warnings = new Set<string>()
     this.compose = loadFile(this.staxfile)
 
     // render the stax section first since we need to update this.config with the values there
     // exclude read on this first render since it can be dependent on stax.source
-    this.compose.stax = await this.renderCompose(this.compose.stax, { excludes: [ 'read' ]})
+    this.compose.stax = await this.renderCompose(this.compose.stax, { excludes: [ 'read', ...options.excludes ] })
     this.config = new Config({ ...this.config, ...this.compose.stax })
 
     this.compose = await this.renderCompose(this.compose)
