@@ -118,8 +118,16 @@ program.command('exec')
   .argument('<command>', 'Command to execute. Use "--" before your command if it has more than one word.')
   .option('-s, --service <name>', 'Name of service to act on')
   .option('-q, --quiet', 'Don\'t print logging and info messages')
-  .description('Execute a command in a running application')
-  .action(async (name, command, options) => await stax.findContainer(name, options).exec(command, { quiet: options.quiet }))
+  .option('-h, --hook', 'Run a hook where the command is the name of the hook to run')
+  .description('Execute a command (or hook) in a running application')
+  .action(async (name, command, options) => {
+    const container = await stax.findContainer(name, options)
+
+    if (options.hook)
+      container.runHook(command)
+    else
+      container.exec(command, { quiet: options.quiet })
+  })
 
 program.command('get')
   .argument('<name>', 'Name of application')
