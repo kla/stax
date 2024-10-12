@@ -1,5 +1,6 @@
 import { readFileSync, mkdirSync, existsSync } from 'fs'
 import { capture } from './shell'
+import { resolve } from './utils'
 import * as path from 'path'
 import App from './app'
 import Container from './container'
@@ -16,7 +17,7 @@ export default class Location {
     this.source = source
 
     if (!Location.isGitUrl(source) && existsSync(source))
-      this.source = path.resolve(source)
+      this.source = resolve(source)
   }
 
   static isGitUrl(url: string): boolean {
@@ -46,7 +47,7 @@ export default class Location {
   }
 
   readSync(file: string): string {
-    return readFileSync(path.resolve(path.join(this.source, file)), 'utf-8')
+    return readFileSync(resolve(path.join(this.source, file)), 'utf-8')
   }
 }
 

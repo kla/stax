@@ -1,8 +1,8 @@
-import { describe, it, expect, afterEach, beforeEach, mock } from 'bun:test'
+import { describe, it, expect, beforeEach, mock } from 'bun:test'
+import { resolve } from '~/utils'
 import Expressions from '~/staxfile/expressions'
 import Staxfile from '~/staxfile'
 import os from 'os'
-import path from 'path'
 
 describe('Expressions', () => {
   let expression
@@ -24,7 +24,7 @@ describe('Expressions', () => {
 
   it('evaluates mount_workspace function', async () => {
     const result = await expression.evaluate('mount_workspace', [])
-    expect(result).toBe(`${path.resolve('./tests/fixtures')}:/workspaces/tests`)
+    expect(result).toBe(`${resolve('./tests/fixtures')}:/workspaces/tests`)
   })
 
   it('evaluates mount_ssh_auth_sock function for Darwin', async () => {

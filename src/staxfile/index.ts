@@ -1,5 +1,5 @@
 import { writeFileSync, existsSync, mkdirSync, statSync } from 'fs'
-import { cacheDir as _cacheDir, exit, flattenObject, deepForEach, verifyFile } from '~/utils'
+import { cacheDir as _cacheDir, exit, flattenObject, deepForEach, verifyFile, resolve } from '~/utils'
 import { StaxConfig, CompileOptions, DefaultCompileOptions } from '~/types'
 import { renderTemplate, parseTemplateExpression } from './template'
 import { dump, loadFile } from './yaml'
@@ -33,7 +33,7 @@ export default class Staxfile {
   get app(): string { return this.config.app }
   get source(): string { return this.config.source }
   get location(): Location { return this.config.location }
-  get baseDir(): string { return path.dirname(path.resolve(this.staxfile))}
+  get baseDir(): string { return path.dirname(resolve(this.staxfile))}
 
   private get cacheDir(): string {
     const cacheDir = _cacheDir(this.context, this.app)
@@ -179,7 +179,7 @@ export default class Staxfile {
     for (const hook of hooks) {
       if (labels[`stax.${hook}`]) {
         if (existsSync(labels[`stax.${hook}`])) {
-          const file = path.resolve(labels[`stax.${hook}`])
+          const file = resolve(labels[`stax.${hook}`])
           verifyFile(file, `Hook file not found for '${hook}'`)
           labels[`stax.${hook}`] = file
         }

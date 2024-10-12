@@ -394,14 +394,17 @@ export function deepForEach(
 
 /**
  * Resolves a file path, expanding the tilde character if present,
- * and then applies path.resolve.
+ * and then applies path.resolve with any additional path segments.
  *
- * @param filePath - The file path to resolve.
+ * @param paths - The path segments to resolve.
  * @returns The resolved absolute path.
  */
-export function resolve(filePath: string): string {
-  if (filePath.startsWith('~'))
-    filePath = path.join(os.homedir(), filePath.slice(1))
+export function resolve(...paths: string[]): string {
+  const [firstPath, ...restPaths] = paths
+  let resolvedPath = firstPath
 
-  return path.resolve(filePath)
+  if (firstPath.startsWith('~'))
+    resolvedPath = path.join(os.homedir(), firstPath.slice(1))
+
+  return path.resolve(resolvedPath, ...restPaths)
 }

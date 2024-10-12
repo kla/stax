@@ -1,6 +1,5 @@
-import { dasherize } from '~/utils'
+import { dasherize, resolve } from '~/utils'
 import icons from '~/icons'
-import * as path from 'path'
 import Staxfile from './index'
 import inquirer from 'inquirer'
 
@@ -32,7 +31,7 @@ export default class Expressions {
     if (name === 'read') return this.read(args[0], args[1])
     if (name === 'mount_workspace') return this.mountWorkspace()
     if (name === 'mount_ssh_auth_sock') return this.mountSshAuthSock()
-    if (name === 'resolve') return path.resolve(args[0])
+    if (name === 'resolve') return resolve(args[0])
     if (name === 'user') return process.env.USER || ''
     if (name === 'user_id') return process.getuid().toString()
     if (name === 'dasherize') return dasherize(args[0])

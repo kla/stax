@@ -1,7 +1,7 @@
 import { existsSync, readFileSync, writeFileSync } from 'fs'
 import yaml from 'js-yaml'
 import * as path from 'path'
-import { verifyDirectory } from './utils'
+import { verifyDirectory, resolve } from './utils'
 
 function filename(): string {
   return path.join(process.env.STAX_HOME, 'settings.yaml')
@@ -18,7 +18,7 @@ const settings = {
   },
 
   write: function(name, value): any {
-    if (name === 'services_home') verifyDirectory(value = path.resolve(value))
+    if (name === 'services_home') verifyDirectory(value = resolve(value))
 
     const settings = { ...load() }
     settings[name] = value

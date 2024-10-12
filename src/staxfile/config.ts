@@ -4,7 +4,6 @@ import { StaxConfig } from '~/types'
 import { exit } from '~/utils'
 import Location from '~/location'
 import icons from '~/icons'
-import * as path from 'path'
 
 export default class Config implements StaxConfig {
   public context!: string
@@ -100,7 +99,7 @@ export default class Config implements StaxConfig {
       console.log(`${icons.warning}  Staxfile missing for ${this.app}: ${this.staxfile}`)
       return false
     } else
-      this.staxfile = path.resolve(this.staxfile)
+      this.staxfile = resolve(this.staxfile)
 
     if (!this.app)
       this.app = this.location.basename.replace(/\.staxfile$/, '')

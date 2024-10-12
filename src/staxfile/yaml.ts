@@ -2,7 +2,7 @@ import * as fs from 'fs'
 import * as path from 'path'
 import yaml from 'js-yaml'
 import icons from '~/icons'
-import { deepRemoveKeys, dig, exit } from '~/utils'
+import { deepRemoveKeys, dig, exit, resolve } from '~/utils'
 
 const dumpOptions = { lineWidth: -1, noRefs: true }
 const sanitizeRegex = /[^a-zA-Z0-9_]/g
@@ -42,7 +42,7 @@ class Yaml {
   public attributes: Record<string, any>
 
   constructor(filePath: string, parentFile: string = undefined) {
-    this.filePath = path.resolve(path.dirname(parentFile || filePath), filePath)
+    this.filePath = resolve(path.dirname(parentFile || filePath), filePath)
     this.parentFile = parentFile
   }
 
@@ -120,7 +120,7 @@ class Yaml {
   // Need to handle resolve_relative here rather than in Expressions because we know
   // the actual paths here when importing
   private parseResolveRelative() {
-    this.content = this.content.replace(/\$\{\{ resolve_relative (.+?) \}\}/g, (_match, p1) => path.resolve(this.baseDir, p1))
+    this.content = this.content.replace(/\$\{\{ resolve_relative (.+?) \}\}/g, (_match, p1) => resolve(this.baseDir, p1))
   }
 }
 

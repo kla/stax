@@ -2,7 +2,6 @@ import { describe, it, expect, beforeEach, mock } from 'bun:test'
 import { readFileSync } from 'fs'
 import Config from '~/staxfile/config'
 import yaml from 'js-yaml'
-import * as path from 'path'
 import * as utils from '~/utils'
 
 describe('Config', () => {
@@ -24,8 +23,8 @@ describe('Config', () => {
 
   it('creates a new Config instance', () => {
     expect(config).toBeInstanceOf(Config)
-    expect(config.source).toBe(path.resolve('./tests/fixtures'))
-    expect(config.staxfile).toBe(path.resolve('./tests/fixtures/Staxfile'))
+    expect(config.source).toBe(utils.resolve('./tests/fixtures'))
+    expect(config.staxfile).toBe(utils.resolve('./tests/fixtures/Staxfile'))
     expect(config.app).toBe('test')
     expect(config.requires).toEqual(['mysql', 'redis'])
   })
@@ -39,7 +38,7 @@ describe('Config', () => {
   })
 
   it('fetches a property value', () => {
-    expect(config.fetch('source')).toBe(path.resolve('./tests/fixtures'))
+    expect(config.fetch('source')).toBe(utils.resolve('./tests/fixtures'))
     expect(config.fetch('app')).toBe('test')
     expect(config.fetch('vars.user')).toBe('app')
     expect(config.fetch('vars.nonexistent')).toBeUndefined()

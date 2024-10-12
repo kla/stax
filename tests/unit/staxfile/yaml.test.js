@@ -1,10 +1,9 @@
 import { beforeEach, describe, it, expect } from 'bun:test'
 import { loadFile, dump } from '~/staxfile/yaml'
-import path from 'path'
-
+import { resolve } from '~/utils'
 describe('loadFile', () => {
-  const fixturesDir = path.resolve(__dirname, '../../../tests/fixtures')
-  const composeYaml = path.resolve(fixturesDir, 'compose.staxfile')
+  const fixturesDir = resolve(__dirname, '../../../tests/fixtures')
+  const composeYaml = resolve(fixturesDir, 'compose.staxfile')
   let yaml
 
   beforeEach(() => yaml = loadFile(composeYaml))
@@ -17,7 +16,7 @@ describe('loadFile', () => {
   })
 
   it('parses resolve_relative', () => {
-    expect(yaml.stax.vars.relative).toBe(path.resolve(fixturesDir, 'imports'))
+    expect(yaml.stax.vars.relative).toBe(resolve(fixturesDir, 'imports'))
   })
 
   it('strips _stax_import_ anchors', () => {
