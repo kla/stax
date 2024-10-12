@@ -1,7 +1,7 @@
 import { existsSync, readFileSync, writeFileSync } from 'fs'
 import yaml from 'js-yaml'
 import * as path from 'path'
-import { verifyFile, verifyDirectory } from './utils'
+import { verifyDirectory } from './utils'
 
 function filename(): string {
   return path.join(process.env.STAX_HOME, 'settings.yaml')

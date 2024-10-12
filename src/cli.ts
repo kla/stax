@@ -2,6 +2,7 @@ import { Command } from 'commander'
 import { existsSync, mkdirSync } from 'fs'
 import { capture, run } from '~/shell'
 import { exit, parseAndRemoveWildcardOptions, pp } from '~/utils'
+import icons from '~/icons'
 import { StaxConfig } from '~/types'
 import Stax from '~/stax'
 import * as path from 'path'
@@ -193,12 +194,17 @@ program.command('restart')
   .description('Restart an application')
   .action(async name => { await stax.find(name).restart() })
 
-program.command('set')
-  .option('--services-home <path>', 'Set the path to the services home directory')
-  .description('Set a Styx configuration value')
-  .action((options) => {
-    if (options.servicesHome)
-      settings.write('services_home', options.servicesHome)
+program.command('settings')
+  .argument('<name>', 'Name of setting')
+  .argument('[value]', 'Value of setting')
+  .option('-s, --set', 'Set the value of the setting')
+  .description('Get or set stax settings')
+  .action((name, value, options) => {
+    if (options.set) {
+      settings.write(name, value)
+      console.log(`${icons.saved} Setting for '${name}' set to '${value}'`)
+    } else
+      console.log(settings.read(name))
   })
 
 program.command('setup')

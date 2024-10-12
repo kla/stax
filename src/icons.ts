@@ -19,6 +19,7 @@ const icons = {
   failed: '❌',
   launch: '🚀',
   info: '💡',
+  saved: '💾',
 }
 
 export default icons
