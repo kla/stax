@@ -201,7 +201,7 @@ program.command('settings')
   .description('Get or set stax settings')
   .action((name, value, options) => {
     if (options.set) {
-      settings.write(name, value)
+      value = settings.write(name, value)
       console.log(`${icons.saved} Setting for '${name}' set to '${value}'`)
     } else
       console.log(settings.read(name))

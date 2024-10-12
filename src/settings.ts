@@ -17,12 +17,13 @@ const settings = {
     return settings[name] || defaultValue
   },
 
-  write: function(name, value) {
-    if (name === 'services_home') verifyDirectory(value)
+  write: function(name, value): any {
+    if (name === 'services_home') verifyDirectory(value = path.resolve(value))
 
     const settings = { ...load() }
     settings[name] = value
     writeFileSync(filename(), yaml.dump(settings), 'utf-8')
+    return value
   }
 }
 
