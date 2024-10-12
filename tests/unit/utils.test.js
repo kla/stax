@@ -1,5 +1,7 @@
 import { beforeEach, describe, expect, it, mock } from 'bun:test'
-import { csvKeyValuePairs, dasherize, deepRemoveKeys, dig, directoryExists, flattenObject, isFile, timeAgo, truthy, verifyDirectory, presence, deepForEach } from '~/utils'
+import { csvKeyValuePairs, dasherize, deepRemoveKeys, dig, directoryExists, flattenObject, isFile, timeAgo, truthy, verifyDirectory, presence, deepForEach, resolve } from '~/utils'
+import * as os from 'os'
+import * as path from 'path'
 
 describe('csvKeyValuePairs', () => {
   it('returns an empty object for an empty string', () => expect(csvKeyValuePairs('')).toEqual({}))
@@ -466,4 +468,12 @@ describe('deepForEach', () => {
     const result = deepForEach(input, (path, value) => value)
     expect(result).toEqual(input)
   })
+})
+
+describe('resolve', () => {
+  it('resolves path with tilde', () => expect(resolve('~/documents/file.txt')).toBe(path.resolve(os.homedir(), 'documents/file.txt')))
+  it('resolves path without tilde', () => expect(resolve('/absolute/path/file.txt')).toBe(path.resolve('/absolute/path/file.txt')))
+  it('resolves relative path', () => expect(resolve('relative/path/file.txt')).toBe(path.resolve(process.cwd(), 'relative/path/file.txt')))
+  it('resolves path with just tilde', () => expect(resolve('~')).toBe(path.resolve(os.homedir())))
+  it('resolves empty string to current working directory', () => expect(resolve('')).toBe(path.resolve(process.cwd())))
 })

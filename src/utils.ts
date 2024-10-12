@@ -4,6 +4,7 @@ import icons from './icons'
 import yaml from 'js-yaml'
 import chalk from 'chalk'
 import * as path from 'path'
+import * as os from 'os'
 
 /**
  * Parses a CSV string into a key/value object.
@@ -111,6 +112,10 @@ export function verifyDirectory(dir: string, message?: string): boolean {
     message = 'Directory not found'
 
   exit(1, { message: `${icons.warning}  ${message}: ${dir}`, trace: !message })
+}
+
+export function verifyExists(path: string, message?: string): boolean {
+  return verifyFile(path, message) || verifyDirectory(path, message)
 }
 
 /**
@@ -385,4 +390,18 @@ export function deepForEach(
   }
 
   return obj
+}
+
+/**
+ * Resolves a file path, expanding the tilde character if present,
+ * and then applies path.resolve.
+ *
+ * @param filePath - The file path to resolve.
+ * @returns The resolved absolute path.
+ */
+export function resolve(filePath: string): string {
+  if (filePath.startsWith('~'))
+    filePath = path.join(os.homedir(), filePath.slice(1))
+
+  return path.resolve(filePath)
 }

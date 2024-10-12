@@ -1,5 +1,5 @@
 import { existsSync } from 'fs'
-import { isDirectory, fileExists } from '~/utils'
+import { isDirectory, fileExists, verifyExists, resolve } from '~/utils'
 import { StaxConfig } from '~/types'
 import { exit } from '~/utils'
 import Location from '~/location'
@@ -105,8 +105,8 @@ export default class Config implements StaxConfig {
     if (!this.app)
       this.app = this.location.basename.replace(/\.staxfile$/, '')
 
-    if (!Location.isGitUrl(this.source) && existsSync(this.source))
-      this.source = path.resolve(this.source)
+    if (!Location.isGitUrl(this.source))
+      verifyExists(this.source = resolve(this.source))
 
     return true
   }
