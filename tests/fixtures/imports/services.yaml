@@ -1,0 +1,12 @@
+!import ./service.yaml as service
+
+web: !extends service
+  command: bin/rails server --port ${{ stax.vars.rails_server_port }} --binding 0.0.0.0
+  expose:
+    - ${{ stax.vars.rails_server_port }}
+  labels:
+    caddy: "${{ dasherize stax.app }}.d3v.localhost"
+    caddy.reverse_proxy: "{{ upstreams ${{ stax.vars.rails_server_port }} }}"
+
+sidekiq: !extends service
+  command: /usr/local/bin/launch bundle exec sidekiq

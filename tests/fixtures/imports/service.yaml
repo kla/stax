@@ -1,2 +1,3 @@
-environment:
-  PATH: /usr/local/bin:/usr/bin:/bin
+build:
+  context: ${{ resolve_relative ../build }}
+  dockerfile: ${{ resolve_relative ../build/Dockerfile }}

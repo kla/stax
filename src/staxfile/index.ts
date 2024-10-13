@@ -15,15 +15,18 @@ export default class Staxfile {
   public config: Config
   public compose: Record<string, any>
   public warnings: Set<string>
+  public cacheDir: string
   private buildsCompiled: Record<string, string> = {}
   private expressions: Expressions
 
-  constructor(config: StaxConfig) {
+  constructor(config: StaxConfig, options: { cacheDir?: string } = {}) {
     let source = config.source
+
     if (source.endsWith("/Staxfile"))
       source = source.slice(0, -9)
 
     this.config = new Config({ ...config, source: source })
+    this.cacheDir = options.cacheDir || this.systemCacheDir
     this.warnings = new Set()
     this.expressions = new Expressions(this)
   }
@@ -35,7 +38,7 @@ export default class Staxfile {
   get location(): Location { return this.config.location }
   get baseDir(): string { return path.dirname(resolve(this.staxfile))}
 
-  private get cacheDir(): string {
+  private get systemCacheDir(): string {
     const cacheDir = _cacheDir(this.context, this.app)
 
     if (!existsSync(cacheDir))
@@ -99,6 +102,7 @@ export default class Staxfile {
 
     // need to re-render after updating services since template expressions may have been added
     this.compose = await this.renderCompose(this.compose)
+    // console.log(this.compose.stax);process.exit(0)
 
     if (this.generatedWarnings.length > 0)
       return exit(1, { message: this.generatedWarnings.join('\n') })

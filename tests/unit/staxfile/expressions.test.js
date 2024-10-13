@@ -3,13 +3,15 @@ import { resolve } from '~/utils'
 import Expressions from '~/staxfile/expressions'
 import Staxfile from '~/staxfile'
 import os from 'os'
+import path from 'path'
 
 describe('Expressions', () => {
+  const cacheDir = path.join(__dirname, '../../tmp/tests-staxfile-cache')
   let expression
   let staxfile
 
   beforeEach(() => {
-    staxfile = new Staxfile({ source: './tests/fixtures', staxfile: './tests/fixtures/Staxfile', workspace: '/workspaces/tests' })
+    staxfile = new Staxfile({ source: './tests/fixtures', staxfile: './tests/fixtures/some_service.staxfile', workspace: '/workspaces/tests' }, { cacheDir })
     expression = new Expressions(staxfile)
   })
 
