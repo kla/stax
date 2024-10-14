@@ -72,8 +72,10 @@ export default class Container {
   }
 
   get state(): string {
-    if (this.health?.includes('unhealthy')) return 'unhealthy'
-    if (this.health?.includes('healthy')) return 'healthy'
+    if (this.running) {
+      if (this.health?.includes('unhealthy')) return 'unhealthy'
+      if (this.health?.includes('healthy')) return 'healthy'
+    }
     return this.status
   }
 
