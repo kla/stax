@@ -144,7 +144,7 @@ export default class Container {
   }
 
   async exec(command: string, options: RunOptions = {}) {
-    const args = '--interactive --tty'
+    const args = process.stdout.isTTY ? '--interactive --tty' : ''
 
     linkSshAuthSock()
 
