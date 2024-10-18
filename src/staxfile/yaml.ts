@@ -101,7 +101,12 @@ class Yaml {
       if (name.includes('.')) {
         const imp = this.findImport(name)
         const subKey = name.split('.').slice(1).join('.')
-        let text = dump({ [name]: dig(imp.yaml.attributes, subKey) }).replace(`${name}:`, `${imp.buildAnchorName(name)}: &${name}`)
+        const extendedValue = dig(imp.yaml.attributes, subKey)
+
+        if (extendedValue === undefined)
+          exit(1, { message: `${icons.error} Invalid !extends reference: '${name}' in file '${this.filePath}'. The referenced field does not exist.` })
+
+        let text = dump({ [name]: extendedValue }).replace(`${name}:`, `${imp.buildAnchorName(name)}: &${name}`)
         prepends.add(text)
       }
       return `${indent}${key}:\n${indent}  <<: *${name}`
