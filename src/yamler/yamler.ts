@@ -1,41 +1,12 @@
+import { dumpOptions, importRegex, extendsRegex, rootExtendsRegex, anchorNamePrefix } from './index'
+import { deepRemoveKeys, dig, exit, resolve } from '~/utils'
 import * as fs from 'fs'
 import * as path from 'path'
 import yaml from 'js-yaml'
 import icons from '~/icons'
-import { deepRemoveKeys, dig, exit, resolve } from '~/utils'
-import YamlER from '~/yamler'
+import Import from './import'
 
-const dumpOptions = { lineWidth: -1, noRefs: true }
-const sanitizeRegex = /[^a-zA-Z0-9_]/g
-const importRegex = /^ *!import\s+(.+)\sas\s+(.+)$/gm
-const extendsRegex = /^(\s*)(.+):\s*!extends\s+(.+)$/gm
-const rootExtendsRegex = /^ *!extends\s+(.+)$/gm
-const anchorNamePrefix = '_stax_import_'
-
-class Import {
-  public match: string
-  public name: string
-  public filePath: string
-  public yaml: Yaml
-
-  constructor({ match, name, filePath, parentFile }: { match: string, name: string, filePath: string, parentFile: string }) {
-    this.match = match
-    this.name = name
-    this.filePath = filePath
-    this.yaml = new Yaml(filePath, parentFile)
-  }
-
-  get anchorName(): string {
-    return this.buildAnchorName([ this.filePath, this.yaml.parentFile, this.name ])
-  }
-
-  buildAnchorName(parts: string | string[]): string {
-    if (typeof parts === 'string') parts = [ parts ]
-    return [ anchorNamePrefix, ...parts.map(part => part.replace(sanitizeRegex, '_')) ].join('_')
-  }
-}
-
-class Yaml {
+export default class YamlER {
   public filePath: string
   public parentFile: string
   public imports: Record<string, Import>
@@ -130,13 +101,8 @@ class Yaml {
   }
 }
 
-function yamlClass() {
-  return process.env.STAX_YAMLER == "1" ? YamlER : Yaml
-}
-
 export function loadFile(filePath: string): Record<string, any> {
-  const klass = yamlClass()
-  return new klass(filePath).load()
+  return new YamlER(filePath).load()
 }
 
 export function dump(obj: any): string {
