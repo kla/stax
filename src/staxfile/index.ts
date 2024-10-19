@@ -102,7 +102,6 @@ export default class Staxfile {
 
     // need to re-render after updating services since template expressions may have been added
     this.compose = await this.renderCompose(this.compose)
-    // console.log(this.compose.stax);process.exit(0)
 
     if (this.generatedWarnings.length > 0)
       return exit(1, { message: this.generatedWarnings.join('\n') })

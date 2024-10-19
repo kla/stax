@@ -1,11 +1,13 @@
 !import ./services.yaml as services
 
 stax:
+  app: some_service
   workspace_volume: ${{ stax.app }}-workspace
   workspace: /workspaces/${{ stax.app }}
   vars:
     rails_server_port: 3000
     ubuntu_version: 24.04
+    ruby_version: 3.3.5
 
 volumes:
   shared-home:
