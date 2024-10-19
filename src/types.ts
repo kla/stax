@@ -68,6 +68,7 @@ export interface SetupOptions {
   rebuild?: boolean
   duplicate?: boolean
   cache?: boolean
+  progress?: string
 }
 
 export interface CompileOptions {

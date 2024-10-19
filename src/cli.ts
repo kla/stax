@@ -181,6 +181,7 @@ program.command('rebuild')
   .argument('<name>', 'Name of application')
   .option('-i, --inspect', 'Show the compose file')
   .option('--no-cache', 'Don\'t use cache when building images')
+  .option('--progress <progress>', 'Set type of progress output')
   .description('Rebuild an application')
   .action(async (name, options) => { await stax.find(name).rebuild(overrides as unknown as StaxConfig, options) })
 
@@ -213,6 +214,7 @@ program.command('setup')
   .option('-s, --staxfile <staxfile>', 'Staxfile to use for setup')
   .option('-i, --inspect', 'Show the compose file')
   .option('--no-cache', 'Don\'t use cache when building images')
+  .option('--progress <progress>', 'Set type of progress output')
   .description('Setup an application')
   .action(async (location, options) => {
     if (location) {
