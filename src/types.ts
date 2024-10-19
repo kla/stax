@@ -67,6 +67,7 @@ export interface SetupOptions {
   inspect?: boolean
   rebuild?: boolean
   duplicate?: boolean
+  cache?: boolean
 }
 
 export interface CompileOptions {

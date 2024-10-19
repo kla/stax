@@ -180,6 +180,7 @@ program.command('logs')
 program.command('rebuild')
   .argument('<name>', 'Name of application')
   .option('-i, --inspect', 'Show the compose file')
+  .option('--no-cache', 'Don\'t use cache when building images')
   .description('Rebuild an application')
   .action(async (name, options) => { await stax.find(name).rebuild(overrides as unknown as StaxConfig, options) })
 
@@ -211,6 +212,7 @@ program.command('setup')
   .argument('[location]', 'Path to a local directory or git repo of application')
   .option('-s, --staxfile <staxfile>', 'Staxfile to use for setup')
   .option('-i, --inspect', 'Show the compose file')
+  .option('--no-cache', 'Don\'t use cache when building images')
   .description('Setup an application')
   .action(async (location, options) => {
     if (location) {

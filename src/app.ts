@@ -76,8 +76,10 @@ export default class App {
   }
 
   static async setup(config: StaxConfig, options: SetupOptions = {}): Promise<App> {
+    options = { cache: true, ...options }
     const staxfile = new Staxfile(config)
     const composeFile = await staxfile.compile({ force: true, excludes: options.rebuild ? [ 'prompts' ] : [] })
+    let args = 'up --detach --force-recreate'
 
     if (!composeFile)
       return exit(1, { message: `👿 Couldn't setup a container for '${staxfile.source}'` })
@@ -85,7 +87,8 @@ export default class App {
     if (options.inspect)
       return this.inspect(staxfile, composeFile)
 
-    await docker.compose(staxfile.context, 'up --detach --force-recreate --build', composeFile, { exit: true })
+    await docker.compose(staxfile.context, `build ${!options.cache ? '--no-cache' : ''}`, composeFile, { exit: true })
+    await docker.compose(staxfile.context, args, composeFile, { exit: true })
     docker.clearInspectCache()
     const app = App.find(staxfile.context, staxfile.app)
 
