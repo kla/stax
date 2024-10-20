@@ -1,5 +1,5 @@
 import { writeFileSync, existsSync, mkdirSync, statSync } from 'fs'
-import { cacheDir as _cacheDir, exit, flattenObject, deepForEach, verifyFile, resolve } from '~/utils'
+import { cacheDir as _cacheDir, exit, flattenObject, deepMap, verifyFile, resolve } from '~/utils'
 import { StaxConfig, CompileOptions, DefaultCompileOptions } from '~/types'
 import { renderTemplate, parseTemplateExpression } from './template'
 import { dump, loadFile } from './yaml'
@@ -109,7 +109,7 @@ export default class Staxfile {
 
   // set all prompts to it's current config value or default if it is being excluded
   private keepExistingPromptValues() {
-    deepForEach(this.compose, (path, value) => {
+    deepMap(this.compose, (path, value) => {
       if (typeof value === 'string' && value.includes('prompt')) {
         const expression = parseTemplateExpression(value)
 

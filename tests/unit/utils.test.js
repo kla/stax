@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, mock } from 'bun:test'
-import { csvKeyValuePairs, dasherize, deepRemoveKeys, dig, directoryExists, flattenObject, isFile, timeAgo, truthy, verifyDirectory, presence, deepForEach, resolve } from '~/utils'
+import { csvKeyValuePairs, dasherize, deepRemoveKeys, dig, directoryExists, flattenObject, isFile, timeAgo, truthy, verifyDirectory, presence, deepMap, resolve } from '~/utils'
 import * as os from 'os'
 import * as path from 'path'
 
@@ -428,16 +428,16 @@ describe('verifyDirectory', () => {
   })
 })
 
-describe('deepForEach', () => {
+describe('deepMap', () => {
   it('modifies simple object properties', () => {
     const input = { a: 1, b: 2, c: 3 }
-    const result = deepForEach(input, (path, value) => value * 2)
+    const result = deepMap(input, (path, value) => value * 2)
     expect(result).toEqual({ a: 2, b: 4, c: 6 })
   })
 
   it('handles nested objects', () => {
     const input = { a: 1, b: { c: 2, d: { e: 3 } } }
-    const result = deepForEach(input, (path, value) => {
+    const result = deepMap(input, (path, value) => {
       if (typeof value === 'number') return value + 1
       return value
     })
@@ -447,7 +447,7 @@ describe('deepForEach', () => {
   it('provides correct path for nested properties', () => {
     const input = { a: { b: { c: 1 } } }
     const paths = []
-    deepForEach(input, (path, value) => {
+    deepMap(input, (path, value) => {
       paths.push(path)
       return value
     })
@@ -456,7 +456,7 @@ describe('deepForEach', () => {
 
   it('handles arrays', () => {
     const input = { a: [1, 2, 3], b: { c: [4, 5] } }
-    const result = deepForEach(input, (path, value) => {
+    const result = deepMap(input, (path, value) => {
       if (Array.isArray(value)) return value.map(v => v * 2)
       return value
     })
@@ -465,7 +465,7 @@ describe('deepForEach', () => {
 
   it('returns the same object if no modifications are made', () => {
     const input = { a: 1, b: { c: 2 } }
-    const result = deepForEach(input, (path, value) => value)
+    const result = deepMap(input, (path, value) => value)
     expect(result).toEqual(input)
   })
 })

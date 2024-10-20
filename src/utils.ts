@@ -372,7 +372,7 @@ export function presence<T>(value: T): T | null {
  * @param path - The current path in dot notation (used for recursion).
  * @returns The modified object.
  */
-export function deepForEach(
+export function deepMap(
   obj: Record<string, any>,
   callback: (path: string, value: any) => any,
   path: string = ''
@@ -383,7 +383,7 @@ export function deepForEach(
     const newValue = callback(currentPath, value)
 
     if (typeof newValue === 'object' && newValue !== null && !Array.isArray(newValue)) {
-      obj[key] = deepForEach(newValue, callback, currentPath)
+      obj[key] = deepMap(newValue, callback, currentPath)
     } else {
       obj[key] = newValue
     }
