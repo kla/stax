@@ -6,6 +6,14 @@ import yaml from 'js-yaml'
 import icons from '~/icons'
 import Import from './import'
 
+export function loadFile(filePath: string): Record<string, any> {
+  return new YamlER(filePath).load()
+}
+
+export function dump(obj: any): string {
+  return yaml.dump(obj, dumpOptions)
+}
+
 export default class YamlER {
   public filePath: string
   public parentFile: string
@@ -99,12 +107,4 @@ export default class YamlER {
   private parseResolveRelative() {
     this.content = this.content.replace(/\$\{\{ resolve_relative (.+?) \}\}/g, (_match, p1) => resolve(this.baseDir, p1))
   }
-}
-
-export function loadFile(filePath: string): Record<string, any> {
-  return new YamlER(filePath).load()
-}
-
-export function dump(obj: any): string {
-  return yaml.dump(obj, dumpOptions)
 }

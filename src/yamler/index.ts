@@ -1,4 +1,5 @@
 import YamlER from './yamler'
+import { loadFile, dump } from './yamler'
 
 const dumpOptions = { lineWidth: -1, noRefs: true }
 const sanitizeRegex = /[^a-zA-Z0-9_]/g
@@ -7,5 +8,5 @@ const extendsRegex = /^(\s*)(.+):\s*!extends\s+(.+)$/gm
 const rootExtendsRegex = /^ *!extends\s+(.+)$/gm
 const anchorNamePrefix = '_stax_import_'
 
-export { dumpOptions, sanitizeRegex, importRegex, extendsRegex, rootExtendsRegex, anchorNamePrefix }
+export { dumpOptions, sanitizeRegex, importRegex, extendsRegex, rootExtendsRegex, anchorNamePrefix, loadFile, dump }
 export default YamlER
