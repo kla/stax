@@ -379,7 +379,6 @@ export function deepMap(
 ): Record<string, any> {
   for (const [key, value] of Object.entries(obj)) {
     const currentPath = path ? `${path}.${key}` : key
-
     const newValue = callback(currentPath, value)
 
     if (typeof newValue === 'object' && newValue !== null && !Array.isArray(newValue)) {
@@ -390,6 +389,32 @@ export function deepMap(
   }
 
   return obj
+}
+
+/**
+ * Recursively iterates over each property in an object and runs a callback function.
+ * The key and value of each property can be modified based on the callback's return value.
+ * @param obj - The object to iterate over.
+ * @param callback - The callback function to run for each property.
+ * @param path - The current path in dot notation (used for recursion).
+ * @returns The modified object.
+ */
+export function deepMapWithKeys(
+  obj: Record<string, any>,
+  callback: (path: string, key: string, value: any) => [string, any],
+  path: string = ''
+): Record<string, any> {
+  return Object.entries(obj).reduce((acc, [key, value]) => {
+    const currentPath = path ? `${path}.${key}` : key
+    const [newKey, newValue] = callback(currentPath, key, value)
+
+    if (typeof newValue === 'object' && newValue !== null && !Array.isArray(newValue))
+      acc[newKey] = deepMapWithKeys(newValue, callback, currentPath)
+    else
+      acc[newKey] = newValue
+
+    return acc
+  }, {})
 }
 
 /**

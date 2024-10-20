@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, mock } from 'bun:test'
-import { csvKeyValuePairs, dasherize, deepRemoveKeys, dig, directoryExists, flattenObject, isFile, timeAgo, truthy, verifyDirectory, presence, deepMap, resolve } from '~/utils'
+import { csvKeyValuePairs, dasherize, deepRemoveKeys, dig, directoryExists, flattenObject, isFile, timeAgo, truthy, verifyDirectory, presence, deepMap, resolve, deepMapWithKeys } from '~/utils'
 import * as os from 'os'
 import * as path from 'path'
 
@@ -481,4 +481,58 @@ describe('resolve', () => {
   it('resolves multiple path segments with relative paths', () => expect(resolve('project', 'src', 'components')).toBe(path.resolve(process.cwd(), 'project', 'src', 'components')))
   it('resolves mixed absolute and relative paths', () => expect(resolve('/root', 'user', '../documents')).toBe(path.resolve('/root', 'user', '../documents')))
   it('handles tilde expansion only for the first argument', () => expect(resolve('~/documents', '~/projects')).toBe(path.resolve(os.homedir(), 'documents', '~/projects')))
+})
+
+describe('deepMapWithKeys', () => {
+  it('transforms keys and values in a simple object', () => {
+    const input = { a: 1, b: 2 }
+    const result = deepMapWithKeys(input, (path, key, value) => [key.toUpperCase(), value * 2])
+    expect(result).toEqual({ A: 2, B: 4 })
+  })
+
+  it('handles nested objects', () => {
+    const input = { a: { b: 1, c: { d: 2 } } }
+    const result = deepMapWithKeys(input, (path, key, value) => [
+      `${key}_modified`,
+      typeof value === 'number' ? value + 1 : value
+    ])
+    expect(result).toEqual({
+      a_modified: {
+        b_modified: 2,
+        c_modified: {
+          d_modified: 3
+        }
+      }
+    })
+  })
+
+  it('preserves arrays', () => {
+    const input = { a: [1, 2, 3], b: { c: [4, 5] } }
+    const result = deepMapWithKeys(input, (path, key, value) => [key, value])
+    expect(result).toEqual(input)
+  })
+
+  it('uses the correct path for nested properties', () => {
+    const input = { a: { b: { c: 1 } } }
+    const paths = []
+    deepMapWithKeys(input, (path, key, value) => {
+      paths.push(path)
+      return [key, value]
+    })
+    expect(paths).toEqual(['a', 'a.b', 'a.b.c'])
+  })
+
+  it('allows removal of properties by returning undefined', () => {
+    const input = { a: 1, b: 2, c: 3 }
+    const result = deepMapWithKeys(input, (path, key, value) =>
+      key === 'b' ? [undefined, undefined] : [key, value]
+    )
+    expect(result).toEqual({ a: 1, c: 3 })
+  })
+
+  it('handles empty objects', () => {
+    const input = {}
+    const result = deepMapWithKeys(input, (path, key, value) => [key, value])
+    expect(result).toEqual({})
+  })
 })
