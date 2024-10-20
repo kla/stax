@@ -21,9 +21,9 @@ export default class YamlER {
   public content: string
   public attributes: Record<string, any>
 
-  constructor(filePath: string, parentFile: string = undefined) {
-    this.filePath = resolve(path.dirname(parentFile || filePath), filePath)
-    this.parentFile = parentFile
+  constructor(filePath: string, options: { parentFile?: string } = {}) {
+    this.filePath = resolve(path.dirname(options.parentFile || filePath), filePath)
+    this.parentFile = options.parentFile
   }
 
   get baseDir(): string {

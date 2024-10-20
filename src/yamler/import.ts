@@ -11,7 +11,7 @@ export default class Import {
     this.match = match
     this.name = name
     this.filePath = filePath
-    this.yaml = new YamlER(filePath, parentFile)
+    this.yaml = new YamlER(filePath, { parentFile })
   }
 
   get anchorName(): string {
