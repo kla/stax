@@ -1,13 +1,14 @@
 import { dumpOptions, importRegex, extendsRegex, rootExtendsRegex, anchorNamePrefix } from './index'
-import { deepRemoveKeys, dig, exit, resolve } from '~/utils'
+import { deepRemoveKeys, dig, exit, resolve, deepMapWithKeys } from '~/utils'
+import { parseTemplateExpression } from './expressions'
 import * as fs from 'fs'
 import * as path from 'path'
 import yaml from 'js-yaml'
 import icons from '~/icons'
 import Import from './import'
 
-export function loadFile(filePath: string): Record<string, any> {
-  return new YamlER(filePath).load()
+export function loadFile(filePath: string, expressionCallback?: Function | undefined): Record<string, any> {
+  return new YamlER(filePath, { expressionCallback }).load()
 }
 
 export function dump(obj: any): string {
@@ -20,10 +21,12 @@ export default class YamlER {
   public imports: Record<string, Import>
   public content: string
   public attributes: Record<string, any>
+  private expressionCallback: Function | undefined
 
-  constructor(filePath: string, options: { parentFile?: string } = {}) {
+  constructor(filePath: string, options: { parentFile?: string, expressionCallback?: Function | undefined } = {}) {
     this.filePath = resolve(path.dirname(options.parentFile || filePath), filePath)
     this.parentFile = options.parentFile
+    this.expressionCallback = options.expressionCallback
   }
 
   get baseDir(): string {
@@ -35,7 +38,14 @@ export default class YamlER {
     this.parseImports()
     this.parseExtends()
     this.parseResolveRelative()
-    return this.attributes = deepRemoveKeys(yaml.load(this.content), [ new RegExp(`^${anchorNamePrefix}`) ])
+    this.attributes = yaml.load(this.content)
+    this.attributes = deepRemoveKeys(this.attributes, [ new RegExp(`^${anchorNamePrefix}`) ])
+
+    // only parse expressions on the final set of attributes
+    if (!this.parentFile)
+      this.parseAllExpressions()
+
+    return this.attributes
   }
 
   load(): Record<string, any> {
@@ -94,6 +104,21 @@ export default class YamlER {
 
     if (prepends.size > 0)
       this.content = Array.from(prepends).join('\n\n') + '\n\n' + this.content
+  }
+
+  private parseExpression(path: string, obj: string | undefined | null) {
+    if (obj && typeof(obj) === 'string') {
+      const expression = parseTemplateExpression(obj)
+
+      if (expression && this.expressionCallback) {
+        obj = this.expressionCallback(path, expression.funcName, expression.args)
+      }
+    }
+    return obj
+  }
+
+  private parseAllExpressions() {
+    this.attributes = deepMapWithKeys(this.attributes, (path, key, value) => [ this.parseExpression(path, key), this.parseExpression(path, value) ])
   }
 
   private findImport(name: string): Import {

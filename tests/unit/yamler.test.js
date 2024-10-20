@@ -7,15 +7,20 @@ describe('YamlER', () => {
   const composeYaml = resolve(fixturesDir, 'some_service.staxfile')
   let yaml
 
-  beforeEach(() => yaml = loadFile(composeYaml))
+  const expressionCallback = (path, key, value) => {
+    return '<' + [key].concat(value).join(' ') + '>'
+  }
+
+  beforeEach(() => yaml = loadFile(composeYaml, expressionCallback))
 
   it('loads and processes a YAML file with imports', () => {
+    console.log(dump(yaml))
     expect(yaml.stax.app).toBe('some_service')
     expect(Object.keys(yaml)).toEqual(['stax', 'volumes', 'services'])
   })
 
   it('can extend at the root', () => {
-    expect(Object.keys(yaml.volumes)).toEqual(['shared-home', '${{ stax.workspace_volume }}'])
+    expect(Object.keys(yaml.volumes)).toEqual(['shared-home', '<stax.workspace_volume>'])
     expect(Object.keys(yaml.services)).toEqual(['web'])
     expect(yaml.services.web).toBeDefined()
   })
