@@ -18,15 +18,21 @@ export function dump(obj: any): string {
 export default class YamlER {
   public filePath: string
   public parentFile: string
+  public rootFile: string
   public imports: Record<string, Import>
   public content: string
   public attributes: Record<string, any>
   private expressionCallback: Function | undefined
+  private expressionsCache: Record<string, any>
 
   constructor(filePath: string, options: { parentFile?: string, expressionCallback?: Function | undefined } = {}) {
     this.filePath = resolve(path.dirname(options.parentFile || filePath), filePath)
     this.parentFile = options.parentFile
     this.expressionCallback = options.expressionCallback
+
+    // we only evaluate expressions on the final set of attributes so the cache will only be populated on the "root"
+    // instance of this class and not any of the instances created by imports
+    this.expressionsCache = {}
   }
 
   get baseDir(): string {
@@ -106,13 +112,25 @@ export default class YamlER {
       this.content = Array.from(prepends).join('\n\n') + '\n\n' + this.content
   }
 
+  private getCacheKey(name: string, args: any[]): string {
+    return `${name}:${JSON.stringify(args)}`
+  }
+
+  private evaluateExpression(path, name, args): any {
+    const cacheKey = this.getCacheKey(name, args)
+
+    if (cacheKey in this.expressionsCache)
+      return this.expressionsCache[cacheKey]
+
+    return this.expressionCallback(path, name, args)
+  }
+
   private parseExpression(path: string, obj: string | undefined | null) {
     if (obj && typeof(obj) === 'string') {
       const expression = parseTemplateExpression(obj)
 
-      if (expression && this.expressionCallback) {
-        obj = this.expressionCallback(path, expression.funcName, expression.args)
-      }
+      if (expression && this.expressionCallback)
+        obj = this.evaluateExpression(path, expression.funcName, expression.args)
     }
     return obj
   }
