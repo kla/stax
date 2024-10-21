@@ -43,7 +43,6 @@ export default class YamlER {
     this.content = this.readFile(this.filePath)
     this.parseImports()
     this.parseExtends()
-    this.parseResolveRelative()
     this.attributes = yaml.load(this.content)
     this.attributes = deepRemoveKeys(this.attributes, [ new RegExp(`^${anchorNamePrefix}`) ])
 
@@ -143,11 +142,5 @@ export default class YamlER {
     const importName = name.split('.')[0]
     const imp = this.imports[importName] || exit(1, { message: `${icons.error} Couldn't find import for '${importName}' referenced in '${this.filePath}'` })
     return dig(imp.yaml.attributes, name.split('.')[1]) ? imp : null
-  }
-
-  // Need to handle resolve_relative here rather than in Expressions because we know
-  // the actual paths here when importing
-  private parseResolveRelative() {
-    this.content = this.content.replace(/\$\{\{ resolve_relative (.+?) \}\}/g, (_match, p1) => resolve(this.baseDir, p1))
   }
 }

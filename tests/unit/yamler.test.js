@@ -14,7 +14,6 @@ describe('YamlER', () => {
   beforeEach(() => yaml = loadFile(composeYaml, expressionCallback))
 
   it('loads and processes a YAML file with imports', () => {
-    console.log(dump(yaml))
     expect(yaml.stax.app).toBe('some_service')
     expect(Object.keys(yaml)).toEqual(['stax', 'volumes', 'services'])
   })
@@ -31,12 +30,7 @@ describe('YamlER', () => {
   })
 
   it('handles nested imports', () => {
-    expect(yaml.services.web.build.context).toBe(resolve(fixturesDir, 'build'))
-  })
-
-  it('parses resolve_relative', () => {
-    expect(yaml.services.web.build.context).toBe(resolve(fixturesDir, 'build'))
-    expect(yaml.services.web.build.dockerfile).toBe(resolve(fixturesDir, 'build/Dockerfile'))
+    expect(yaml.services.web.build.context).toBe('<resolve_relative ../build>')
   })
 
   it('strips _stax_import_ anchors', () => {
