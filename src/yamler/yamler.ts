@@ -74,7 +74,7 @@ export default class YamlER {
       const yamlImport = new Import({ name, match, filePath, parentFile: this.filePath })
       this.imports[yamlImport.name] = yamlImport
 
-      const attrs: any = yamlImport.yaml.load()
+      const attrs: any = yamlImport.yamler.load()
       let text: string = dump({ [yamlImport.anchorName]: attrs })
       text = text.replace(`${yamlImport.anchorName}:`, `${yamlImport.anchorName}: &${yamlImport.name}`)
       return `# ${match}\n${text}`
@@ -92,7 +92,7 @@ export default class YamlER {
       if (name.includes('.')) {
         const imp = this.findImport(name)
         const subKey = name.split('.').slice(1).join('.')
-        const extendedValue = dig(imp.yaml.attributes, subKey)
+        const extendedValue = dig(imp.yamler.attributes, subKey)
 
         if (extendedValue === undefined)
           exit(1, { message: `${icons.error} Invalid !extends reference: '${name}' in file '${this.filePath}'. The referenced field does not exist.` })
@@ -137,6 +137,6 @@ export default class YamlER {
   private findImport(name: string): Import {
     const importName = name.split('.')[0]
     const imp = this.imports[importName] || exit(1, { message: `${icons.error} Couldn't find import for '${importName}' referenced in '${this.filePath}'` })
-    return dig(imp.yaml.attributes, name.split('.')[1]) ? imp : null
+    return dig(imp.yamler.attributes, name.split('.')[1]) ? imp : null
   }
 }
