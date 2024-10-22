@@ -7,8 +7,8 @@ import yaml from 'js-yaml'
 import icons from '~/icons'
 import Import from './import'
 
-export function loadFile(filePath: string, expressionCallback?: Function | undefined): Record<string, any> {
-  return new YamlER(filePath, { expressionCallback }).load()
+export async function loadFile(filePath: string, expressionCallback?: Function | undefined): Promise<Record<string, any>> {
+  return await new YamlER(filePath, { expressionCallback }).load()
 }
 
 export function dump(obj: any): string {
@@ -39,12 +39,18 @@ export default class YamlER {
     return path.dirname(this.filePath)
   }
 
-  load(): Record<string, any> {
+  // does not evaluate expressions
+  compile(): Record<string, any> {
     this.content = this.readFile(this.filePath)
     this.parseImports()
     this.parseExtends()
     this.attributes = yaml.load(this.content)
     this.attributes = deepRemoveKeys(this.attributes, [ new RegExp(`^${anchorNamePrefix}`) ])
+    return this.attributes
+  }
+
+  async load(): Promise<Record<string, any>> {
+    this.compile()
 
     // only parse expressions on the final set of attributes
     if (!this.parentFile)
@@ -74,7 +80,7 @@ export default class YamlER {
       const yamlImport = new Import({ name, match, filePath, parentFile: this.filePath })
       this.imports[yamlImport.name] = yamlImport
 
-      const attrs: any = yamlImport.yamler.load()
+      const attrs: any = yamlImport.yamler.compile()
       let text: string = dump({ [yamlImport.anchorName]: attrs })
       text = text.replace(`${yamlImport.anchorName}:`, `${yamlImport.anchorName}: &${yamlImport.name}`)
       return `# ${match}\n${text}`
@@ -130,8 +136,10 @@ export default class YamlER {
     return obj
   }
 
-  private parseAllExpressions() {
-    this.attributes = deepMapWithKeys(this.attributes, (path, key, value) => [ this.parseExpression(path, key), this.parseExpression(path, value) ])
+  private async parseAllExpressions() {
+    this.attributes = deepMapWithKeys(this.attributes, (path, key, value) => {
+      return [ this.parseExpression(path, key), this.parseExpression(path, value) ]
+    })
   }
 
   private findImport(name: string): Import {

@@ -11,7 +11,7 @@ describe('YamlER', () => {
     return '<' + [key].concat(value).join(' ') + '>'
   }
 
-  beforeEach(() => yaml = loadFile(composeYaml, expressionCallback))
+  beforeEach(async () => yaml = await loadFile(composeYaml, expressionCallback))
 
   it('loads and processes a YAML file with imports', () => {
     expect(yaml.stax.app).toBe('some_service')
