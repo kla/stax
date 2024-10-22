@@ -39,7 +39,7 @@ export default class YamlER {
     return path.dirname(this.filePath)
   }
 
-  compile(): Record<string, any> {
+  load(): Record<string, any> {
     this.content = this.readFile(this.filePath)
     this.parseImports()
     this.parseExtends()
@@ -51,10 +51,6 @@ export default class YamlER {
       this.parseAllExpressions()
 
     return this.attributes
-  }
-
-  load(): Record<string, any> {
-    return this.compile()
   }
 
   dump(): string {
@@ -78,7 +74,7 @@ export default class YamlER {
       const yamlImport = new Import({ name, match, filePath, parentFile: this.filePath })
       this.imports[yamlImport.name] = yamlImport
 
-      const attrs: any = yamlImport.yaml.compile()
+      const attrs: any = yamlImport.yaml.load()
       let text: string = dump({ [yamlImport.anchorName]: attrs })
       text = text.replace(`${yamlImport.anchorName}:`, `${yamlImport.anchorName}: &${yamlImport.name}`)
       return `# ${match}\n${text}`
