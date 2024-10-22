@@ -54,7 +54,7 @@ export default class YamlER {
   }
 
   dump(): string {
-    return dump(this.load())
+    return dump(this.attributes)
   }
 
   private readFile(filePath: string): string {
