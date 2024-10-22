@@ -111,11 +111,11 @@ export default class YamlER {
       this.content = Array.from(prepends).join('\n\n') + '\n\n' + this.content
   }
 
-  private getCacheKey(name: string, args: any[]): string {
+  private getCacheKey(name: string, args: string[]): string {
     return `${name}:${JSON.stringify(args)}`
   }
 
-  private evaluateExpression(path, name, args): any {
+  private evaluateExpression(path: string, name: string, args: string[]): any {
     const cacheKey = this.getCacheKey(name, args)
 
     if (cacheKey in this.expressionsCache)
