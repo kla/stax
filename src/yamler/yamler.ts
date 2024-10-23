@@ -1,5 +1,5 @@
 import { dumpOptions, importRegex, extendsRegex, rootExtendsRegex, anchorNamePrefix } from './index'
-import { deepRemoveKeys, dig, exit, resolve, deepMapWithKeys } from '~/utils'
+import { deepRemoveKeys, dig, exit, resolve, deepMapWithKeys, deepMapWithKeysAsync } from '~/utils'
 import { parseTemplateExpression } from './expressions'
 import * as fs from 'fs'
 import * as path from 'path'
@@ -54,7 +54,7 @@ export default class YamlER {
 
     // only parse expressions on the final set of attributes
     if (!this.parentFile)
-      this.parseAllExpressions()
+      await this.parseAllExpressions()
 
     return this.attributes
   }
@@ -126,19 +126,21 @@ export default class YamlER {
     return this.expressionCallback(path, name, args)
   }
 
-  private parseExpression(path: string, obj: string | undefined | null) {
+  private async parseExpression(path: string, obj: string | undefined | null) {
     if (obj && typeof(obj) === 'string') {
       const expression = parseTemplateExpression(obj)
 
       if (expression && this.expressionCallback)
-        obj = this.evaluateExpression(path, expression.funcName, expression.args)
+        obj = await this.evaluateExpression(path, expression.funcName, expression.args)
     }
     return obj
   }
 
   private async parseAllExpressions() {
-    this.attributes = deepMapWithKeys(this.attributes, (path, key, value) => {
-      return [ this.parseExpression(path, key), this.parseExpression(path, value) ]
+    this.attributes = await deepMapWithKeysAsync(this.attributes, async (path, key, value) => {
+      const newKey = await this.parseExpression(path, key)
+      const newValue = await this.parseExpression(path, value)
+      return [newKey, newValue]
     })
   }
 

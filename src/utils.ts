@@ -433,3 +433,26 @@ export function resolve(...paths: string[]): string {
 
   return path.resolve(resolvedPath, ...restPaths)
 }
+
+/**
+ * Async version of deepMapWithKeys that supports async callbacks
+ */
+export async function deepMapWithKeysAsync(
+  obj: Record<string, any>,
+  callback: (path: string, key: string, value: any) => Promise<[string, any]>,
+  path: string = ''
+): Promise<Record<string, any>> {
+  const entries = await Promise.all(
+    Object.entries(obj).map(async ([key, value]) => {
+      const currentPath = path ? `${path}.${key}` : key
+      const [newKey, newValue] = await callback(currentPath, key, value)
+
+      if (typeof newValue === 'object' && newValue !== null && !Array.isArray(newValue))
+        return [newKey, await deepMapWithKeysAsync(newValue, callback, currentPath)]
+
+      return [newKey, newValue]
+    })
+  )
+
+  return Object.fromEntries(entries)
+}
