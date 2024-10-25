@@ -1,14 +1,16 @@
 import { beforeEach, describe, it, expect } from 'bun:test'
 import { loadFile, dump } from '~/yamler'
-import { resolve } from '~/utils'
+import { dig, resolve } from '~/utils'
 
 describe('YamlER', () => {
   const fixturesDir = resolve(__dirname, '../../tests/fixtures')
   const composeYaml = resolve(fixturesDir, 'some_service.staxfile')
   let yaml
 
-  const expressionCallback = (path, key, value) => {
-    return '<' + [key].concat(value).join(' ') + '>'
+  const expressionCallback = (attributes, path, key, args) => {
+    if (key == 'get') return dig(attributes, args[0])
+    if (key == 'expression') return '${{ ' + args[0] + ' ' + args[1] + ' }}'
+    return '<' + [key].concat(args).join(' ') + '>'
   }
 
   beforeEach(async () => yaml = await loadFile(composeYaml, expressionCallback))
@@ -35,5 +37,19 @@ describe('YamlER', () => {
 
   it('strips _stax_import_ anchors', () => {
     expect(dump(yaml)).not.toContain('_stax_import_')
+  })
+
+  it('handles expressions that reference a value from an attribute set by another expression', () => {
+    expect(yaml.stax.vars.value1).toBe('some_service')
+    expect(yaml.stax.vars.value2).toBe('some_service')
+  })
+
+  it('handles expressions that reference later attributes with an expression', () => {
+    expect(yaml.stax.vars.value3).toBe('value4')
+    expect(yaml.stax.vars.value4).toBe('value4')
+  })
+
+  it('handles expressions that return an expression', () => {
+    expect(yaml.stax.vars.value5).toBe('some_service')
   })
 })

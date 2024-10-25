@@ -1,6 +1,6 @@
 import { dumpOptions, importRegex, extendsRegex, rootExtendsRegex, anchorNamePrefix } from './index'
 import { deepRemoveKeys, dig, exit, resolve, deepMapWithKeys, deepMapWithKeysAsync } from '~/utils'
-import { parseTemplateExpression } from './expressions'
+import { expressionRegex, parseTemplateExpression } from './expressions'
 import * as fs from 'fs'
 import * as path from 'path'
 import yaml from 'js-yaml'
@@ -53,8 +53,12 @@ export default class YamlER {
     this.compile()
 
     // only parse expressions on the final set of attributes
-    if (!this.parentFile)
-      await this.parseAllExpressions()
+    if (!this.parentFile) {
+      // expressions can return an expression or reference an attribute wiith an expression later in the
+      // object that hasn't been evaluated yet so we parse expressions in a loop until there are no more
+      while (await this.parseAllExpressions())
+        ;
+    }
 
     return this.attributes
   }
@@ -117,31 +121,49 @@ export default class YamlER {
     return `${name}:${JSON.stringify(args)}`
   }
 
-  private evaluateExpression(path: string, name: string, args: string[]): any {
+  private evaluateExpression(attributes: Record<string, any>, path: string, name: string, args: string[]): any {
     const cacheKey = this.getCacheKey(name, args)
 
     if (cacheKey in this.expressionsCache)
       return this.expressionsCache[cacheKey]
 
-    return this.expressionCallback(path, name, args)
+    return this.expressionCallback(attributes, path, name, args)
   }
 
-  private async parseExpression(path: string, obj: string | undefined | null) {
+  private async parseExpression(path: string, obj: string | undefined | null): Promise<[any, boolean]> {
     if (obj && typeof(obj) === 'string') {
       const expression = parseTemplateExpression(obj)
 
-      if (expression && this.expressionCallback)
-        obj = await this.evaluateExpression(path, expression.funcName, expression.args)
+      if (expression && this.expressionCallback) {
+        const result = await this.evaluateExpression(this.attributes, path, expression.funcName, expression.args)
+        return [result, true]
+      }
     }
-    return obj
+    return [obj, false]
   }
 
   private async parseAllExpressions() {
+    let found = false
+
     this.attributes = await deepMapWithKeysAsync(this.attributes, async (path, key, value) => {
-      const newKey = await this.parseExpression(path, key)
-      const newValue = await this.parseExpression(path, value)
+      const [newKey, keyHasExpression] = await this.parseExpression(path, key)
+      let newValue
+
+      found ||= keyHasExpression
+
+      if (Array.isArray(value)) {
+        const results = await Promise.all(value.map(item => this.parseExpression(path, item)))
+        newValue = results.map(([val]) => val)
+        found ||= results.some(([_, hasExp]) => hasExp)
+      } else {
+        const [parsedValue, valueHasExpression] = await this.parseExpression(path, value)
+        found ||= valueHasExpression
+        newValue = parsedValue
+      }
+
       return [newKey, newValue]
     })
+    return found
   }
 
   private findImport(name: string): Import {
