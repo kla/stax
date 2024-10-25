@@ -52,4 +52,11 @@ describe('YamlER', () => {
   it('handles expressions that return an expression', () => {
     expect(yaml.stax.vars.value5).toBe('some_service')
   })
+
+  it('throws an error when expressions have circular references', async () => {
+    const circularYaml = resolve(fixturesDir, 'circular_expressions.staxfile')
+    const promise = loadFile(circularYaml, expressionCallback)
+
+    await expect(promise).rejects.toThrow('Maximum expression parsing iterations (100) exceeded. Possible circular reference in expressions.')
+  })
 })

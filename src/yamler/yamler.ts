@@ -56,8 +56,13 @@ export default class YamlER {
     if (!this.parentFile) {
       // expressions can return an expression or reference an attribute wiith an expression later in the
       // object that hasn't been evaluated yet so we parse expressions in a loop until there are no more
-      while (await this.parseAllExpressions())
-        ;
+      const maxIterations = 100 // prevent infinite loops
+      let iterations = 0
+
+      while (await this.parseAllExpressions()) {
+        if (++iterations >= maxIterations)
+          throw new Error(`Maximum expression parsing iterations (${maxIterations}) exceeded. Possible circular reference in expressions.`)
+      }
     }
 
     return this.attributes
