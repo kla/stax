@@ -100,8 +100,9 @@ describe('YamlER', () => {
     expect(seenExpressions.size).toBe(1)
   })
 
-  it('writes and reads yaml from a temp file', async () => {
-    const content = await loadFile(tempYamlFile({ test: 'value' }))
-    expect(content.test).toBe('value')
+  it('handles multiple embedded expressions', async () => {
+    yaml = tempYamlFile({ value1: 'value1', value2: 'value2', value3: 'value1 is ${{ get value1 }} and value2 is ${{ get value2 }}' })
+    const result = await loadFile(yaml, expressionCallback)
+    expect(result.value3).toBe('value1 is value1 and value2 is value2')
   })
 })

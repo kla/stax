@@ -1,6 +1,6 @@
 import { dumpOptions, importRegex, extendsRegex, rootExtendsRegex, anchorNamePrefix } from './index'
 import { deepRemoveKeys, dig, exit, resolve, deepMapWithKeysAsync } from '~/utils'
-import { parseTemplateExpression } from './expressions'
+import { parseTemplateExpression, expressionRegex } from './expressions'
 import * as fs from 'fs'
 import * as path from 'path'
 import yaml from 'js-yaml'
@@ -137,15 +137,21 @@ export default class YamlER {
   }
 
   private async parseExpression(path: string, obj: string | undefined | null): Promise<[any, boolean]> {
-    if (obj && typeof(obj) === 'string') {
-      const expression = parseTemplateExpression(obj)
+    if (!obj || typeof(obj) !== 'string') return [obj, false]
 
+    const matches = obj.match(expressionRegex)
+    if (!matches) return [obj, false]
+
+    let result = obj
+    for (const match of matches) {
+      const expression = parseTemplateExpression(match)
       if (expression && this.expressionCallback) {
-        const result = await this.evaluateExpression(this.attributes, path, expression.funcName, expression.args)
-        return [result, true]
+        const value = await this.evaluateExpression(this.attributes, path, expression.funcName, expression.args)
+        result = result.replace(match, value)
       }
     }
-    return [obj, false]
+
+    return [result, true]
   }
 
   private async parseAllExpressions() {
