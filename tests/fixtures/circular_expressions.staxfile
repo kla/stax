@@ -1,4 +1,2 @@
-stax:
-  vars:
-    value1: ${{ get stax.vars.value2 }}
-    value2: ${{ get stax.vars.value1 }}
+value1: ${{ get value2 }}
+value2: ${{ get value1 }}

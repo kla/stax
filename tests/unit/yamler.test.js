@@ -59,4 +59,29 @@ describe('YamlER', () => {
 
     await expect(promise).rejects.toThrow('Maximum expression parsing iterations (100) exceeded. Possible circular reference in expressions.')
   })
+
+  it('caches identical expressions regardless of path', async () => {
+    let callCount = 0
+    const seenExpressions = new Set()
+    const cachingCallback = (attributes, path, key, args) => {
+      // Create an expression identifier that ignores path
+      const expressionId = `${key}:${args.join(',')}`
+
+      if (!seenExpressions.has(expressionId)) {
+        callCount++
+        seenExpressions.add(expressionId)
+      }
+
+      return `result-${expressionId}`
+    }
+
+    const yamlWithDuplicateExpressions = resolve(fixturesDir, 'duplicate_expressions.staxfile')
+    const result = await loadFile(yamlWithDuplicateExpressions, cachingCallback)
+
+    // Both values should be the same since they use the same expression (key + args)
+    expect(result.value1).toBe('result-test:arg1')
+    expect(result.value2).toBe('result-test:arg1')
+    expect(callCount).toBe(1)
+    expect(seenExpressions.size).toBe(1)
+  })
 })
