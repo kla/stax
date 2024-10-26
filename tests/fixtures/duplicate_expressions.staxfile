@@ -1,2 +1,0 @@
-value1: ${{ test arg1 }}
-value2: ${{ test arg1 }}

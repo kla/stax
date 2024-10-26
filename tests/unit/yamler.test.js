@@ -1,6 +1,17 @@
-import { beforeEach, describe, it, expect } from 'bun:test'
+import { afterEach, beforeEach, describe, it, expect } from 'bun:test'
 import { loadFile, dump } from '~/yamler'
 import { dig, resolve } from '~/utils'
+import { writeFileSync } from 'fs'
+import tmp from 'tmp'
+
+const tempFiles = []
+
+function tempYamlFile(obj) {
+  const file = tmp.fileSync({ postfix: '.yaml' })
+  writeFileSync(file.name, dump(obj))
+  tempFiles.push(file)
+  return file.name
+}
 
 describe('YamlER', () => {
   const fixturesDir = resolve(__dirname, '../../tests/fixtures')
@@ -13,7 +24,11 @@ describe('YamlER', () => {
     return '<' + [key].concat(args).join(' ') + '>'
   }
 
-  beforeEach(async () => yaml = await loadFile(composeYaml, expressionCallback))
+  beforeEach(async () => {
+    tempFiles.length = 0
+    yaml = await loadFile(composeYaml, expressionCallback)
+  })
+  afterEach(() => tempFiles.forEach(file => file.removeCallback()))
 
   it('loads and processes a YAML file with imports', () => {
     expect(yaml.stax.app).toBe('some_service')
@@ -54,7 +69,7 @@ describe('YamlER', () => {
   })
 
   it('throws an error when expressions have circular references', async () => {
-    const circularYaml = resolve(fixturesDir, 'circular_expressions.staxfile')
+    const circularYaml = tempYamlFile({ value1: '${{ get value2 }}', value2: '${{ get value1 }}' })
     const promise = loadFile(circularYaml, expressionCallback)
 
     await expect(promise).rejects.toThrow('Maximum expression parsing iterations (100) exceeded. Possible circular reference in expressions.')
@@ -75,7 +90,7 @@ describe('YamlER', () => {
       return `result-${expressionId}`
     }
 
-    const yamlWithDuplicateExpressions = resolve(fixturesDir, 'duplicate_expressions.staxfile')
+    const yamlWithDuplicateExpressions = tempYamlFile({ value1: '${{ test arg1 }}', value2: '${{ test arg1 }}' })
     const result = await loadFile(yamlWithDuplicateExpressions, cachingCallback)
 
     // Both values should be the same since they use the same expression (key + args)
@@ -83,5 +98,10 @@ describe('YamlER', () => {
     expect(result.value2).toBe('result-test:arg1')
     expect(callCount).toBe(1)
     expect(seenExpressions.size).toBe(1)
+  })
+
+  it('writes and reads yaml from a temp file', async () => {
+    const content = await loadFile(tempYamlFile({ test: 'value' }))
+    expect(content.test).toBe('value')
   })
 })

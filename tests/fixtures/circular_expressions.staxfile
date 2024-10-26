@@ -1,2 +1,0 @@
-value1: ${{ get value2 }}
-value2: ${{ get value1 }}
