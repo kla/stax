@@ -1,6 +1,6 @@
 import { dumpOptions, importRegex, extendsRegex, rootExtendsRegex, anchorNamePrefix } from './index'
-import { deepRemoveKeys, dig, exit, resolve, deepMapWithKeys, deepMapWithKeysAsync } from '~/utils'
-import { expressionRegex, parseTemplateExpression } from './expressions'
+import { deepRemoveKeys, dig, exit, resolve, deepMapWithKeysAsync } from '~/utils'
+import { parseTemplateExpression } from './expressions'
 import * as fs from 'fs'
 import * as path from 'path'
 import yaml from 'js-yaml'
@@ -50,7 +50,8 @@ export default class YamlER {
   }
 
   async load(): Promise<Record<string, any>> {
-    this.compile()
+    if (!this.attributes)
+      this.compile()
 
     // only parse expressions on the final set of attributes
     if (!this.parentFile) {
