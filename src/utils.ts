@@ -299,16 +299,24 @@ export function truthy(value: any): boolean {
  * Retrieves a value from an object using a dot-notated path.
  * @param obj - The object to dig into.
  * @param path - The dot-notated path to the desired value.
- * @returns The value at the specified path, or undefined if not found.
+ * @param options - Configuration options
+ * @param options.required - If true, throws an error when path is not found
+ * @param options.default - Value to return if path is not found
+ * @returns The value at the specified path, undefined if not found and no default provided
+ * @throws {Error} If path is not found and required is true
  */
-export function dig(obj: any, path: string): any {
+export function dig(obj: any, path: string, options: { required?: boolean, default?: any } = { required: false }): any {
   if (path === '.') return obj
-  return path.split('.').reduce((acc, part) => {
-    if (acc && typeof acc === 'object' && part in acc) {
-      return acc[part]
-    }
-    return undefined
-  }, obj)
+
+  const value = path.split('.')
+    .reduce((acc, part) => (acc && typeof acc === 'object' && part in acc) ? acc[part] : undefined, obj)
+
+  if (value === undefined) {
+    if (options.default) return options.default
+    if (options.required) throw new Error(`Required path "${path}" not found in object`)
+  }
+
+  return value
 }
 
 /**
@@ -456,3 +464,4 @@ export async function deepMapWithKeysAsync(
 
   return Object.fromEntries(entries)
 }
+

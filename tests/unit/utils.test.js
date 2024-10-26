@@ -329,6 +329,14 @@ describe('dig', () => {
   it('returns 0 if the value is 0', () => expect(dig(testObj, 'f')).toBe(0))
   it('returns undefined for an empty path', () => expect(dig(testObj, '')).toBeUndefined())
   it('returns the object itself for a "." path', () => expect(dig(testObj, '.')).toBe(testObj))
+  it('returns the default value when path is not found', () => expect(dig(testObj, 'some.invalid.path', { default: 'hello'})).toBe('hello'))
+  it('throws error when required path is not found', () => expect(() => dig({ a: { b: 1 } }, 'a.c', { required: true })).toThrow('Required path "a.c" not found in object'))
+
+  it('does not throw for existing paths when required is true', () => {
+    const testObj = { a: { b: 1 } }
+    expect(() => dig(testObj, 'a.b', { required: true })).not.toThrow()
+    expect(dig(testObj, 'a.b', { required: true })).toBe(1)
+  })
 })
 
 describe('timeAgo', () => {
