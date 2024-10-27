@@ -18,7 +18,7 @@ describe('YamlER', () => {
   const composeYaml = resolve(fixturesDir, 'some_service.staxfile')
   let yaml
 
-  const expressionCallback = (attributes, path, key, args) => {
+  const expressionCallback = (baseDir, attributes, path, key, args) => {
     if (key == 'get') return dig(attributes, args[0])
     if (key == 'expression') return '${{ ' + args[0] + ' ' + args[1] + ' }}'
     return '<' + [key].concat(args).join(' ') + '>'
@@ -78,7 +78,7 @@ describe('YamlER', () => {
   it('caches identical expressions regardless of path', async () => {
     let callCount = 0
     const seenExpressions = new Set()
-    const cachingCallback = (attributes, path, key, args) => {
+    const cachingCallback = (baseDir, attributes, path, key, args) => {
       // Create an expression identifier that ignores path
       const expressionId = `${key}:${args.join(',')}`
 

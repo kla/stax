@@ -1,4 +1,4 @@
-const expressionRegex = /\$\{\{\s*([^}]+)\s*\}\}/
+export const expressionRegex = /\$\{\{\s*([^}]+)\s*\}\}/
 
 function parseToken(content: string): [string, string[]] {
   const parts = content.trim().split(/\s+/)

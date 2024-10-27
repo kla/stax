@@ -127,13 +127,13 @@ export default class YamlER {
     return `${name}:${JSON.stringify(args)}`
   }
 
-  private evaluateExpression(attributes: Record<string, any>, path: string, name: string, args: string[]): any {
+  private async evaluateExpression(baseDir: string, attributes: Record<string, any>, path: string, name: string, args: string[]): Promise<any> {
     const cacheKey = this.getCacheKey(name, args)
 
-    if (cacheKey in this.expressionsCache)
-      return this.expressionsCache[cacheKey]
+    if (!(cacheKey in this.expressionsCache))
+      this.expressionsCache[cacheKey] = await this.expressionCallback(baseDir, attributes, path, name, args)
 
-    return this.expressionCallback(attributes, path, name, args)
+    return this.expressionsCache[cacheKey]
   }
 
   private async parseExpression(path: string, obj: string | undefined | null): Promise<[any, boolean]> {
@@ -146,7 +146,7 @@ export default class YamlER {
     for (const match of matches) {
       const expression = parseTemplateExpression(match)
       if (expression && this.expressionCallback) {
-        const value = await this.evaluateExpression(this.attributes, path, expression.funcName, expression.args)
+        const value = await this.evaluateExpression(this.baseDir, this.attributes, path, expression.funcName, expression.args)
         result = result.replace(match, value)
       }
     }
