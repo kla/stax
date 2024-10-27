@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, mock } from 'bun:test'
-import { csvKeyValuePairs, dasherize, deepRemoveKeys, dig, directoryExists, flattenObject, isFile, timeAgo, truthy, verifyDirectory, presence, deepMap, resolve, deepMapWithKeys } from '~/utils'
+import { csvKeyValuePairs, dasherize, deepRemoveKeys, dig, directoryExists, flattenObject, isFile, timeAgo, truthy, verifyDirectory, presence, deepMap, resolve, deepMapWithKeys, deepMapWithKeysAsync } from '~/utils'
 import * as os from 'os'
 import * as path from 'path'
 
@@ -542,5 +542,82 @@ describe('deepMapWithKeys', () => {
     const input = {}
     const result = deepMapWithKeys(input, (path, key, value) => [key, value])
     expect(result).toEqual({})
+  })
+})
+
+describe('deepMapWithKeysAsync', () => {
+  it('transforms keys and values in a simple object', async () => {
+    const input = { a: 1, b: 2 }
+    const result = await deepMapWithKeysAsync(input, async (path, key, value) => [key.toUpperCase(), value * 2])
+    expect(result).toEqual({ A: 2, B: 4 })
+  })
+
+  it('handles nested objects', async () => {
+    const input = { a: { b: 1, c: { d: 2 } } }
+    const result = await deepMapWithKeysAsync(input, async (path, key, value) => [
+      `${key}_modified`,
+      typeof value === 'number' ? value + 1 : value
+    ])
+    expect(result).toEqual({
+      a_modified: {
+        b_modified: 2,
+        c_modified: {
+          d_modified: 3
+        }
+      }
+    })
+  })
+
+  it('processes arrays of objects', async () => {
+    const input = {
+      items: [
+        { id: 1, name: 'first' },
+        { id: 2, name: 'second' }
+      ]
+    }
+    const result = await deepMapWithKeysAsync(input, async (path, key, value) => [
+      key === 'name' ? 'title' : key,
+      value
+    ])
+    expect(result).toEqual({
+      items: [
+        { id: 1, title: 'first' },
+        { id: 2, title: 'second' }
+      ]
+    })
+  })
+
+  it('handles nested arrays', async () => {
+    const input = {
+      data: [
+        { items: [{ id: 1 }, { id: 2 }] },
+        { items: [{ id: 3 }, { id: 4 }] }
+      ]
+    }
+    const result = await deepMapWithKeysAsync(input, async (path, key, value) => [
+      key === 'id' ? 'identifier' : key,
+      value
+    ])
+    expect(result).toEqual({
+      data: [
+        { items: [{ identifier: 1 }, { identifier: 2 }] },
+        { items: [{ identifier: 3 }, { identifier: 4 }] }
+      ]
+    })
+  })
+
+  it('allows asynchronous transformations', async () => {
+    const input = { a: 1, b: 2 }
+    const result = await deepMapWithKeysAsync(input, async (path, key, value) => {
+      await new Promise(resolve => setTimeout(resolve, 10))
+      return [key.toUpperCase(), value * 2]
+    })
+    expect(result).toEqual({ A: 2, B: 4 })
+  })
+
+  it('handles empty arrays and objects', async () => {
+    const input = { a: [], b: {}, c: [{}] }
+    const result = await deepMapWithKeysAsync(input, async (path, key, value) => [key, value])
+    expect(result).toEqual({ a: [], b: {}, c: [{}] })
   })
 })

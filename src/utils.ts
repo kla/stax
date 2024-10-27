@@ -455,7 +455,14 @@ export async function deepMapWithKeysAsync(
       const currentPath = path ? `${path}.${key}` : key
       const [newKey, newValue] = await callback(currentPath, key, value)
 
-      if (typeof newValue === 'object' && newValue !== null && !Array.isArray(newValue))
+      if (Array.isArray(newValue))
+        return [newKey, await Promise.all(newValue.map(async (item, index) =>
+          typeof item === 'object' && item !== null
+            ? await deepMapWithKeysAsync(item, callback, `${currentPath}[${index}]`)
+            : item
+        ))]
+
+      if (typeof newValue === 'object' && newValue !== null)
         return [newKey, await deepMapWithKeysAsync(newValue, callback, currentPath)]
 
       return [newKey, newValue]
