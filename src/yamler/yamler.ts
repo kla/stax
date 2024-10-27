@@ -145,9 +145,14 @@ export default class YamlER {
     let result = obj
     for (const match of matches) {
       const expression = parseTemplateExpression(match)
+
       if (expression && this.expressionCallback) {
         const value = await this.evaluateExpression(this.baseDir, this.attributes, path, expression.funcName, expression.args)
-        result = result.replace(match, value)
+
+        if (result == match)
+          result = value // this maintains the type when the expression is not embedded in a string
+        else
+          result = result.replace(match, value)
       }
     }
 
@@ -164,7 +169,11 @@ export default class YamlER {
       found ||= keyHasExpression
 
       if (Array.isArray(value)) {
-        const results = await Promise.all(value.map(item => this.parseExpression(path, item)))
+        const results = []
+
+        for (const item of value)
+          results.push(await this.parseExpression(path, item))
+
         newValue = results.map(([val]) => val)
         found ||= results.some(([_, hasExp]) => hasExp)
       } else {

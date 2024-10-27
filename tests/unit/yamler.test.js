@@ -19,6 +19,10 @@ describe('YamlER', () => {
   let yaml
 
   const expressionCallback = (baseDir, attributes, path, key, args) => {
+    if (key == 'true') return true
+    if (key == 'false') return false
+    if (key == 'null') return null
+    if (key == 'undefined') return undefined
     if (key == 'get') return dig(attributes, args[0])
     if (key == 'expression') return '${{ ' + args[0] + ' ' + args[1] + ' }}'
     return '<' + [key].concat(args).join(' ') + '>'
@@ -104,5 +108,33 @@ describe('YamlER', () => {
     yaml = tempYamlFile({ value1: 'value1', value2: 'value2', value3: 'value1 is ${{ get value1 }} and value2 is ${{ get value2 }}' })
     const result = await loadFile(yaml, expressionCallback)
     expect(result.value3).toBe('value1 is value1 and value2 is value2')
+  })
+
+  it('maintains the expression return value type when not embedded in a string', async () => {
+    yaml = tempYamlFile({
+      value1: '${{ null }}',
+      value2: '${{ undefined }}',
+      value3: '${{ true }}',
+      value4: '${{ false }}',
+    })
+    const result = await loadFile(yaml, expressionCallback)
+    expect(result.value1).toBe(null)
+    expect(result.value2).toBe(undefined)
+    expect(result.value3).toBe(true)
+    expect(result.value4).toBe(false)
+  })
+
+  it('handles types in embedded strings', async () => {
+    yaml = tempYamlFile({
+      value1: 'embedded expression with a ${{ null }} value',
+      value2: 'embedded expression with a ${{ undefined }} value',
+      value3: 'embedded expression with a ${{ true }} value',
+      value4: 'embedded expression with a ${{ false }} value',
+    })
+    const result = await loadFile(yaml, expressionCallback)
+    expect(result.value1).toBe('embedded expression with a null value')
+    expect(result.value2).toBe('embedded expression with a undefined value')
+    expect(result.value3).toBe('embedded expression with a true value')
+    expect(result.value4).toBe('embedded expression with a false value')
   })
 })
