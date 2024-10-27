@@ -400,32 +400,6 @@ export function deepMap(
 }
 
 /**
- * Recursively iterates over each property in an object and runs a callback function.
- * The key and value of each property can be modified based on the callback's return value.
- * @param obj - The object to iterate over.
- * @param callback - The callback function to run for each property.
- * @param path - The current path in dot notation (used for recursion).
- * @returns The modified object.
- */
-export function deepMapWithKeys(
-  obj: Record<string, any>,
-  callback: (path: string, key: string, value: any) => [string, any],
-  path: string = ''
-): Record<string, any> {
-  return Object.entries(obj).reduce((acc, [key, value]) => {
-    const currentPath = path ? `${path}.${key}` : key
-    const [newKey, newValue] = callback(currentPath, key, value)
-
-    if (typeof newValue === 'object' && newValue !== null && !Array.isArray(newValue))
-      acc[newKey] = deepMapWithKeys(newValue, callback, currentPath)
-    else
-      acc[newKey] = newValue
-
-    return acc
-  }, {})
-}
-
-/**
  * Resolves a file path, expanding the tilde character if present,
  * and then applies path.resolve with any additional path segments.
  *
@@ -455,12 +429,17 @@ export async function deepMapWithKeysAsync(
       const currentPath = path ? `${path}.${key}` : key
       const [newKey, newValue] = await callback(currentPath, key, value)
 
-      if (Array.isArray(newValue))
-        return [newKey, await Promise.all(newValue.map(async (item, index) =>
-          typeof item === 'object' && item !== null
-            ? await deepMapWithKeysAsync(item, callback, `${currentPath}[${index}]`)
-            : item
-        ))]
+      if (Array.isArray(newValue)) {
+        return [newKey, await Promise.all(newValue.map(async (item, index) => {
+          const arrayPath = `${currentPath}.${index}`
+
+          if (typeof item === 'object' && item !== null) {
+            await callback(arrayPath, index.toString(), item)
+            return await deepMapWithKeysAsync(item, callback, arrayPath)
+          }
+          return item
+        }))]
+      }
 
       if (typeof newValue === 'object' && newValue !== null)
         return [newKey, await deepMapWithKeysAsync(newValue, callback, currentPath)]
@@ -471,4 +450,3 @@ export async function deepMapWithKeysAsync(
 
   return Object.fromEntries(entries)
 }
-
