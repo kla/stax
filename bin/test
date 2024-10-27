@@ -2,12 +2,19 @@
 
 args=()
 
-for arg in "$@"
+while [ $# -gt 0 ]
 do
-  if [ "$arg" = "-w" ]; then
+  if [ "$1" = "-w" ]; then
     args+=("--watch")
+    shift
+  elif [ "$1" = "-n" ]; then
+    shift  # Skip the -n
+    pattern="$1"
+    args+=("--test-name-pattern" "$pattern")
+    shift  # Skip the pattern value
   else
-    args+=("$arg")
+    args+=("$1")
+    shift
   fi
 done
 
