@@ -8,6 +8,9 @@ import yaml from 'js-yaml'
 import icons from '~/icons'
 import Import from './import'
 
+// global cache for now. later if needed this should be keyed on the parent yaml file
+export const expressionsCache: Record<string, any> = {}
+
 export async function loadFile(filePath: string, expressionCallback?: Function | undefined): Promise<Record<string, any>> {
   return await new YamlER(filePath, { expressionCallback }).load()
 }
@@ -25,16 +28,11 @@ export default class YamlER {
   public attributes: Record<string, any>
   public warnings: string[]
   private expressionCallback: Function | undefined
-  private expressionsCache: Record<string, any>
 
   constructor(filePath: string, options: { parentFile?: string, expressionCallback?: Function | undefined } = {}) {
     this.filePath = resolve(path.dirname(options.parentFile || filePath), filePath)
     this.parentFile = options.parentFile
     this.expressionCallback = options.expressionCallback
-
-    // we only evaluate expressions on the final set of attributes so the cache will only be populated on the "root"
-    // instance of this class and not any of the instances created by imports
-    this.expressionsCache = {}
   }
 
   get baseDir(): string {
@@ -133,9 +131,9 @@ export default class YamlER {
   private async evaluateExpression(baseDir: string, attributes: Record<string, any>, path: string, name: string, args: string[]): Promise<any> {
     const cacheKey = this.getCacheKey(name, args)
 
-    if (!(cacheKey in this.expressionsCache)) {
+    if (!(cacheKey in expressionsCache)) {
       try {
-        this.expressionsCache[cacheKey] = await this.expressionCallback(baseDir, attributes, path, name, args)
+        expressionsCache[cacheKey] = await this.expressionCallback(baseDir, attributes, path, name, args)
       } catch (error) {
         if (error instanceof ExpressionWarning) {
           this.warnings.push(error.message)
@@ -145,7 +143,7 @@ export default class YamlER {
       }
     }
 
-    return this.expressionsCache[cacheKey]
+    return expressionsCache[cacheKey]
   }
 
   private async parseExpression(path: string, obj: string | undefined | null): Promise<[any, boolean]> {
