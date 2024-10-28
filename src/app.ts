@@ -78,7 +78,7 @@ export default class App {
   static async setup(config: StaxConfig, options: SetupOptions = {}): Promise<App> {
     options = { cache: true, ...options }
     const staxfile = new Staxfile(config)
-    const composeFile = await staxfile.compile({ force: true, excludes: options.rebuild ? [ 'prompts' ] : [] })
+    const composeFile = await staxfile.compile({ force: true, excludes: options.rebuild ? [ 'prompt' ] : [] })
 
     if (!composeFile)
       return exit(1, { message: `👿 Couldn't setup a container for '${staxfile.source}'` })

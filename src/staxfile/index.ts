@@ -1,12 +1,11 @@
 import { writeFileSync, existsSync, mkdirSync, statSync } from 'fs'
-import { cacheDir as _cacheDir, exit, flattenObject, deepMap, verifyFile, resolve } from '~/utils'
+import { cacheDir as _cacheDir, exit, flattenObject, deepMap, verifyFile, resolve, deepMapWithKeys } from '~/utils'
 import { StaxConfig, CompileOptions, DefaultCompileOptions } from '~/types'
-import { renderTemplate, parseTemplateExpression } from './template'
-import { dump, loadFile } from './yaml'
+import YamlER, { dump } from '~/yamler'
 import yaml from 'js-yaml'
 import Config from './config'
 import DockerfileCompiler from './dockerfile_compiler'
-import Expressions from './expressions'
+import Evaluator from './evaluator'
 import Location from '~/location'
 import icons from '~/icons'
 import * as path from 'path'
@@ -14,10 +13,8 @@ import * as path from 'path'
 export default class Staxfile {
   public config: Config
   public compose: Record<string, any>
-  public warnings: Set<string>
   public cacheDir: string
   private buildsCompiled: Record<string, string> = {}
-  private expressions: Expressions
 
   constructor(config: StaxConfig, options: { cacheDir?: string } = {}) {
     let source = config.source
@@ -27,8 +24,6 @@ export default class Staxfile {
 
     this.config = new Config({ ...config, source: source })
     this.cacheDir = options.cacheDir || this.systemCacheDir
-    this.warnings = new Set()
-    this.expressions = new Expressions(this)
   }
 
   get staxfile(): string { return this.config.staxfile }
@@ -84,63 +79,34 @@ export default class Staxfile {
   }
 
   private async load(options: CompileOptions = {}): Promise<void> {
+    const evaluator = new Evaluator(this)
+    const yamler = new YamlER(this.staxfile, { expressionCallback: evaluator.evaluate.bind(evaluator) })
+
     options = { ...DefaultCompileOptions, ...options }
 
-    this.warnings = new Set<string>()
-    this.compose = loadFile(this.staxfile)
+    this.compose = yamler.compile()
+    yamler.attributes.stax.app = this.config.app
 
-    if (options.excludes.includes('prompts'))
-      this.keepExistingPromptValues()
+    // if (options.excludes?.includes('prompt'))
+    //   this.compose = yamler.attributes = this.keepExistingPromptValues()
 
-    // render the stax section first since we need to update this.config with the values there
-    // exclude read on this first render since it can be dependent on stax.source
-    this.compose.stax = await this.renderCompose(this.compose.stax, { excludes: [ 'read' ] })
     this.config = new Config({ ...this.config, ...this.compose.stax })
-
-    this.compose = await this.renderCompose(this.compose)
+    this.compose = await yamler.load()
+    this.config = new Config({ ...this.config, ...this.compose.stax })
     this.updateServices()
 
-    // need to re-render after updating services since template expressions may have been added
-    this.compose = await this.renderCompose(this.compose)
-
-    if (this.generatedWarnings.length > 0)
-      return exit(1, { message: this.generatedWarnings.join('\n') })
+    if (yamler.warnings.length > 0)
+      return exit(1, { message: yamler.warnings.join('\n') })
   }
 
   // set all prompts to it's current config value or default if it is being excluded
-  private keepExistingPromptValues() {
-    deepMap(this.compose, (path, value) => {
-      if (typeof value === 'string' && value.includes('prompt')) {
-        const expression = parseTemplateExpression(value)
+  private keepExistingPromptValues(): Record<string, any> {
+    return deepMapWithKeys(this.compose, (path, key, value) => {
+      if (value && typeof(value) === 'string' && value.includes('prompt'))
+        return [ key, this.config.fetch(path) ]
 
-        if (expression.funcName === 'prompt')
-          return this.config.fetch(path) || expression.args[expression.args.length - 1]
-      }
-      return value
+      return [ key, value ]
     })
-  }
-
-  private get generatedWarnings(): Array<string> {
-    return [...this.warnings]
-  }
-
-  private async renderCompose(attributes: Record<string, any>, options: CompileOptions = { excludes: [] }): Promise<Record<string, any>> {
-    const renderedYaml = await this.render(dump(attributes), options)
-    return yaml.load(renderedYaml)
-  }
-
-  private async render(text: string, options: CompileOptions = { excludes: [] }): Promise<string> {
-    let matches = 0
-
-    text = await renderTemplate(text, async (name, args, originalMatch) => {
-      if (options.excludes.includes(name))
-        return originalMatch
-
-      matches += 1
-      return await this.expressions.evaluate(name, args)
-    })
-
-    return matches > 0 ? await this.render(text, options) : text
   }
 
   private updateServices() {
