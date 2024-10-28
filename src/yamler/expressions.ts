@@ -1,66 +1,78 @@
 export const expressionRegex = /\$\{\{\s*([^}]+)\s*\}\}/
 
-function parseToken(content: string): [string, string[]] {
-  const parts = content.trim().split(/\s+/)
-  if (parts.length === 0) return [content, []]
+const SINGLE_QUOTE = "'"
+const DOUBLE_QUOTE = '"'
+const ESCAPE = '\\'
+const SPACE = ' '
 
-  const [name, ...args] = parts
+type ExpressionArgs = string[]
+
+function parseToken(content: string): [string, ExpressionArgs] {
+  const trimmed = content.trim()
+  const [name, ...args] = trimmed.split(/\s(.+)/)
   return [name, args]
 }
 
-/**
- * Parses an array of template expression arguments, handling quoted strings.
- *
- * @param args - The array of arguments to parse.
- * @returns An array of parsed arguments, with quoted strings combined.
- */
-function parseTemplateExpressionArgs(args: string[]): string[] {
-  if (!Array.isArray(args)) return args
+function parseTemplateExpressionArgs(args: ExpressionArgs): ExpressionArgs {
+  if (!Array.isArray(args) || args.length === 0) return args
 
-  const parsedArgs: string[] = []
+  const input = args[0]
+  const result: string[] = []
   let currentArg = ''
   let inQuotes = false
+  let quoteChar: typeof SINGLE_QUOTE | typeof DOUBLE_QUOTE | null = null
+  let isEscaped = false
 
-  for (const arg of args) {
-    if (!inQuotes) {
-      if (arg.startsWith("'") && arg.endsWith("'")) {
-        parsedArgs.push(arg.slice(1, -1).trim())
-      } else if (arg.startsWith("'")) {
-        inQuotes = true
-        currentArg = arg.slice(1)
-      } else {
-        parsedArgs.push(arg.trim())
-      }
-    } else {
-      if (arg.endsWith("'")) {
-        inQuotes = false
-        currentArg += ' ' + arg.slice(0, -1)
-        parsedArgs.push(currentArg.trim())
+  for (let i = 0; i < input.length; i++) {
+    const char = input[i]
+
+    if (isEscaped) {
+      currentArg += char
+      isEscaped = false
+      continue
+    }
+
+    if (char === ESCAPE) {
+      isEscaped = true
+      continue
+    }
+
+    if ((char === SINGLE_QUOTE || char === DOUBLE_QUOTE) && !isEscaped) {
+      if (inQuotes && char === quoteChar) {
+        result.push(currentArg)
         currentArg = ''
+        inQuotes = false
+        quoteChar = null
+      } else if (!inQuotes) {
+        if (currentArg.trim()) result.push(currentArg.trim())
+        currentArg = ''
+        inQuotes = true
+        quoteChar = char
       } else {
-        currentArg += ' ' + arg
+        // Different quote type inside quotes, treat as normal character
+        currentArg += char
       }
+      continue
+    }
+
+    if (inQuotes) {
+      currentArg += char
+    } else if (char === SPACE) {
+      if (currentArg.trim()) result.push(currentArg.trim())
+      currentArg = ''
+    } else {
+      currentArg += char
     }
   }
 
-  if (currentArg) {
-    parsedArgs.push(currentArg.trim())
-  }
+  if (currentArg.trim()) result.push(currentArg.trim())
 
-  return parsedArgs
+  return result
 }
 
-/**
- * Parses a template expression and returns the function name and arguments.
- *
- * @param expression - The template expression to parse.
- * @returns An object containing the function name and parsed arguments or undefined if the expression is invalid.
- */
-export function parseTemplateExpression(expression: string): { funcName: string; args: string[] } | undefined {
+export function parseTemplateExpression(expression: string): { funcName: string; args: ExpressionArgs } | undefined {
   const [content] = expression.match(expressionRegex) || []
-
-  if (!content)
-    return undefined
+  if (!content) return undefined
 
   const [funcName, argString] = parseToken(content.slice(3, -2).trim())
   const args = parseTemplateExpressionArgs(argString)

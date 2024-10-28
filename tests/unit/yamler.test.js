@@ -25,6 +25,7 @@ describe('YamlER', () => {
     if (key == 'undefined') return undefined
     if (key == 'get') return dig(attributes, args[0])
     if (key == 'expression') return '${{ ' + args[0] + ' ' + args[1] + ' }}'
+    if (key == 'raw') return args
     return '<' + [key].concat(args).join(' ') + '>'
   }
 
@@ -170,5 +171,51 @@ describe('YamlER', () => {
     ])
     expect(yamler.attributes.value1).toBe(undefined)
     expect(yamler.attributes.value2).toBe(undefined)
+  })
+
+  describe('arg parsing', () => {
+    function testBothQuoteTypes(description, singleQuoteInput, expectedResult, doubleQuoteExpectedResult) {
+      it(description, async () => {
+        // Test single quotes
+        const singleQuoteResult = await loadFile(
+          tempYamlFile({ value: '${{ raw ' + singleQuoteInput + ' }}' }),
+          expressionCallback
+        )
+        expect(singleQuoteResult.value).toEqual(expectedResult)
+
+        // Test double quotes by replacing single quotes with double quotes
+        const doubleQuoteInput = singleQuoteInput.replace(/'/g, '"')
+        const doubleQuoteResult = await loadFile(
+          tempYamlFile({ value: '${{ raw ' + doubleQuoteInput + ' }}' }),
+          expressionCallback
+        )
+        expect(doubleQuoteResult.value).toEqual(doubleQuoteExpectedResult || expectedResult)
+      })
+    }
+
+    testBothQuoteTypes(
+      'handles single-quoted arguments',
+      "'single quoted arg'",
+      ['single quoted arg']
+    )
+
+    testBothQuoteTypes(
+      'preserves spaces in quoted arguments',
+      "' arg  with  many  spaces '",
+      [' arg  with  many  spaces ']
+    )
+
+    testBothQuoteTypes(
+      'handles multiple quoted and unquoted arguments',
+      "unquoted 'quoted arg' 'another quoted arg' 1",
+      ['unquoted', 'quoted arg', 'another quoted arg', '1']
+    )
+
+    testBothQuoteTypes(
+      'handles escaped quotes in expression arguments',
+      "'quoted \\'nested\\' arg'",
+      ["quoted 'nested' arg"],
+      ['quoted "nested" arg']  // Different expected result for double quotes
+    )
   })
 })
