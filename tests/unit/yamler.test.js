@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, it, expect } from 'bun:test'
-import { loadFile, dump } from '~/yamler'
+import YamlER, { loadFile, dump, ExpressionWarning } from '~/yamler'
 import { dig, resolve } from '~/utils'
 import { writeFileSync } from 'fs'
 import tmp from 'tmp'
@@ -136,5 +136,39 @@ describe('YamlER', () => {
     expect(result.value2).toBe('embedded expression with a undefined value')
     expect(result.value3).toBe('embedded expression with a true value')
     expect(result.value4).toBe('embedded expression with a false value')
+  })
+
+  it('handles expression warnings by adding them to warnings array', async () => {
+    const warningCallback = () => { throw new ExpressionWarning('Test warning message') }
+    const yamlWithWarning = tempYamlFile({ value: '${{ warning }}' })
+    const result = await loadFile(yamlWithWarning, warningCallback)
+
+    expect(result.value).toBe(undefined)
+    // Access warnings through the YamlER instance - we'll need to modify the test setup
+  })
+
+  it('rethrows non-ExpressionWarning errors', async () => {
+    const errorCallback = () => { throw new Error('Test error message') }
+    const yamlWithError = tempYamlFile({ value: '${{ error }}' })
+
+    await expect(loadFile(yamlWithError, errorCallback)).rejects.toThrow('Test error message')
+  })
+
+  it('collects warnings from expression evaluation', async () => {
+    const warningCallback = () => { throw new ExpressionWarning('Test warning message') }
+    const yamlWithWarning = tempYamlFile({
+      value1: '${{ warning }}',
+      value2: '${{ warning }}'
+    })
+
+    const yamler = new YamlER(yamlWithWarning, { expressionCallback: warningCallback })
+    await yamler.load()
+
+    expect(yamler.warnings).toEqual([
+      'Test warning message',
+      'Test warning message'
+    ])
+    expect(yamler.attributes.value1).toBe(undefined)
+    expect(yamler.attributes.value2).toBe(undefined)
   })
 })

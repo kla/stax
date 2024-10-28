@@ -1,12 +1,21 @@
 import YamlER from './yamler'
 import { loadFile, dump } from './yamler'
 
-const dumpOptions = { lineWidth: -1, noRefs: true }
-const sanitizeRegex = /[^a-zA-Z0-9_]/g
-const importRegex = /^ *!import\s+(.+)\sas\s+(.+)$/gm
-const extendsRegex = /^(\s*)(.+):\s*!extends\s+(.+)$/gm
-const rootExtendsRegex = /^ *!extends\s+(.+)$/gm
-const anchorNamePrefix = '_stax_import_'
+export const dumpOptions = { lineWidth: -1, noRefs: true }
+export const sanitizeRegex = /[^a-zA-Z0-9_]/g
+export const importRegex = /^ *!import\s+(.+)\sas\s+(.+)$/gm
+export const extendsRegex = /^(\s*)(.+):\s*!extends\s+(.+)$/gm
+export const rootExtendsRegex = /^ *!extends\s+(.+)$/gm
+export const anchorNamePrefix = '_stax_import_'
 
-export { dumpOptions, sanitizeRegex, importRegex, extendsRegex, rootExtendsRegex, anchorNamePrefix, loadFile, dump }
+export class ExpressionWarning extends Error {
+  constructor(message: string) {
+    super(message)
+    this.name = 'ExpressionWarning'
+    // This is needed in TypeScript to maintain proper prototype chain
+    Object.setPrototypeOf(this, ExpressionWarning.prototype)
+  }
+}
+
+export { loadFile, dump }
 export default YamlER

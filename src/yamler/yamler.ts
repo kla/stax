@@ -1,6 +1,7 @@
 import { dumpOptions, importRegex, extendsRegex, rootExtendsRegex, anchorNamePrefix } from './index'
 import { deepRemoveKeys, dig, exit, resolve, deepMapWithKeysAsync } from '~/utils'
 import { parseTemplateExpression, expressionRegex } from './expressions'
+import { ExpressionWarning } from './index'
 import * as fs from 'fs'
 import * as path from 'path'
 import yaml from 'js-yaml'
@@ -22,6 +23,7 @@ export default class YamlER {
   public imports: Record<string, Import>
   public content: string
   public attributes: Record<string, any>
+  public warnings: string[]
   private expressionCallback: Function | undefined
   private expressionsCache: Record<string, any>
 
@@ -41,6 +43,7 @@ export default class YamlER {
 
   // does not evaluate expressions
   compile(): Record<string, any> {
+    this.warnings = []
     this.content = this.readFile(this.filePath)
     this.parseImports()
     this.parseExtends()
@@ -130,8 +133,17 @@ export default class YamlER {
   private async evaluateExpression(baseDir: string, attributes: Record<string, any>, path: string, name: string, args: string[]): Promise<any> {
     const cacheKey = this.getCacheKey(name, args)
 
-    if (!(cacheKey in this.expressionsCache))
-      this.expressionsCache[cacheKey] = await this.expressionCallback(baseDir, attributes, path, name, args)
+    if (!(cacheKey in this.expressionsCache)) {
+      try {
+        this.expressionsCache[cacheKey] = await this.expressionCallback(baseDir, attributes, path, name, args)
+      } catch (error) {
+        if (error instanceof ExpressionWarning) {
+          this.warnings.push(error.message)
+          return undefined
+        }
+        throw error
+      }
+    }
 
     return this.expressionsCache[cacheKey]
   }
