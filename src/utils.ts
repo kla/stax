@@ -373,33 +373,6 @@ export function presence<T>(value: T): T | null {
 }
 
 /**
- * Recursively iterates over each property in an object and runs a callback function.
- * The value of each property is set to the return value of the callback.
- * @param obj - The object to iterate over.
- * @param callback - The callback function to run for each property.
- * @param path - The current path in dot notation (used for recursion).
- * @returns The modified object.
- */
-export function deepMap(
-  obj: Record<string, any>,
-  callback: (path: string, value: any) => any,
-  path: string = ''
-): Record<string, any> {
-  for (const [key, value] of Object.entries(obj)) {
-    const currentPath = path ? `${path}.${key}` : key
-    const newValue = callback(currentPath, value)
-
-    if (typeof newValue === 'object' && newValue !== null && !Array.isArray(newValue)) {
-      obj[key] = deepMap(newValue, callback, currentPath)
-    } else {
-      obj[key] = newValue
-    }
-  }
-
-  return obj
-}
-
-/**
  * Resolves a file path, expanding the tilde character if present,
  * and then applies path.resolve with any additional path segments.
  *

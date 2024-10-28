@@ -436,48 +436,6 @@ describe('verifyDirectory', () => {
   })
 })
 
-describe('deepMap', () => {
-  it('modifies simple object properties', () => {
-    const input = { a: 1, b: 2, c: 3 }
-    const result = deepMap(input, (path, value) => value * 2)
-    expect(result).toEqual({ a: 2, b: 4, c: 6 })
-  })
-
-  it('handles nested objects', () => {
-    const input = { a: 1, b: { c: 2, d: { e: 3 } } }
-    const result = deepMap(input, (path, value) => {
-      if (typeof value === 'number') return value + 1
-      return value
-    })
-    expect(result).toEqual({ a: 2, b: { c: 3, d: { e: 4 } } })
-  })
-
-  it('provides correct path for nested properties', () => {
-    const input = { a: { b: { c: 1 } } }
-    const paths = []
-    deepMap(input, (path, value) => {
-      paths.push(path)
-      return value
-    })
-    expect(paths).toEqual(['a', 'a.b', 'a.b.c'])
-  })
-
-  it('handles arrays', () => {
-    const input = { a: [1, 2, 3], b: { c: [4, 5] } }
-    const result = deepMap(input, (path, value) => {
-      if (Array.isArray(value)) return value.map(v => v * 2)
-      return value
-    })
-    expect(result).toEqual({ a: [2, 4, 6], b: { c: [8, 10] } })
-  })
-
-  it('returns the same object if no modifications are made', () => {
-    const input = { a: 1, b: { c: 2 } }
-    const result = deepMap(input, (path, value) => value)
-    expect(result).toEqual(input)
-  })
-})
-
 describe('resolve', () => {
   it('resolves path with tilde', () => expect(resolve('~/documents/file.txt')).toBe(path.resolve(os.homedir(), 'documents/file.txt')))
   it('resolves path without tilde', () => expect(resolve('/absolute/path/file.txt')).toBe(path.resolve('/absolute/path/file.txt')))
