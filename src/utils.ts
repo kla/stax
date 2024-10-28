@@ -450,3 +450,33 @@ export async function deepMapWithKeysAsync(
 
   return Object.fromEntries(entries)
 }
+
+export function deepMapWithKeys(
+  obj: Record<string, any>,
+  callback: (path: string, key: string, value: any) => [string, any],
+  path: string = ''
+): Record<string, any> {
+  const entries = Object.entries(obj).map(([key, value]) => {
+    const currentPath = path ? `${path}.${key}` : key
+    const [newKey, newValue] = callback(currentPath, key, value)
+
+    if (Array.isArray(newValue)) {
+      return [newKey, newValue.map((item, index) => {
+        const arrayPath = `${currentPath}.${index}`
+
+        if (typeof item === 'object' && item !== null) {
+          callback(arrayPath, index.toString(), item)
+          return deepMapWithKeys(item, callback, arrayPath)
+        }
+        return item
+      })]
+    }
+
+    if (typeof newValue === 'object' && newValue !== null)
+      return [newKey, deepMapWithKeys(newValue, callback, currentPath)]
+
+    return [newKey, newValue]
+  })
+
+  return Object.fromEntries(entries)
+}
