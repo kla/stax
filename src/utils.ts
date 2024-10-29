@@ -7,19 +7,6 @@ import * as path from 'path'
 import * as os from 'os'
 
 /**
- * Parses a CSV string into a key/value object.
- * @param csv - The CSV string to parse. Default is an empty string.
- * @returns An object with key-value pairs parsed from the CSV string.
- */
-export function csvKeyValuePairs(csv: string = '') {
-  return (csv || '').trim().split(',').sort().reduce((labels, label) => {
-    const [key, value] = label.trim().split(/ *= */, 2)
-    labels[key] = value
-    return labels
-  }, {})
-}
-
-/**
  * Terminates the process with a specified exit code and optional error message.
  *
  * @param code - The exit code to use when terminating the process.
