@@ -146,7 +146,7 @@ export default class YamlER {
     return expressionsCache[cacheKey]
   }
 
-  private async parseExpression(path: string, obj: string | undefined | null): Promise<[any, boolean]> {
+  public async parseExpression(path: string, obj: string | undefined | null): Promise<[any, boolean]> {
     if (!obj || typeof(obj) !== 'string') return [obj, false]
 
     const matches = obj.match(expressionRegex)

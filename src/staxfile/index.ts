@@ -87,8 +87,13 @@ export default class Staxfile {
     this.compose = yamler.compile()
     yamler.attributes.stax.app = this.config.app
 
-    // if (options.excludes?.includes('prompt'))
-    //   this.compose = yamler.attributes = this.keepExistingPromptValues()
+    if (options.excludes?.includes('prompt'))
+      this.compose = yamler.attributes = this.keepExistingPromptValues()
+    else {
+      // need to load stax.source first in case it is a prompt
+      const [value, _] = await yamler.parseExpression('stax.source', this.compose.stax.source)
+      this.compose.stax.source = yamler.attributes.stax.source = value
+    }
 
     this.config = new Config({ ...this.config, ...this.compose.stax })
     this.compose = await yamler.load()
