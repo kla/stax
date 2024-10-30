@@ -91,7 +91,7 @@ export default class YamlER {
       const yamlImport = new Import({ name, match, filePath, parentFile: this.filePath })
       this.imports[yamlImport.name] = yamlImport
 
-      const attrs: any = yamlImport.yamler.compile()
+      const attrs: any = yamlImport.compile()
       let text: string = dump({ [yamlImport.anchorName]: attrs })
       text = text.replace(`${yamlImport.anchorName}:`, `${yamlImport.anchorName}: &${yamlImport.name}`)
       return `# ${match}\n${text}`

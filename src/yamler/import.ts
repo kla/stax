@@ -22,5 +22,8 @@ export default class Import {
     if (typeof parts === 'string') parts = [ parts ]
     return [ anchorNamePrefix, ...parts.map(part => part.replace(sanitizeRegex, '_')) ].join('_')
   }
-}
 
+  compile(): any {
+    return this.yamler.compile()
+  }
+}
