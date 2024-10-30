@@ -91,6 +91,7 @@ export default class Staxfile {
       this.compose = yamler.attributes = this.keepExistingPromptValues()
     else if (this.compose.stax.source) {
       // need to load stax.source first in case it is a prompt
+      // TODO this doesn't handle when stax.source has an embedded expression?
       const [value, _] = await yamler.parseExpression('stax.source', this.compose.stax.source)
       this.compose.stax.source = yamler.attributes.stax.source = value
     }
