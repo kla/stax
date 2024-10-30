@@ -1,0 +1,8 @@
+!import imports/base.yaml as base
+!import imports/services.yaml as services
+
+!extends base
+
+services:
+  web: !extends services.web
+  sidekiq: !extends services.sidekiq

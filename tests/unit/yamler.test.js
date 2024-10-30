@@ -15,7 +15,7 @@ function tempYamlFile(obj) {
 
 describe('YamlER', () => {
   const fixturesDir = resolve(__dirname, '../../tests/fixtures')
-  const composeYaml = resolve(fixturesDir, 'some_service.staxfile')
+  const composeYaml = resolve(fixturesDir, 'yamler.yaml')
   let yaml
 
   const expressionCallback = (baseDir, attributes, path, key, args) => {
@@ -36,41 +36,32 @@ describe('YamlER', () => {
   afterEach(() => tempFiles.forEach(file => file.removeCallback()))
 
   it('loads and processes a YAML file with imports', () => {
-    expect(yaml.stax.app).toBe('some_service')
-    expect(Object.keys(yaml)).toEqual(['stax', 'volumes', 'services'])
-  })
-
-  it('can extend at the root', () => {
-    expect(Object.keys(yaml.volumes)).toEqual(['shared-home', '<stax.workspace_volume>'])
-    expect(Object.keys(yaml.services)).toEqual(['web'])
-    expect(yaml.services.web).toBeDefined()
-  })
-
-  it('handles extended attributes', () => {
-    expect(yaml.stax.vars.rails_server_port).toBe(3000)
-    expect(yaml.stax.vars.ruby_version).toBe('2.0.1')
-  })
-
-  it('handles nested imports', () => {
-    expect(yaml.services.web.build.context).toBe('<resolve_relative ../build>')
+    expect(yaml.stax.vars.ruby_version).toBe('1.0.0')
+    expect(yaml.services.web.command).toBe('bin/rails server --port <stax.vars.rails_server_port> --binding 0.0.0.0')
+    expect(yaml.services.sidekiq.command).toBe('/usr/local/bin/launch bundle exec sidekiq')
   })
 
   it('strips _stax_import_ anchors', () => {
     expect(dump(yaml)).not.toContain('_stax_import_')
   })
 
-  it('handles expressions that reference a value from an attribute set by another expression', () => {
-    expect(yaml.stax.vars.value1).toBe('some_service')
-    expect(yaml.stax.vars.value2).toBe('some_service')
+  it('handles expressions that reference a value from an attribute set by another expression', async () => {
+    yaml = tempYamlFile({ value1: 1, value2: '${{ get value1 }}', value3: '${{ get value2 }}' })
+    const result = await loadFile(yaml, expressionCallback)
+    expect(result).toEqual({ value1: 1, value2: 1, value3: 1 })
   })
 
-  it('handles expressions that reference later attributes with an expression', () => {
-    expect(yaml.stax.vars.value3).toBe('value4')
-    expect(yaml.stax.vars.value4).toBe('value4')
+  it('handles expressions that has an expression referencing a later value', async () => {
+    yaml = tempYamlFile({ value1: '${{ get value2 }}', value2: 2 })
+    const result = await loadFile(yaml, expressionCallback)
+    expect(result).toEqual({ value1: 2, value2: 2 })
   })
 
-  it('handles expressions that return an expression', () => {
-    expect(yaml.stax.vars.value5).toBe('some_service')
+  it('handles expressions that return an expression', async () => {
+    yaml = tempYamlFile({ value1: 1, value2: '${{ expression get value1 }}', value3: '${{ get value2 }}' })
+    const result = await loadFile(yaml, expressionCallback)
+    console.log(dump(result))
+    expect(result).toEqual({ value1: 1, value2: 1, value3: 1 })
   })
 
   it('throws an error when expressions have circular references', async () => {

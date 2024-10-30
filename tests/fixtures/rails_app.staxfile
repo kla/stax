@@ -1,0 +1,13 @@
+!import imports/base.yaml as base
+!import imports/services.yaml as services
+
+!extends base
+
+stax: !extends base.stax
+  app: rails
+  vars: !extends base.stax.vars
+    ruby_version: 2.0.1
+    rails_server_port: 3000
+
+services:
+  web: !extends services.web

@@ -1,3 +1,3 @@
 build:
-  context: ${{ resolve_relative ../build }}
-  dockerfile: ${{ resolve_relative ../build/Dockerfile }}
+  context: ${{ resolve ./build }}
+  dockerfile: ${{ resolve ./build/Dockerfile }}
