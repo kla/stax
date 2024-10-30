@@ -89,7 +89,7 @@ export default class Staxfile {
 
     if (options.excludes?.includes('prompt'))
       this.compose = yamler.attributes = this.keepExistingPromptValues()
-    else {
+    else if (this.compose.stax.source) {
       // need to load stax.source first in case it is a prompt
       const [value, _] = await yamler.parseExpression('stax.source', this.compose.stax.source)
       this.compose.stax.source = yamler.attributes.stax.source = value
@@ -118,7 +118,7 @@ export default class Staxfile {
     const services = {}
     let number = 0
 
-    for (const [name, service] of Object.entries(this.compose.services)) {
+    for (const [name, service] of Object.entries(this.compose?.services || {})) {
       service.image ||= `${this.context}-${this.app}`
       service.container_name = `${this.context}-${this.app}-${name}`
       service.hostname ||= `${this.app}-${name}`
