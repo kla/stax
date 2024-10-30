@@ -70,12 +70,12 @@ function parseTemplateExpressionArgs(args: ExpressionArgs): ExpressionArgs {
   return result
 }
 
-export function parseTemplateExpression(expression: string): { funcName: string; args: ExpressionArgs } | undefined {
+export function parseTemplateExpression(expression: string): { name: string; args: ExpressionArgs } | undefined {
   const [content] = expression.match(expressionRegex) || []
   if (!content) return undefined
 
-  const [funcName, argString] = parseToken(content.slice(3, -2).trim())
+  const [name, argString] = parseToken(content.slice(3, -2).trim())
   const args = parseTemplateExpressionArgs(argString)
 
-  return { funcName, args }
+  return { name, args }
 }

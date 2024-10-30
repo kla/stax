@@ -157,7 +157,7 @@ export default class YamlER {
       const expression = parseTemplateExpression(match)
 
       if (expression && this.expressionCallback) {
-        const value = await this.evaluateExpression(this.baseDir, this.attributes, path, expression.funcName, expression.args)
+        const value = await this.evaluateExpression(this.baseDir, this.attributes, path, expression.name, expression.args)
 
         if (result == match)
           result = value // this maintains the type when the expression is not embedded in a string
