@@ -1,29 +1,34 @@
 import { describe, it, expect, beforeEach } from 'bun:test'
-import { mkdirSync,rmSync } from 'fs'
+import { rmSync, mkdirSync } from 'fs'
 import { resolve } from '~/utils'
+import { dump } from '~/yamler'
 import Staxfile from '~/staxfile'
 import path from 'path'
 
+const fixturesDir = resolve('tests/fixtures')
+const cacheDir = resolve('tmp/tests-staxfile-cache')
+
 describe('Staxfile', () => {
-  // let staxfile
-  // const cacheDir = path.join(__dirname, '../../tmp/tests-staxfile-cache')
+  let staxfile
 
-  // beforeEach(() => {
-  //   rmSync(cacheDir, { recursive: true, force: true })
-  //   mkdirSync(cacheDir, { recursive: true })
-  //   staxfile = new Staxfile({ app: 'some_service', context: 'tests', source: './tests/fixtures', staxfile: './tests/fixtures/some_service.staxfile' }, { cacheDir })
-  // })
+  beforeEach(async () => {
+    rmSync(cacheDir, { recursive: true, force: true })
+    mkdirSync(cacheDir, { recursive: true })
 
-  // it('compiles', async () => {
-  //   await staxfile.compile({ force: true })
-  //   // console.log(staxfile.config)
-  //   expect(staxfile.config.app).toBe('some_service')
-  //   expect(staxfile.config.staxfile).toBe(resolve('./tests/fixtures/some_service.staxfile'))
-  //   expect(staxfile.config.source).toBe(resolve('./tests/fixtures'))
-  //   expect(staxfile.config.workspace).toBe('/workspaces/some_service')
-  //   expect(staxfile.config.workspace_volume).toBe('some_service-workspace')
-  //   expect(staxfile.config.vars.rails_server_port).toBe(3000)
-  //   expect(staxfile.config.vars.ubuntu_version).toBe(24.04)
-  //   expect(staxfile.config.vars.ruby_version).toBe('2.0.1')
-  // })
+    const config = {
+      app: 'rails_app',
+      context: 'tests',
+      source: './tests/fixtures',
+      staxfile: path.join(fixturesDir, 'rails_app.staxfile'),
+      cache: true
+    }
+    staxfile = new Staxfile(config, { cacheDir })
+    await staxfile.load()
+  })
+
+  it('loads the correct app name', async () => {
+    // console.log(staxfile)
+    // console.log(dump(staxfile.compose))
+    // console.log(staxfile)
+  })
 })

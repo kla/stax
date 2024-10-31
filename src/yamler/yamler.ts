@@ -1,7 +1,8 @@
 import { dumpOptions, importRegex, extendsRegex, rootExtendsRegex, anchorNamePrefix } from './index'
-import { deepRemoveKeys, dig, exit, resolve, deepMapWithKeysAsync } from '~/utils'
+import { deepRemoveKeys, dig, exit, resolve, deepMapWithKeys, deepMapWithKeysAsync } from '~/utils'
 import { parseTemplateExpression, expressionRegex } from './expressions'
 import { ExpressionWarning } from './index'
+import { symbolizer } from './symbolizer'
 import * as fs from 'fs'
 import * as path from 'path'
 import yaml from 'js-yaml'
@@ -18,7 +19,6 @@ export async function loadFile(filePath: string, expressionCallback?: Function |
 export function dump(obj: any): string {
   return yaml.dump(obj, dumpOptions)
 }
-
 export default class YamlER {
   public filePath: string
   public parentFile: string
@@ -28,6 +28,7 @@ export default class YamlER {
   public attributes: Record<string, any>
   public warnings: string[]
   private expressionCallback: Function | undefined
+  private symbols: Record<string, any>
 
   constructor(filePath: string, options: { parentFile?: string, expressionCallback?: Function | undefined } = {}) {
     this.filePath = resolve(path.dirname(options.parentFile || filePath), filePath)
@@ -41,12 +42,14 @@ export default class YamlER {
 
   // does not evaluate expressions
   compile(): Record<string, any> {
+    this.symbols = {}
     this.warnings = []
     this.content = this.readFile(this.filePath)
     this.parseImports()
     this.parseExtends()
     this.attributes = yaml.load(this.content)
     this.attributes = deepRemoveKeys(this.attributes, [ new RegExp(`^${anchorNamePrefix}`) ])
+    // this.attributes = symbolizer(this.attributes, this.symbols)
     return this.attributes
   }
 

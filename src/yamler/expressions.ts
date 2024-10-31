@@ -1,4 +1,4 @@
-export const expressionRegex = /\$\{\{\s*([^}]+)\s*\}\}/
+export const expressionRegex = /\$\{\{\s*([^}]+)\s*\}\}/g
 
 const SINGLE_QUOTE = "'"
 const DOUBLE_QUOTE = '"'

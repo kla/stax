@@ -31,17 +31,18 @@ describe('YamlER', () => {
 
   beforeEach(async () => {
     tempFiles.length = 0
-    yaml = await loadFile(composeYaml, expressionCallback)
   })
   afterEach(() => tempFiles.forEach(file => file.removeCallback()))
 
-  it('loads and processes a YAML file with imports', () => {
+  it('loads and processes a YAML file with imports', async () => {
+    yaml = await loadFile(composeYaml, expressionCallback)
     expect(yaml.stax.vars.ruby_version).toBe('1.0.0')
     expect(yaml.services.web.command).toBe('bin/rails server --port <stax.vars.rails_server_port> --binding 0.0.0.0')
     expect(yaml.services.sidekiq.command).toBe('/usr/local/bin/launch bundle exec sidekiq')
   })
 
-  it('strips _stax_import_ anchors', () => {
+  it('strips _stax_import_ anchors', async () => {
+    yaml = await loadFile(composeYaml, expressionCallback)
     expect(dump(yaml)).not.toContain('_stax_import_')
   })
 
@@ -208,5 +209,20 @@ describe('YamlER', () => {
       ["quoted 'nested' arg"],
       ['quoted "nested" arg']  // Different expected result for double quotes
     )
+  })
+
+  describe('symbolizing expressions', () => {
+    // it('adds expression metadata when compiling', async () => {
+    //   const yaml = new YamlER(composeYaml, { expressionCallback })
+    //   console.log(dump(yaml.compile()))
+    //   // yaml = await loadFile(composeYaml, expressionCallback)
+    //   // expect(yaml.services.web.command).toContain('expression')
+    // })
+
+    it('can handle multiple expressions', async () => {
+      yaml = tempYamlFile({ value1: 'this is ${{ true }} and this is ${{ false }}.' })
+      const result = await loadFile(yaml, expressionCallback)
+      console.log(result)
+    })
   })
 })
