@@ -47,7 +47,7 @@ describe('Staxfile', () => {
     expect(service.command).toEqual('bin/rails server --port 3000 --binding 0.0.0.0')
     expect(service.container_name).toEqual('tests-rails_app-web')
     expect(service.hostname).toEqual('rails_app-web')
-    // expect(service.expose).toEqual([ 3000 ])
+    expect(service.expose).toEqual([ 3000 ])
     expect(service.labels['caddy']).toEqual('rails-app.d3v.localhost')
     expect(service.labels['caddy.reverse_proxy']).toEqual('{{ upstreams 3000 }}')
   })

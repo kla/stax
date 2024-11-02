@@ -6,7 +6,9 @@ export const symbolRegex = /@@stax:([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]
 
 export function symbolizer(file: string, attributes: Record<string, any>, symbols: Record<string, any>): Record<string, any> {
   return deepMapWithKeys(attributes, (_path, key, value) => {
-    return [ symbolize(file, symbols, key), symbolize(file, symbols, value) ]
+    return Array.isArray(value) ?
+      [ symbolize(file, symbols, key), value.map(item => symbolize(file, symbols, item)) ] :
+      [ symbolize(file, symbols, key), symbolize(file, symbols, value) ]
   })
 }
 

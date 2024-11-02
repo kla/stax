@@ -206,4 +206,48 @@ describe('YamlER', () => {
       ['quoted "nested" arg']  // Different expected result for double quotes
     )
   })
+
+  describe('array handling', () => {
+    it('evaluates expressions in arrays', async () => {
+      yaml = tempYamlFile({
+        array: ['${{ true }}', '${{ false }}', 'normal string']
+      })
+      const result = await loadFile(yaml, expressionCallback)
+      expect(result.array).toEqual([true, false, 'normal string'])
+    })
+
+    it('evaluates expressions embedded in array strings', async () => {
+      yaml = tempYamlFile({
+        array: [
+          'prefix ${{ true }} suffix',
+          'value is ${{ get value }}',
+          'normal string'
+        ],
+        value: 'test'
+      })
+      const result = await loadFile(yaml, expressionCallback)
+      expect(result.array).toEqual([
+        'prefix true suffix',
+        'value is test',
+        'normal string'
+      ])
+    })
+
+    it('handles multiple expressions in array strings', async () => {
+      yaml = tempYamlFile({
+        array: ['${{ true }} and ${{ false }}', 'normal string']
+      })
+      const result = await loadFile(yaml, expressionCallback)
+      expect(result.array).toEqual(['true and false', 'normal string'])
+    })
+
+    it('handles expression warnings in arrays', async () => {
+      const warningCallback = () => { throw new ExpressionWarning('Test warning message') }
+      yaml = tempYamlFile({
+        array: ['${{ warning }}', 'normal string']
+      })
+      const result = await loadFile(yaml, warningCallback)
+      expect(result.array).toEqual([undefined, 'normal string'])
+    })
+  })
 })
