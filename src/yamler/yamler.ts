@@ -1,8 +1,7 @@
 import { dumpOptions, importRegex, extendsRegex, rootExtendsRegex, anchorNamePrefix } from './index'
 import { deepRemoveKeys, dig, exit, resolve, deepMapWithKeys, deepMapWithKeysAsync } from '~/utils'
-import { parseTemplateExpression, expressionRegex } from './expressions'
 import { ExpressionWarning } from './index'
-import { symbolizer } from './symbolizer'
+import { replaceEachSymbol, symbolizer } from './symbolizer'
 import * as fs from 'fs'
 import * as path from 'path'
 import yaml from 'js-yaml'
@@ -19,6 +18,7 @@ export async function loadFile(filePath: string, expressionCallback?: Function |
 export function dump(obj: any): string {
   return yaml.dump(obj, dumpOptions)
 }
+
 export default class YamlER {
   public filePath: string
   public parentFile: string
@@ -27,8 +27,8 @@ export default class YamlER {
   public content: string
   public attributes: Record<string, any>
   public warnings: string[]
+  public symbols: Record<string, any>
   private expressionCallback: Function | undefined
-  private symbols: Record<string, any>
 
   constructor(filePath: string, options: { parentFile?: string, expressionCallback?: Function | undefined } = {}) {
     this.filePath = resolve(path.dirname(options.parentFile || filePath), filePath)
@@ -49,7 +49,8 @@ export default class YamlER {
     this.parseExtends()
     this.attributes = yaml.load(this.content)
     this.attributes = deepRemoveKeys(this.attributes, [ new RegExp(`^${anchorNamePrefix}`) ])
-    // this.attributes = symbolizer(this.attributes, this.symbols)
+    this.attributes = symbolizer(this.filePath, this.attributes, this.symbols)
+
     return this.attributes
   }
 
@@ -64,12 +65,15 @@ export default class YamlER {
       const maxIterations = 100 // prevent infinite loops
       let iterations = 0
 
-      while (await this.parseAllExpressions()) {
+      while (await this.evaluateSymbols()) {
         if (++iterations >= maxIterations)
           throw new Error(`Maximum expression parsing iterations (${maxIterations}) exceeded. Possible circular reference in expressions.`)
+
+        // re-symbolize in case an expression returns another expression
+        // TODO: this can probably be optimized
+        this.attributes = symbolizer(this.filePath, this.attributes, this.symbols)
       }
     }
-
     return this.attributes
   }
 
@@ -95,6 +99,8 @@ export default class YamlER {
       this.imports[yamlImport.name] = yamlImport
 
       const attrs: any = yamlImport.compile()
+      this.symbols = { ...this.symbols, ...yamlImport.yamler.symbols }
+
       let text: string = dump({ [yamlImport.anchorName]: attrs })
       text = text.replace(`${yamlImport.anchorName}:`, `${yamlImport.anchorName}: &${yamlImport.name}`)
       return `# ${match}\n${text}`
@@ -149,34 +155,25 @@ export default class YamlER {
     return expressionsCache[cacheKey]
   }
 
-  public async parseExpression(path: string, obj: string | undefined | null): Promise<[any, boolean]> {
-    if (!obj || typeof(obj) !== 'string') return [obj, false]
+  private async replaceSymbols(path: string, stringValue: any): Promise<[any, boolean]> {
+    let symbols = 0
+    let result = await replaceEachSymbol(stringValue, async (match, uuid) => {
+      const symbol = this.symbols[uuid]
 
-    const matches = obj.match(expressionRegex)
-    if (!matches) return [obj, false]
-
-    let result = obj
-    for (const match of matches) {
-      const expression = parseTemplateExpression(match)
-
-      if (expression && this.expressionCallback) {
-        const value = await this.evaluateExpression(this.baseDir, this.attributes, path, expression.name, expression.args)
-
-        if (result == match)
-          result = value // this maintains the type when the expression is not embedded in a string
-        else
-          result = result.replace(match, value)
+      if (symbol && this.expressionCallback) {
+        symbols++
+        return await this.evaluateExpression(this.baseDir, this.attributes, path, symbol.name, symbol.args)
       }
-    }
+      return match
+    })
+    return [ result, symbols > 0 ]
+}
 
-    return [result, true]
-  }
-
-  private async parseAllExpressions() {
+  private async evaluateSymbols() {
     let found = false
 
     this.attributes = await deepMapWithKeysAsync(this.attributes, async (path, key, value) => {
-      const [newKey, keyHasExpression] = await this.parseExpression(path, key)
+      const [newKey, keyHasExpression] = await this.replaceSymbols(path, key)
       let newValue
 
       found ||= keyHasExpression
@@ -185,16 +182,15 @@ export default class YamlER {
         const results = []
 
         for (const item of value)
-          results.push(await this.parseExpression(path, item))
+          results.push(await this.replaceSymbols(path, item))
 
         newValue = results.map(([val]) => val)
         found ||= results.some(([_, hasExp]) => hasExp)
       } else {
-        const [parsedValue, valueHasExpression] = await this.parseExpression(path, value)
+        const [parsedValue, valueHasExpression] = await this.replaceSymbols(path, value)
         found ||= valueHasExpression
         newValue = parsedValue
       }
-
       return [newKey, newValue]
     })
     return found

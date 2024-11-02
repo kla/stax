@@ -4,6 +4,7 @@
 !extends base
 
 stax: !extends base.stax
+  workspace: /workspaces/${{ stax.app }}
   app: rails
   vars: !extends base.stax.vars
     ruby_version: 2.0.1
@@ -11,3 +12,4 @@ stax: !extends base.stax
 
 services:
   web: !extends services.web
+  sidekiq: !extends services.sidekiq

@@ -5,6 +5,7 @@ import { writeFileSync } from 'fs'
 import tmp from 'tmp'
 
 const tempFiles = []
+const fixturesDir = resolve(__dirname, '../../tests/fixtures')
 
 function tempYamlFile(obj) {
   const file = tmp.fileSync({ postfix: '.yaml' })
@@ -13,37 +14,35 @@ function tempYamlFile(obj) {
   return file.name
 }
 
+function expressionCallback(_baseDir, attributes, _path, key, args) {
+  if (key == 'true') return true
+  if (key == 'false') return false
+  if (key == 'null') return null
+  if (key == 'undefined') return undefined
+  if (key == 'get') return dig(attributes, args[0])
+  if (key == 'expression') return '${{ ' + args[0] + ' ' + args[1] + ' }}'
+  if (key == 'raw') return args
+  return '<' + [key].concat(args).join(' ') + '>'
+}
+
 describe('YamlER', () => {
-  const fixturesDir = resolve(__dirname, '../../tests/fixtures')
-  const composeYaml = resolve(fixturesDir, 'yamler.yaml')
   let yaml
 
-  const expressionCallback = (baseDir, attributes, path, key, args) => {
-    if (key == 'true') return true
-    if (key == 'false') return false
-    if (key == 'null') return null
-    if (key == 'undefined') return undefined
-    if (key == 'get') return dig(attributes, args[0])
-    if (key == 'expression') return '${{ ' + args[0] + ' ' + args[1] + ' }}'
-    if (key == 'raw') return args
-    return '<' + [key].concat(args).join(' ') + '>'
-  }
-
-  beforeEach(async () => {
-    tempFiles.length = 0
-  })
+  beforeEach(() => tempFiles.length = 0)
   afterEach(() => tempFiles.forEach(file => file.removeCallback()))
 
-  it('loads and processes a YAML file with imports', async () => {
-    yaml = await loadFile(composeYaml, expressionCallback)
-    expect(yaml.stax.vars.ruby_version).toBe('1.0.0')
-    expect(yaml.services.web.command).toBe('bin/rails server --port <stax.vars.rails_server_port> --binding 0.0.0.0')
-    expect(yaml.services.sidekiq.command).toBe('/usr/local/bin/launch bundle exec sidekiq')
-  })
+  describe('with a file that has imports', () => {
+    beforeEach(async () => yaml = await loadFile(resolve(fixturesDir, 'yamler.yaml'), expressionCallback))
 
-  it('strips _stax_import_ anchors', async () => {
-    yaml = await loadFile(composeYaml, expressionCallback)
-    expect(dump(yaml)).not.toContain('_stax_import_')
+    it('loads and processes a YAML file with imports', () => {
+      expect(yaml.stax.vars.ruby_version).toBe('1.0.0')
+      expect(yaml.services.web.command).toBe('bin/rails server --port <stax.vars.rails_server_port> --binding 0.0.0.0')
+      expect(yaml.services.sidekiq.command).toBe('/usr/local/bin/launch bundle exec sidekiq')
+    })
+
+    it('strips _stax_import_ anchors', () => {
+      expect(dump(yaml)).not.toContain('_stax_import_')
+    })
   })
 
   it('handles expressions that reference a value from an attribute set by another expression', async () => {
@@ -61,14 +60,12 @@ describe('YamlER', () => {
   it('handles expressions that return an expression', async () => {
     yaml = tempYamlFile({ value1: 1, value2: '${{ expression get value1 }}', value3: '${{ get value2 }}' })
     const result = await loadFile(yaml, expressionCallback)
-    console.log(dump(result))
     expect(result).toEqual({ value1: 1, value2: 1, value3: 1 })
   })
 
   it('throws an error when expressions have circular references', async () => {
     const circularYaml = tempYamlFile({ value1: '${{ get value2 }}', value2: '${{ get value1 }}' })
     const promise = loadFile(circularYaml, expressionCallback)
-
     await expect(promise).rejects.toThrow('Maximum expression parsing iterations (100) exceeded. Possible circular reference in expressions.')
   })
 
@@ -137,7 +134,6 @@ describe('YamlER', () => {
     const result = await loadFile(yamlWithWarning, warningCallback)
 
     expect(result.value).toBe(undefined)
-    // Access warnings through the YamlER instance - we'll need to modify the test setup
   })
 
   it('rethrows non-ExpressionWarning errors', async () => {
@@ -209,20 +205,5 @@ describe('YamlER', () => {
       ["quoted 'nested' arg"],
       ['quoted "nested" arg']  // Different expected result for double quotes
     )
-  })
-
-  describe('symbolizing expressions', () => {
-    // it('adds expression metadata when compiling', async () => {
-    //   const yaml = new YamlER(composeYaml, { expressionCallback })
-    //   console.log(dump(yaml.compile()))
-    //   // yaml = await loadFile(composeYaml, expressionCallback)
-    //   // expect(yaml.services.web.command).toContain('expression')
-    // })
-
-    it('can handle multiple expressions', async () => {
-      yaml = tempYamlFile({ value1: 'this is ${{ true }} and this is ${{ false }}.' })
-      const result = await loadFile(yaml, expressionCallback)
-      console.log(result)
-    })
   })
 })
