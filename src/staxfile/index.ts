@@ -1,8 +1,7 @@
 import { writeFileSync, existsSync, mkdirSync, statSync } from 'fs'
-import { cacheDir as _cacheDir, exit, flattenObject, deepMap, verifyFile, resolve, deepMapWithKeys } from '~/utils'
+import { cacheDir as _cacheDir, exit, flattenObject, verifyFile, resolve, deepMapWithKeys } from '~/utils'
 import { StaxConfig, CompileOptions, DefaultCompileOptions } from '~/types'
 import YamlER, { dump } from '~/yamler'
-import yaml from 'js-yaml'
 import Config from './config'
 import DockerfileCompiler from './dockerfile_compiler'
 import Evaluator from './evaluator'
@@ -167,7 +166,7 @@ export default class Staxfile {
     const original = build.dockerfile
 
     if (this.buildsCompiled[original])
-      return build
+      return { ...build, dockerfile: this.buildsCompiled[original] }
 
     build.modules = this.normalizeModules(build.modules)
 
