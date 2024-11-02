@@ -86,12 +86,12 @@ export default class Staxfile {
     this.compose = yamler.compile()
     yamler.attributes.stax.app = this.config.app
 
-    if (options.excludes?.includes('prompt'))
-      this.compose = yamler.attributes = this.keepExistingPromptValues()
-    else if (this.compose.stax.source) {
+    if (options.excludes?.includes('prompt')) {
+      this.compose = yamler.attributes = await this.keepExistingPromptValues(yamler)
+    } else if (this.compose.stax.source) {
       // need to load stax.source first in case it is a prompt
       // TODO this doesn't handle when stax.source has an embedded expression?
-      const [value, _] = await yamler.parseExpression('stax.source', this.compose.stax.source)
+      const [ value, _ ] = await yamler.replaceSymbols('stax.source', this.compose.stax.source)
       this.compose.stax.source = yamler.attributes.stax.source = value
     }
 
@@ -105,12 +105,11 @@ export default class Staxfile {
   }
 
   // set all prompts to it's current config value or default if it is being excluded
-  private keepExistingPromptValues(): Record<string, any> {
+  private keepExistingPromptValues(yamler: YamlER): Record<string, any> {
     return deepMapWithKeys(this.compose, (path, key, value) => {
-      if (value && typeof(value) === 'string' && value.includes('prompt'))
-        return [ key, this.config.fetch(path) ]
-
-      return [ key, value ]
+      // TODO: handle promps in the key as well
+      const hasPrompt = yamler.getSymbols(value).find(symbol => symbol.name == 'prompt')
+      return [ key, hasPrompt ? this.config.fetch(path) : value]
     })
   }
 

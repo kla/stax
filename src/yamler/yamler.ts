@@ -1,7 +1,7 @@
 import { dumpOptions, importRegex, extendsRegex, rootExtendsRegex, anchorNamePrefix } from './index'
-import { deepRemoveKeys, dig, exit, resolve, deepMapWithKeys, deepMapWithKeysAsync } from '~/utils'
+import { deepRemoveKeys, dig, exit, resolve, deepMapWithKeysAsync } from '~/utils'
 import { ExpressionWarning } from './index'
-import { replaceEachSymbol, symbolizer } from './symbolizer'
+import { replaceEachSymbol, symbolizer, symbols } from './symbolizer'
 import * as fs from 'fs'
 import * as path from 'path'
 import yaml from 'js-yaml'
@@ -155,7 +155,11 @@ export default class YamlER {
     return expressionsCache[cacheKey]
   }
 
-  private async replaceSymbols(path: string, stringValue: any): Promise<[any, boolean]> {
+  public getSymbols(value: any) {
+    return symbols(value).map(symbol => this.symbols[symbol])
+  }
+
+  public async replaceSymbols(path: string, stringValue: any): Promise<[any, boolean]> {
     let symbols = 0
     let result = await replaceEachSymbol(stringValue, async (match, uuid) => {
       const symbol = this.symbols[uuid]

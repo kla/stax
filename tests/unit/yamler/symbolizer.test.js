@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'bun:test'
-import { replaceEachSymbol } from '~/yamler/symbolizer'
+import { replaceEachSymbol, symbols } from '~/yamler/symbolizer'
 
 describe('replaceEachSymbol', () => {
   it('returns non-string inputs unchanged', () => expect(replaceEachSymbol(null, async () => '')).resolves.toBe(null))
@@ -40,5 +40,31 @@ describe('replaceEachSymbol', () => {
       return 'async-result'
     }
     return expect(replaceEachSymbol(input, callback)).resolves.toBe('async-result')
+  })
+})
+
+describe('symbols', () => {
+  it('returns empty array for null input', () => expect(symbols(null)).toEqual([]))
+  it('returns empty array for undefined input', () => expect(symbols(undefined)).toEqual([]))
+  it('returns empty array for non-string input', () => expect(symbols(123)).toEqual([]))
+  it('returns empty array for object input', () => expect(symbols({})).toEqual([]))
+  it('returns empty array for string without symbols', () => expect(symbols('test string')).toEqual([]))
+
+  it('extracts a single symbol uuid', () => {
+    const input = '@@stax:12345678-1234-1234-1234-123456789abc@@'
+    expect(symbols(input)).toEqual(['12345678-1234-1234-1234-123456789abc'])
+  })
+
+  it('extracts multiple symbol uuids', () => {
+    const input = '@@stax:aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa@@ middle @@stax:bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb@@'
+    expect(symbols(input)).toEqual([
+      'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa',
+      'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb'
+    ])
+  })
+
+  it('extracts symbol uuid from embedded context', () => {
+    const input = 'before @@stax:12345678-1234-1234-1234-123456789abc@@ after'
+    expect(symbols(input)).toEqual(['12345678-1234-1234-1234-123456789abc'])
   })
 })

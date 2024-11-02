@@ -36,6 +36,13 @@ function symbolize(file: string, symbols: Record<string, any>, value: any): any 
   return result
 }
 
+export function symbols(string: string) {
+  if (!string || typeof(string) !== 'string')
+    return []
+
+  return Array.from(string.matchAll(symbolRegex)).map(match => match[1])
+}
+
 export async function replaceEachSymbol(string: string, callback: (match: string, uuid: string) => Promise<any>): Promise<any> {
   if (!string || typeof(string) !== 'string')
     return string
