@@ -34,7 +34,9 @@ describe('Staxfile', () => {
       vars: {
         ruby_version: '2.0.1',
         rails_server_port: 3000
-      }
+      },
+      requires: [ 'mysql', 'caddy' ],
+      after_setup: 'echo rails_app /workspaces/rails_app'
     })
   })
 
@@ -76,8 +78,15 @@ describe('Staxfile', () => {
       expect(labels['stax.workspace_volume']).toEqual(undefined)
       expect(labels['stax.vars.ruby_version']).toEqual('2.0.1')
       expect(labels['stax.vars.rails_server_port']).toEqual(3000)
-      expect(labels['stax.after_setup']).toEqual(undefined)
-      expect(labels['stax.requires']).toEqual('[]')
+      expect(labels['stax.after_setup']).toEqual('echo rails_app /workspaces/rails_app')
+      expect(labels['stax.requires']).toEqual('["mysql","caddy"]')
+    })
+
+    it(`generates common volumes for ${name}`, () => {
+      const volumes = staxfile.compose.services[name].volumes
+      expect(volumes[0]).toBe('${HOME}/.ssh/known_hosts:/home/' + process.env.USER + '/.ssh/known_hosts')
+      expect(volumes[1]).toEndWith(':/run/host-services')
+      expect(volumes[2]).toBe(`${fixturesDir}:/workspaces/rails_app`)
     })
   })
 })
