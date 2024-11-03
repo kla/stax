@@ -384,30 +384,32 @@ export async function deepMapWithKeysAsync(
   callback: (path: string, key: string, value: any) => Promise<[string, any]>,
   path: string = ''
 ): Promise<Record<string, any>> {
-  const entries = await Promise.all(
-    Object.entries(obj).map(async ([key, value]) => {
-      const currentPath = path ? `${path}.${key}` : key
-      const [newKey, newValue] = await callback(currentPath, key, value)
+  const entries: [string, any][] = []
 
-      if (Array.isArray(newValue)) {
-        return [newKey, await Promise.all(newValue.map(async (item, index) => {
-          const arrayPath = `${currentPath}.${index}`
+  for (const [key, value] of Object.entries(obj)) {
+    const currentPath = path ? `${path}.${key}` : key
+    const [newKey, newValue] = await callback(currentPath, key, value)
 
-          if (typeof item === 'object' && item !== null) {
-            await callback(arrayPath, index.toString(), item)
-            return await deepMapWithKeysAsync(item, callback, arrayPath)
-          }
-          return item
-        }))]
+    if (Array.isArray(newValue)) {
+      const processedArray = []
+
+      for (let index = 0; index < newValue.length; index++) {
+        const item = newValue[index]
+        const arrayPath = `${currentPath}.${index}`
+
+        if (typeof item === 'object' && item !== null) {
+          await callback(arrayPath, index.toString(), item)
+          processedArray.push(await deepMapWithKeysAsync(item, callback, arrayPath))
+        } else
+          processedArray.push(item)
       }
 
-      if (typeof newValue === 'object' && newValue !== null)
-        return [newKey, await deepMapWithKeysAsync(newValue, callback, currentPath)]
-
-      return [newKey, newValue]
-    })
-  )
-
+      entries.push([newKey, processedArray])
+    } else if (typeof newValue === 'object' && newValue !== null)
+      entries.push([newKey, await deepMapWithKeysAsync(newValue, callback, currentPath)])
+    else
+      entries.push([newKey, newValue])
+  }
   return Object.fromEntries(entries)
 }
 
