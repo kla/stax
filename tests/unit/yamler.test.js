@@ -69,31 +69,6 @@ describe('YamlER', () => {
     await expect(promise).rejects.toThrow('Maximum expression parsing iterations (100) exceeded. Possible circular reference in expressions.')
   })
 
-  it('caches identical expressions regardless of path', async () => {
-    let callCount = 0
-    const seenExpressions = new Set()
-    const cachingCallback = (baseDir, attributes, path, key, args) => {
-      // Create an expression identifier that ignores path
-      const expressionId = `${key}:${args.join(',')}`
-
-      if (!seenExpressions.has(expressionId)) {
-        callCount++
-        seenExpressions.add(expressionId)
-      }
-
-      return `result-${expressionId}`
-    }
-
-    const yamlWithDuplicateExpressions = tempYamlFile({ value1: '${{ test arg1 }}', value2: '${{ test arg1 }}' })
-    const result = await loadFile(yamlWithDuplicateExpressions, cachingCallback)
-
-    // Both values should be the same since they use the same expression (key + args)
-    expect(result.value1).toBe('result-test:arg1')
-    expect(result.value2).toBe('result-test:arg1')
-    expect(callCount).toBe(1)
-    expect(seenExpressions.size).toBe(1)
-  })
-
   it('handles multiple embedded expressions', async () => {
     yaml = tempYamlFile({ value1: 'value1', value2: 'value2', value3: 'value1 is ${{ get value1 }} and value2 is ${{ get value2 }}' })
     const result = await loadFile(yaml, expressionCallback)

@@ -1,4 +1,4 @@
-import YamlER, { expressionsCache, loadFile, dump } from './yamler'
+import YamlER, { loadFile, dump } from './yamler'
 
 export const dumpOptions = { lineWidth: -1, noRefs: true }
 export const sanitizeRegex = /[^a-zA-Z0-9_]/g
@@ -16,5 +16,5 @@ export class ExpressionWarning extends Error {
   }
 }
 
-export { loadFile, dump, expressionsCache }
+export { loadFile, dump }
 export default YamlER

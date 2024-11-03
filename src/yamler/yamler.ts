@@ -8,9 +8,6 @@ import yaml from 'js-yaml'
 import icons from '~/icons'
 import Import from './import'
 
-// global cache for now. later if needed this should be keyed on the parent yaml file
-export const expressionsCache: Record<string, any> = {}
-
 export async function loadFile(filePath: string, expressionCallback?: Function | undefined): Promise<Record<string, any>> {
   return await new YamlER(filePath, { expressionCallback }).load()
 }
@@ -133,26 +130,16 @@ export default class YamlER {
       this.content = Array.from(prepends).join('\n\n') + '\n\n' + this.content
   }
 
-  private getCacheKey(name: string, args: string[]): string {
-    return `${name}:${JSON.stringify(args)}`
-  }
-
   private async evaluateExpression(baseDir: string, attributes: Record<string, any>, path: string, name: string, args: string[]): Promise<any> {
-    const cacheKey = this.getCacheKey(name, args)
-
-    if (!(cacheKey in expressionsCache)) {
-      try {
-        expressionsCache[cacheKey] = await this.expressionCallback(baseDir, attributes, path, name, args)
-      } catch (error) {
-        if (error instanceof ExpressionWarning) {
-          this.warnings.push(error.message)
-          return undefined
-        }
-        throw error
+    try {
+      return await this.expressionCallback(baseDir, attributes, path, name, args)
+    } catch (error) {
+      if (error instanceof ExpressionWarning) {
+        this.warnings.push(error.message)
+        return undefined
       }
+      throw error
     }
-
-    return expressionsCache[cacheKey]
   }
 
   public getSymbols(value: any) {
