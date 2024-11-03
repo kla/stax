@@ -83,8 +83,10 @@ export default class App {
     if (!composeFile)
       return exit(1, { message: `👿 Couldn't setup a container for '${staxfile.source}'` })
 
-    if (options.inspect)
-      return this.inspect(staxfile, composeFile)
+    if (options.inspect) {
+      this.inspect(staxfile, composeFile)
+      return exit(0)
+    }
 
     const buildArgs = [ 'build' ]
     if (!options.cache) buildArgs.push('--no-cache')
