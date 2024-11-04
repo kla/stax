@@ -8,6 +8,15 @@ import yaml from 'js-yaml'
 import icons from '~/icons'
 import Import from './import'
 
+export interface EvaluationContext {
+  baseDir: string
+  attributes: Record<string, any>
+  path: string
+  symbol: object
+  name: string
+  args: string[]
+}
+
 export async function loadFile(filePath: string, expressionCallback?: Function | undefined): Promise<Record<string, any>> {
   return await new YamlER(filePath, { expressionCallback }).load()
 }
@@ -130,9 +139,9 @@ export default class YamlER {
       this.content = Array.from(prepends).join('\n\n') + '\n\n' + this.content
   }
 
-  private async evaluateExpression(baseDir: string, attributes: Record<string, any>, path: string, name: string, args: string[]): Promise<any> {
+  private async evaluateExpression(context): Promise<any> {
     try {
-      return await this.expressionCallback(baseDir, attributes, path, name, args)
+      return await this.expressionCallback(context)
     } catch (error) {
       if (error instanceof ExpressionWarning) {
         this.warnings.push(error.message)
@@ -153,7 +162,14 @@ export default class YamlER {
 
       if (symbol && this.expressionCallback) {
         symbols++
-        return await this.evaluateExpression(this.baseDir, this.attributes, path, symbol.name, symbol.args)
+        return await this.evaluateExpression({
+          baseDir: this.baseDir,
+          attributes: this.attributes,
+          path: path,
+          symbol: symbol,
+          name: symbol.name,
+          args: symbol.args,
+        } as EvaluationContext)
       }
       return match
     })

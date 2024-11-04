@@ -14,15 +14,15 @@ function tempYamlFile(obj) {
   return file.name
 }
 
-function expressionCallback(_baseDir, attributes, _path, key, args) {
-  if (key == 'true') return true
-  if (key == 'false') return false
-  if (key == 'null') return null
-  if (key == 'undefined') return undefined
-  if (key == 'get') return dig(attributes, args[0])
-  if (key == 'expression') return '${{ ' + args[0] + ' ' + args[1] + ' }}'
-  if (key == 'raw') return args
-  return '<' + [key].concat(args).join(' ') + '>'
+function expressionCallback({ attributes, name, args}) {
+  if (name == 'true') return true
+  if (name == 'false') return false
+  if (name == 'null') return null
+  if (name == 'undefined') return undefined
+  if (name == 'get') return dig(attributes, args[0])
+  if (name == 'expression') return '${{ ' + args[0] + ' ' + args[1] + ' }}'
+  if (name == 'raw') return args
+  return '<' + [name].concat(args).join(' ') + '>'
 }
 
 describe('YamlER', () => {

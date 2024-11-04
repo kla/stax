@@ -1,5 +1,5 @@
 import { dasherize, dig, resolve } from '~/utils'
-import { ExpressionWarning } from '~/yamler'
+import { EvaluationContext, ExpressionWarning } from '~/yamler'
 import { symbolRegex } from '~/yamler/symbolizer'
 import icons from '~/icons'
 import Staxfile from '.'
@@ -18,11 +18,11 @@ export default class Evaluator {
     return `${this.staxfile.staxfile}:${name}:${JSON.stringify(args)}`
   }
 
-  async evaluate(baseDir: string, attributes: Record<string, any>, path: string, name: string, args: string[]) {
-    const key = this.getCacheKey(name, args)
+  async evaluate(context: EvaluationContext) {
+    const key = this.getCacheKey(context.name, context.args)
 
     if (!evaluatorCache.has(key)) {
-      const value = await this.evaluateWithoutCache(baseDir, attributes, path, name, args)
+      const value = await this.evaluateWithoutCache(context)
 
       // don't cache expressions that returned a symbol
       if (typeof(value) === 'string' && value.match(symbolRegex))
@@ -33,17 +33,18 @@ export default class Evaluator {
     return evaluatorCache.get(key)
   }
 
-  async evaluateWithoutCache(baseDir: string, attributes: Record<string, any>, path: string, name: string, args: string[]) {
-    args = args.map(arg => typeof arg === 'string' && arg.startsWith('stax.') ? this.fetch(attributes, arg) : arg)
+  async evaluateWithoutCache(context: EvaluationContext) {
+    const name = context.name
+    const args = context.args.map(arg => typeof arg === 'string' && arg.startsWith('stax.') ? this.fetch(context.attributes, arg) : arg)
 
     // TODO: remove the stax. prefix
     if (name === 'stax.ssh_auth_sock' || name === 'ssh_auth_sock') return '/run/host-services/ssh-auth.sock'
 
-    if (name.startsWith('stax.')) return this.fetch(attributes, name)
+    if (name.startsWith('stax.')) return this.fetch(context.attributes, name)
     if (name === 'read') return this.read(args[0], args[1])
     if (name === 'mount_workspace') return this.mountWorkspace()
     if (name === 'mount_ssh_auth_sock') return this.mountSshAuthSock()
-    if (name === 'resolve' || name === 'resolve_relative') return resolve(baseDir, args[0])
+    if (name === 'resolve' || name === 'resolve_relative') return resolve(context.baseDir, args[0])
     if (name === 'user') return process.env.USER || ''
     if (name === 'user_id') return process.getuid()
     if (name === 'dasherize') return dasherize(args[0])
