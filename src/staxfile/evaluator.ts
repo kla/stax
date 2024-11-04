@@ -1,8 +1,11 @@
 import { dasherize, dig, resolve } from '~/utils'
 import { ExpressionWarning } from '~/yamler'
+import { symbolRegex } from '~/yamler/symbolizer'
 import icons from '~/icons'
 import Staxfile from '.'
 import inquirer from 'inquirer'
+
+export const evaluatorCache = new Map<string, any>()
 
 export default class Evaluator {
   public staxfile: Staxfile
@@ -11,7 +14,26 @@ export default class Evaluator {
     this.staxfile = staxfile
   }
 
+  private getCacheKey(name: string, args: string[]): string {
+    return `${this.staxfile.staxfile}:${name}:${JSON.stringify(args)}`
+  }
+
   async evaluate(baseDir: string, attributes: Record<string, any>, path: string, name: string, args: string[]) {
+    const key = this.getCacheKey(name, args)
+
+    if (!evaluatorCache.has(key)) {
+      const value = await this.evaluateWithoutCache(baseDir, attributes, path, name, args)
+
+      // don't cache expressions that returned a symbol
+      if (typeof(value) === 'string' && value.match(symbolRegex))
+        return value
+
+      evaluatorCache.set(key, value)
+    }
+    return evaluatorCache.get(key)
+  }
+
+  async evaluateWithoutCache(baseDir: string, attributes: Record<string, any>, path: string, name: string, args: string[]) {
     args = args.map(arg => typeof arg === 'string' && arg.startsWith('stax.') ? this.fetch(attributes, arg) : arg)
 
     // TODO: remove the stax. prefix
