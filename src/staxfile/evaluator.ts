@@ -27,6 +27,7 @@ export default class Evaluator {
     if (name === 'dasherize') return dasherize(args[0])
     if (name === 'prompt') return await this.prompt(args[0], args[1])
     if (name === 'requires?') return this.staxfile.config.requires.includes(args[0])
+    if (name === 'test') return this.test(args[0], args[1]).toString()
 
     throw new ExpressionWarning(`Invalid template expression: ${name}`)
   }
@@ -71,5 +72,15 @@ export default class Evaluator {
       },
     ])
     return response.result
+  }
+
+  test(filename: string, pattern: string): boolean {
+    const content = this.read(filename, '')
+
+    if (pattern.startsWith('/') && pattern.endsWith('/')) {
+      const regex = new RegExp(pattern.slice(1, -1))
+      return regex.test(content)
+    }
+    return content.includes(pattern)
   }
 }
