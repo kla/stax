@@ -44,7 +44,7 @@ export default class Evaluator {
     if (name === 'read') return this.read(args[0], args[1])
     if (name === 'mount_workspace') return this.mountWorkspace()
     if (name === 'mount_ssh_auth_sock') return this.mountSshAuthSock()
-    if (name === 'resolve' || name === 'resolve_relative') return resolve(context.baseDir, args[0])
+    if (name === 'resolve') return resolve(context.baseDir, args[0])
     if (name === 'user') return process.env.USER || ''
     if (name === 'user_id') return process.getuid()
     if (name === 'dasherize') return dasherize(args[0])
