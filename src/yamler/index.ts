@@ -20,7 +20,7 @@ export interface EvaluationContext {
   baseDir: string
   attributes: Record<string, any>
   path: string
-  symbol: object
+  symbol: Record<string, any>
   name: string
   args: string[]
 }

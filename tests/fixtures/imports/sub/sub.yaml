@@ -1,0 +1,2 @@
+with_resolve_relative: ${{ resolve_relative . }}
+with_resolve: ${{ resolve . }}

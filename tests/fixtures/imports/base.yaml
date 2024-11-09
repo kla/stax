@@ -1,5 +1,6 @@
+!import sub/sub.yaml as sub
 
-stax:
+stax: !extends sub
   app: base_app
   vars:
     ruby_version: 1.0.0

@@ -36,6 +36,8 @@ describe('Staxfile', () => {
         rails_server_port: 3000
       },
       requires: [ 'mysql', 'caddy' ],
+      with_resolve: fixturesDir,
+      with_resolve_relative: join(fixturesDir, 'imports/sub'),
       after_setup: 'echo rails_app /workspaces/rails_app'
     })
   })

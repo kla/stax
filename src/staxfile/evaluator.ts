@@ -1,6 +1,7 @@
 import { dasherize, dig, resolve } from '~/utils'
 import { EvaluationContext, ExpressionWarning } from '~/yamler'
 import { symbolRegex } from '~/yamler/symbolizer'
+import { dirname } from 'path'
 import icons from '~/icons'
 import Staxfile from '.'
 import inquirer from 'inquirer'
@@ -44,6 +45,7 @@ export default class Evaluator {
     if (name === 'mount_workspace') return this.mountWorkspace()
     if (name === 'mount_ssh_auth_sock') return this.mountSshAuthSock()
     if (name === 'resolve') return resolve(context.baseDir, args[0])
+    if (name === 'resolve_relative') return resolve(dirname(context.symbol.file), args[0])
     if (name === 'user') return process.env.USER || ''
     if (name === 'user_id') return process.getuid()
     if (name === 'dasherize') return dasherize(args[0])
