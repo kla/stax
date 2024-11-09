@@ -37,8 +37,7 @@ export default class Evaluator {
     const name = context.name
     const args = context.args.map(arg => typeof arg === 'string' && arg.startsWith('stax.') ? this.fetch(context.attributes, arg) : arg)
 
-    // TODO: remove the stax. prefix
-    if (name === 'stax.ssh_auth_sock' || name === 'ssh_auth_sock') return '/run/host-services/ssh-auth.sock'
+    if (name === 'ssh_auth_sock') return '/run/host-services/ssh-auth.sock'
 
     if (name.startsWith('stax.')) return this.fetch(context.attributes, name)
     if (name === 'read') return this.read(args[0], args[1])
