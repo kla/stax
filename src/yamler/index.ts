@@ -1,4 +1,4 @@
-import YamlER, { loadFile, dump } from './yamler'
+import YamlER, { EvaluationContext, loadFile, dump } from './yamler'
 
 export const dumpOptions = { lineWidth: -1, noRefs: true }
 export const sanitizeRegex = /[^a-zA-Z0-9_]/g
@@ -14,6 +14,15 @@ export class ExpressionWarning extends Error {
     // This is needed in TypeScript to maintain proper prototype chain
     Object.setPrototypeOf(this, ExpressionWarning.prototype)
   }
+}
+
+export interface EvaluationContext {
+  baseDir: string
+  attributes: Record<string, any>
+  path: string
+  symbol: object
+  name: string
+  args: string[]
 }
 
 export { loadFile, dump }

@@ -1,4 +1,4 @@
-import { dumpOptions, importRegex, extendsRegex, rootExtendsRegex, anchorNamePrefix } from './index'
+import { dumpOptions, importRegex, extendsRegex, rootExtendsRegex, anchorNamePrefix, EvaluationContext } from './index'
 import { deepRemoveKeys, dig, exit, resolve, deepMapWithKeysAsync } from '~/utils'
 import { ExpressionWarning } from './index'
 import { replaceEachSymbol, symbolizer, symbols } from './symbolizer'
@@ -7,15 +7,6 @@ import * as path from 'path'
 import yaml from 'js-yaml'
 import icons from '~/icons'
 import Import from './import'
-
-export interface EvaluationContext {
-  baseDir: string
-  attributes: Record<string, any>
-  path: string
-  symbol: object
-  name: string
-  args: string[]
-}
 
 export async function loadFile(filePath: string, expressionCallback?: Function | undefined): Promise<Record<string, any>> {
   return await new YamlER(filePath, { expressionCallback }).load()
