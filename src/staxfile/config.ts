@@ -1,5 +1,5 @@
 import { existsSync } from 'fs'
-import { isDirectory, fileExists, verifyExists, resolve } from '~/utils'
+import { isDirectory, fileExists, verifyExists, resolve, truthy } from '~/utils'
 import { StaxConfig } from '~/types'
 import { exit } from '~/utils'
 import Location from '~/location'
@@ -87,6 +87,11 @@ export default class Config implements StaxConfig {
         typeof value === 'object') {
     } else
       current[lastKey] = value
+  }
+
+  public filterRequires() {
+    const mapped = this.requires.map(item => ({ name: typeof(item) === 'string' ? item : item['name'], if: truthy(item['if']) }))
+    return this.requires = mapped.filter(item => item.if).map(item => item.name)
   }
 
   private update(config: StaxConfig): boolean {

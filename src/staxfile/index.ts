@@ -98,6 +98,7 @@ export default class Staxfile {
     this.config = new Config({ ...this.config, ...this.compose.stax })
     this.compose = await yamler.load()
     this.config = new Config({ ...this.config, ...this.compose.stax })
+    if (this.config.requires) this.compose.stax.requires = this.config.filterRequires()
     this.updateServices()
 
     if (yamler.warnings.length > 0)

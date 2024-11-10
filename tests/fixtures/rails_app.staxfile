@@ -10,8 +10,12 @@ stax: !extends base.stax
     ruby_version: 2.0.1
     rails_server_port: 3000
   requires:
-    - mysql
-    - caddy
+    - name: mysql
+      if: true
+    - name: caddy
+      if: true
+    - name: postgres
+      if: false
   after_setup: echo ${{ stax.app }} ${{ stax.workspace }}
 
 services:

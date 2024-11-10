@@ -51,7 +51,7 @@ export default class Evaluator {
     if (name === 'dasherize') return dasherize(args[0])
     if (name === 'prompt') return await this.prompt(args[0], args[1])
     if (name === 'requires?') return this.staxfile.config.requires.includes(args[0])
-    if (name === 'test') return this.test(args[0], args[1]).toString()
+    if (name === 'test') return this.test(args[0], args[1])
 
     throw new ExpressionWarning(`Invalid template expression: ${name}`)
   }
