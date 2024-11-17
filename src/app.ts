@@ -141,7 +141,11 @@ export default class App {
 
     if (fileExists(cache)) {
       console.log(`${icons.trash}  Deleting cache directory ${cache}`)
-      rmSync(cache, { recursive: true })
+      try {
+        rmSync(cache, { recursive: true })
+      } catch (error) {
+        console.error(`👿 Error deleting cache directory ${cache}: ${error}`)
+      }
     }
   }
 
