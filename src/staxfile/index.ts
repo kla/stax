@@ -84,6 +84,7 @@ export default class Staxfile {
     options = { ...DefaultCompileOptions, ...options }
 
     this.compose = yamler.compile()
+    if (!yamler.attributes.stax) yamler.attributes.stax = {}
     yamler.attributes.stax.app = this.config.app
 
     if (options.excludes?.includes('prompt')) {
