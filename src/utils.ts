@@ -1,4 +1,5 @@
 import { existsSync, statSync } from 'fs'
+import { capture } from '~/shell'
 import tmp from 'tmp'
 import icons from './icons'
 import yaml from 'js-yaml'
@@ -441,4 +442,20 @@ export function deepMapWithKeys(
   })
 
   return Object.fromEntries(entries)
+}
+
+export function requireDockerVersion(minDockerVersion: number, minComposeVersion: number) {
+  const dockerVersion = capture('docker version --format "{{.Server.Version}}"').trim()
+  const [dockerMajor, dockerMinor] = (dockerVersion || '').split('.')
+
+  if (!dockerVersion || parseFloat(`${dockerMajor}.${dockerMinor}`) < minDockerVersion)
+    return exit(1, { message: `Docker version >= ${minDockerVersion} required. Found: ${dockerVersion || 'not installed'}` })
+
+  const composeVersion = capture('docker compose version --short').trim()
+  const [composeMajor, composeMinor] = (composeVersion || '').split('.')
+
+  if (!composeVersion ||
+      parseFloat(`${composeMajor}.${composeMinor}`) < minComposeVersion)
+
+  return exit(1, { message: `Docker Compose version >=${minComposeVersion}.0 required. Found: ${composeVersion || 'not installed'}` })
 }

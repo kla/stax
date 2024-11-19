@@ -1,9 +1,9 @@
 import { Command } from 'commander'
 import { existsSync, mkdirSync } from 'fs'
 import { capture, run } from '~/shell'
-import { exit, parseAndRemoveWildcardOptions, pp } from '~/utils'
-import icons from '~/icons'
+import { exit, parseAndRemoveWildcardOptions, pp, requireDockerVersion } from '~/utils'
 import { StaxConfig } from '~/types'
+import icons from '~/icons'
 import Stax from '~/stax'
 import * as path from 'path'
 import tmp from 'tmp'
@@ -217,6 +217,8 @@ program.command('setup')
   .option('--progress <progress>', 'Set type of progress output')
   .description('Setup an application')
   .action(async (location, options) => {
+    requireDockerVersion(27.0, 2.29)
+
     if (location) {
       const app = await stax.setup({ source: location, ...options }, { ...options, overrides: overrides })
       console.log('\n' + app.installedMessage())
