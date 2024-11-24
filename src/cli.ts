@@ -1,8 +1,9 @@
 import { Command } from 'commander'
-import { existsSync, mkdirSync } from 'fs'
+import { existsSync, mkdirSync, readFileSync } from 'fs'
 import { capture, run } from '~/shell'
 import { exit, parseAndRemoveWildcardOptions, pp, requireDockerVersion } from '~/utils'
 import { StaxConfig } from '~/types'
+import { version } from 'process'
 import icons from '~/icons'
 import Stax from '~/stax'
 import * as path from 'path'
@@ -17,6 +18,7 @@ const stax = new Stax(DEFAULT_CONTEXT_NAME)
 const program = new Command()
 
 program.name('stax')
+program.version(version.replace('v', ''))
 
 program.command('alias')
   .argument('[name]', 'Name of application')
