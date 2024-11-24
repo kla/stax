@@ -2,9 +2,10 @@ import { exit } from "~/utils"
 import { Command } from 'commander'
 import { run } from "~/shell"
 import Stax from '~/stax'
+import settings from '~/settings'
 
 export default function registerEditCommand(program: Command, stax: Stax) {
-  const editor = process.env.STAX_EDITOR || 'code'
+  const editor = settings.read('editor', process.env.STAX_EDITOR || 'code') // support STAX_EDITOR for backwards compatibility
 
   program.command('edit')
     .argument('<name>', 'Name of application')

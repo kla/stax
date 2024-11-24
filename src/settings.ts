@@ -3,7 +3,7 @@ import { exit, verifyDirectory, resolve } from './utils'
 import yaml from 'js-yaml'
 import * as path from 'path'
 
-const VALID_NAMES = [ 'services_home' ]
+const VALID_NAMES = [ 'aliases','services_home', 'editor' ]
 
 function filename(): string {
   return path.join(process.env.STAX_HOME, 'settings.yaml')
