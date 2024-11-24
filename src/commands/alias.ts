@@ -3,7 +3,7 @@ import { pp } from '~/utils'
 import settings from '~/settings'
 import Stax from '~/stax'
 
-export function registerAliasCommand(program: Command, stax: Stax) {
+export default function registerAliasCommand(program: Command, stax: Stax) {
   program.command('alias')
     .argument('[name]', 'Name of application')
     .argument('[alias]', 'Name of alias for application')

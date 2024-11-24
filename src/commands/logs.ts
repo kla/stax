@@ -1,7 +1,7 @@
 import { Command } from 'commander'
 import Stax from '~/stax'
 
-export function registerLogsCommand(program: Command, stax: Stax) {
+export default function registerLogsCommand(program: Command, stax: Stax) {
   program.command('logs')
     .argument('<name>', 'Name of application')
     .option('-s, --service <name>', 'Name of service to act on')

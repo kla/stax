@@ -1,7 +1,7 @@
 import { Command } from 'commander'
 import Stax from '~/stax'
 
-export function registerRemoveCommand(program: Command, stax: Stax) {
+export default function registerRemoveCommand(program: Command, stax: Stax) {
   program.command('remove')
     .alias('rm')
     .argument('<name>', 'Name of application')

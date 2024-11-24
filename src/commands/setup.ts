@@ -5,7 +5,7 @@ import setupWizard from '~/setup_wizard'
 import Stax from '~/stax'
 import settings from '~/settings'
 
-export function registerSetupCommand(program: Command, stax: Stax, overrides: StaxConfig) {
+export default function registerSetupCommand(program: Command, stax: Stax, overrides: StaxConfig) {
   program.command('setup')
     .argument('[location]', 'Path to a local directory or git repo of application')
     .option('-s, --staxfile <staxfile>', 'Staxfile to use for setup')

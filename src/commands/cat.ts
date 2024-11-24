@@ -1,7 +1,7 @@
 import { Command } from 'commander'
 import Stax from '~/stax'
 
-export function registerCatCommand(program: Command, stax: Stax) {
+export default function registerCatCommand(program: Command, stax: Stax) {
   program.command('cat')
     .argument('<name>', 'Name of application')
     .argument('<file>', 'Path to a file in the container')

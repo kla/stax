@@ -1,7 +1,8 @@
 import { Command } from 'commander'
+import icons from '~/icons'
 import settings from '~/settings'
 
-export function registerSettingsCommand(program: Command) {
+export default function registerSettingsCommand(program: Command) {
   program.command('settings')
     .argument('<name>', 'Name of setting')
   .argument('[value]', 'Value of setting')

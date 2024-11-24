@@ -1,7 +1,7 @@
 import { Command } from 'commander'
 import Stax from '~/stax'
 
-export function registerCopyCommand(program: Command, stax: Stax) {
+export default function registerCopyCommand(program: Command, stax: Stax) {
   program.command('copy')
     .alias('cp')
   .argument('<name>', 'Name of application')

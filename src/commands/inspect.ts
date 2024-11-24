@@ -4,7 +4,7 @@ import { capture } from '~/shell'
 import { pp } from '~/utils'
 import Stax from '~/stax'
 
-export function registerInspectCommand(program: Command, stax: Stax) {
+export default function registerInspectCommand(program: Command, stax: Stax) {
   program.command('inspect')
     .argument('<name>', 'Name of application')
     .option('-c, --compose', 'Show the compose file')

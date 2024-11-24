@@ -1,7 +1,7 @@
 import { Command } from 'commander'
 import Stax from '~/stax'
 
-export function registerShellCommand(program: Command, stax: Stax) {
+export default function registerShellCommand(program: Command, stax: Stax) {
   program.command('shell')
     .alias('sh')
     .argument('<name>', 'Name of application')

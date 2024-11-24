@@ -1,7 +1,7 @@
 import { Command } from 'commander'
 import Stax from '~/stax'
 
-export function registerExecCommand(program: Command, stax: Stax) {
+export default function registerExecCommand(program: Command, stax: Stax) {
   program.command('exec')
     .alias('run')
     .argument('<name>', 'Name of application')

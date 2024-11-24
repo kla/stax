@@ -3,7 +3,7 @@ import { Command } from 'commander'
 import { run } from "~/shell"
 import Stax from '~/stax'
 
-export function registerEditCommand(program: Command, stax: Stax) {
+export default function registerEditCommand(program: Command, stax: Stax) {
   const editor = process.env.STAX_EDITOR || 'code'
 
   program.command('edit')

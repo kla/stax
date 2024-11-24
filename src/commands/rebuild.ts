@@ -2,7 +2,7 @@ import { Command } from 'commander'
 import { StaxConfig } from '~/types'
 import Stax from '~/stax'
 
-export function registerRebuildCommand(program: Command, stax: Stax, overrides: StaxConfig) {
+export default function registerRebuildCommand(program: Command, stax: Stax, overrides: StaxConfig) {
   program.command('rebuild')
     .argument('<name>', 'Name of application')
     .option('-i, --inspect', 'Show the compose file')

@@ -2,7 +2,7 @@ import { Command } from 'commander'
 import { pp } from '~/utils'
 import Stax from '~/stax'
 
-export function registerConfigCommand(program: Command, stax: Stax) {
+export default function registerConfigCommand(program: Command, stax: Stax) {
   program.command('config')
     .argument('<name>', 'Name of application')
   .option('-s, --service <name>', 'Name of service to act on')
