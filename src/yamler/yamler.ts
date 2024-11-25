@@ -152,20 +152,21 @@ export default class YamlER {
       const symbol = this.symbols[uuid]
 
       if (symbol && this.expressionCallback) {
-        symbols++
-        return await this.evaluateExpression({
+        const context: EvaluationContext = {
           baseDir: this.baseDir,
           attributes: this.attributes,
           path: path,
           symbol: symbol,
           name: symbol.name,
           args: symbol.args,
-        } as EvaluationContext)
+        }
+        symbols++
+        return await this.evaluateExpression(context)
       }
       return match
     })
     return [ result, symbols > 0 ]
-}
+  }
 
   private async evaluateSymbols() {
     let found = false
