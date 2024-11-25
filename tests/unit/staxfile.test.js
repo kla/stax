@@ -42,6 +42,13 @@ describe('Staxfile', () => {
     })
   })
 
+  it('generates the correct environment', () => {
+    expect(staxfile.compose.services['rails_app-web'].environment).toEqual({
+      HELLO: 'world',
+      RAILS_ENV: 'test'
+    })
+  })
+
   it('generates the correct number of services', () => {
     expect(Object.keys(staxfile.compose.services)).toEqual(['rails_app-web', 'rails_app-sidekiq'])
   })

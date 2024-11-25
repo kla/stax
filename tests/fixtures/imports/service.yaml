@@ -1,6 +1,10 @@
+!import ./environment/test/environment.yaml as environment
+
+environment: !extends environment
+  HELLO: world
 build:
-  context: ${{ resolve ./build }}
-  dockerfile: ${{ resolve ./build/Dockerfile }}
+  context: ${{ resolve_relative ../build }}
+  dockerfile: ${{ resolve_relative ../build/Dockerfile }}
 volumes:
   - ${HOME}/.ssh/known_hosts:/home/${{ user }}/.ssh/known_hosts
   - ${{ mount_ssh_auth_sock }}
