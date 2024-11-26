@@ -2,6 +2,9 @@
 
 environment: !extends environment
   HELLO: world
+env_file:
+  -
+  - null
 build:
   context: ${{ resolve_relative ../build }}
   dockerfile: ${{ resolve_relative ../build/Dockerfile }}

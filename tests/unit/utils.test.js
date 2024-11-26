@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, mock } from 'bun:test'
-import { dasherize, deepRemoveKeys, dig, directoryExists, flattenObject, isFile, timeAgo, truthy, verifyDirectory, presence, resolve, deepMapWithKeysAsync } from '~/utils'
+import { dasherize, deepRemoveKeys, dig, directoryExists, flattenObject, isFile, timeAgo, truthy, verifyDirectory, presence, resolve, deepMapWithKeysAsync, compact } from '~/utils'
 import * as os from 'os'
 import * as path from 'path'
 
@@ -423,4 +423,16 @@ describe('resolve', () => {
   it('resolves multiple path segments with relative paths', () => expect(resolve('project', 'src', 'components')).toBe(path.resolve(process.cwd(), 'project', 'src', 'components')))
   it('resolves mixed absolute and relative paths', () => expect(resolve('/root', 'user', '../documents')).toBe(path.resolve('/root', 'user', '../documents')))
   it('handles tilde expansion only for the first argument', () => expect(resolve('~/documents', '~/projects')).toBe(path.resolve(os.homedir(), 'documents', '~/projects')))
+})
+
+describe('compact', () => {
+  it('removes null values', () => expect(compact([1, null, 2])).toEqual([1, 2]))
+  it('removes undefined values', () => expect(compact([1, undefined, 2])).toEqual([1, 2]))
+  it('removes empty arrays', () => expect(compact([1, [], 2])).toEqual([1, 2]))
+  it('removes empty strings', () => expect(compact([1, '', 2])).toEqual([1, 2]))
+  it('keeps zero values', () => expect(compact([1, 0, 2])).toEqual([1, 0, 2]))
+  it('keeps false values', () => expect(compact([1, false, 2])).toEqual([1, false, 2]))
+  it('keeps non-empty arrays', () => expect(compact([1, [2, 3], 4])).toEqual([1, [2, 3], 4]))
+  it('handles empty input array', () => expect(compact([])).toEqual([]))
+  it('handles array with only empty values', () => expect(compact([null, undefined, '', []])).toEqual([]))
 })

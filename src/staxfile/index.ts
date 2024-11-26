@@ -1,5 +1,5 @@
 import { writeFileSync, existsSync, mkdirSync, statSync } from 'fs'
-import { cacheDir as _cacheDir, exit, flattenObject, verifyFile, resolve, deepMapWithKeys } from '~/utils'
+import { cacheDir as _cacheDir, exit, flattenObject, verifyFile, resolve, deepMapWithKeys, compact } from '~/utils'
 import { StaxConfig, CompileOptions, DefaultCompileOptions } from '~/types'
 import YamlER, { dump } from '~/yamler'
 import Config from './config'
@@ -129,6 +129,9 @@ export default class Staxfile {
 
       if (service.build?.dockerfile)
         service.build = this.compileBuild(service.build)
+
+      if (service.env_file)
+        service.env_file = compact(service.env_file)
 
       services[`${this.app}-${name}`] = service
       number += 1

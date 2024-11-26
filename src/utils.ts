@@ -459,3 +459,12 @@ export function requireDockerVersion(minDockerVersion: number, minComposeVersion
 
   return exit(1, { message: `Docker Compose version >=${minComposeVersion}.0 required. Found: ${composeVersion || 'not installed'}` })
 }
+
+/**
+ * Removes null, undefined, empty arrays, and empty objects from an object
+ * @param obj - The object to clean
+ * @returns A new object with empty values removed
+ */
+export function compact(arr: any[]): any[] {
+  return arr.filter(value => value != null && !(Array.isArray(value) && value.length === 0) && value !== '')
+}
