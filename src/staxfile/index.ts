@@ -169,8 +169,8 @@ export default class Staxfile {
   private compileBuild(build) {
     const original = build.dockerfile
 
-    if (this.buildsCompiled[original])
-      return { ...build, dockerfile: this.buildsCompiled[original] }
+    // if (this.buildsCompiled[original])
+    //   return { ...build, dockerfile: this.buildsCompiled[original] }
 
     build.modules = this.normalizeModules(build.modules)
 
