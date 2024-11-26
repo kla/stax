@@ -31,6 +31,13 @@ describe('Staxfile', () => {
     expect(staxfile.compose.services['rails_app-web'].env_file.filter(item => item === null)).toEqual([])
   })
 
+  it('loads interpolated env_file items', () => {
+    expect(staxfile.compose.services['rails_app-web'].env_file).toEqual([
+      join(fixturesDir, 'env/test.env'),
+      join(fixturesDir, 'env/rails_app.env')
+    ])
+  })
+
   it('generates the correct stax attributes', () => {
     expect(staxfile.compose.stax).toEqual({
       app: 'rails_app',

@@ -35,9 +35,27 @@ export default class Evaluator {
     return evaluatorCache.get(key)
   }
 
+  parseArgs(context: EvaluationContext): string[] {
+    return context.args.map((arg) => {
+      if (typeof arg === 'string') {
+        if (arg.startsWith('stax.'))
+          return this.fetch(context.attributes, arg)
+
+        // Replace \b\$app\b with (?:^|\W)\$app(?:$|\W) to better handle $ character
+        arg = arg.replace(/(?:^|\W)\$app(?:$|\W)/g, (match) => {
+          const prefix = match.charAt(0) === '$' ? '' : match.charAt(0)
+          const suffix = match.charAt(match.length - 1) === '$' ? '' : match.charAt(match.length - 1)
+          return `${prefix}${this.staxfile.config.app}${suffix}`
+        })
+        arg = settings.interpolate(arg)
+      }
+      return arg
+    })
+  }
+
   async evaluateWithoutCache(context: EvaluationContext) {
     const name = context.name
-    const args = context.args.map(arg => typeof arg === 'string' && arg.startsWith('stax.') ? this.fetch(context.attributes, arg) : arg)
+    const args = this.parseArgs(context)
 
     if (name === 'ssh_auth_sock') return '/run/host-services/ssh-auth.sock'
 
@@ -111,7 +129,7 @@ export default class Evaluator {
     return content.includes(pattern)
   }
 
-  private resolveRelative(file: string, path: string, { nullIfMissing = false } = {}) {
+  resolveRelative(file: string, path: string, { nullIfMissing = false } = {}) {
     const resolvedPath = resolve(dirname(file), path)
     return nullIfMissing ? (fileExists(resolvedPath) ? resolvedPath : null) : resolvedPath
   }

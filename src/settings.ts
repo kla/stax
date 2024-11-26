@@ -38,6 +38,10 @@ const settings = {
     settings[name] = value
     writeFileSync(filename(), yaml.dump(settings), 'utf-8')
     return value
+  },
+
+  interpolate: (filePath: string) => {
+    return filePath.replace(/\$(\w+)/g, (match, name) => settings.isValidName(name) ? settings.read(name) : match)
   }
 }
 

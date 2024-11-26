@@ -90,14 +90,10 @@ export default class YamlER {
     }
   }
 
-  private subsituteSettings(filePath: string): string {
-    return filePath.replace(/\$(\w+)/g, (match, name) => settings.isValidName(name) ? settings.read(name) : match)
-  }
-
   private parseImports() {
     this.imports = {}
     this.content = this.content.replace(importRegex, (match, filePath, name) => {
-      filePath = this.subsituteSettings(filePath)
+      filePath = settings.interpolate(filePath)
       const yamlImport = new Import({ name, match, filePath, parentFile: this.filePath })
       this.imports[yamlImport.name] = yamlImport
 

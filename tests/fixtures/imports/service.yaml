@@ -6,6 +6,8 @@ env_file:
   -
   - null
   - ${{ resolve_relative? ../does-not-exist }}
+  - ${{ resolve_relative? ../env/$environment.env }}
+  - ${{ resolve_relative? ../env/$app.env }}
 build:
   context: ${{ resolve_relative ../build }}
   dockerfile: ${{ resolve_relative ../build/Dockerfile }}
