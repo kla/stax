@@ -43,6 +43,11 @@ describe('YamlER', () => {
     it('strips _stax_import_ anchors', () => {
       expect(dump(yaml)).not.toContain('_stax_import_')
     })
+
+    it('imports correct env', () => {
+      expect(yaml.services.web.environment.HELLO).toBe('world')
+      expect(yaml.services.web.environment.RAILS_ENV).toBe('test')
+    })
   })
 
   it('handles expressions that reference a value from an attribute set by another expression', async () => {

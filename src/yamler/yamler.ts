@@ -6,6 +6,7 @@ import * as fs from 'fs'
 import * as path from 'path'
 import yaml from 'js-yaml'
 import icons from '~/icons'
+import settings from '~/settings'
 import Import from './import'
 
 export async function loadFile(filePath: string, expressionCallback?: Function | undefined): Promise<Record<string, any>> {
@@ -89,9 +90,14 @@ export default class YamlER {
     }
   }
 
+  private subsituteSettings(filePath: string): string {
+    return filePath.replace(/\$(\w+)/g, (match, name) => settings.isValidName(name) ? settings.read(name) : match)
+  }
+
   private parseImports() {
     this.imports = {}
     this.content = this.content.replace(importRegex, (match, filePath, name) => {
+      filePath = this.subsituteSettings(filePath)
       const yamlImport = new Import({ name, match, filePath, parentFile: this.filePath })
       this.imports[yamlImport.name] = yamlImport
 

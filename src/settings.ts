@@ -19,15 +19,17 @@ function validateName(name: string) {
 }
 
 const settings = {
-  all: function() { return load() },
+  all: load,
 
-  read: function(name: string, defaultValue: any | undefined = undefined) {
+  isValidName: (name: string) => VALID_NAMES.includes(name),
+
+  read: (name: string, defaultValue: any | undefined = undefined) => {
     validateName(name)
     const settings = load()
     return settings[name] || defaultValue
   },
 
-  write: function(name: string, value): any {
+  write: (name: string, value: any) => {
     validateName(name)
 
     if (name === 'services_home') verifyDirectory(value = resolve(value))
