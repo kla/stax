@@ -5,6 +5,7 @@ environment: !extends environment
 env_file:
   -
   - null
+  - ${{ resolve_relative? ../does-not-exist }}
 build:
   context: ${{ resolve_relative ../build }}
   dockerfile: ${{ resolve_relative ../build/Dockerfile }}

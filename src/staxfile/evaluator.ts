@@ -1,4 +1,4 @@
-import { dasherize, dig, resolve } from '~/utils'
+import { dasherize, dig, resolve, fileExists } from '~/utils'
 import { EvaluationContext, ExpressionWarning } from '~/yamler'
 import { symbolRegex } from '~/yamler/symbolizer'
 import { dirname } from 'path'
@@ -46,7 +46,8 @@ export default class Evaluator {
     if (name === 'mount_workspace') return this.mountWorkspace()
     if (name === 'mount_ssh_auth_sock') return this.mountSshAuthSock()
     if (name === 'resolve') return resolve(context.baseDir, args[0])
-    if (name === 'resolve_relative') return resolve(dirname(context.symbol.file), args[0])
+    if (name === 'resolve_relative') return this.resolveRelative(context.symbol.file, args[0], { nullIfMissing: false })
+    if (name === 'resolve_relative?') return this.resolveRelative(context.symbol.file, args[0], { nullIfMissing: true })
     if (name === 'user') return process.env.USER || ''
     if (name === 'user_id') return process.getuid()
     if (name === 'dasherize') return dasherize(args[0])
@@ -108,5 +109,10 @@ export default class Evaluator {
       return regex.test(content)
     }
     return content.includes(pattern)
+  }
+
+  private resolveRelative(file: string, path: string, { nullIfMissing = false } = {}) {
+    const resolvedPath = resolve(dirname(file), path)
+    return nullIfMissing ? (fileExists(resolvedPath) ? resolvedPath : null) : resolvedPath
   }
 }
