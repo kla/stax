@@ -2,6 +2,7 @@ import { dumpOptions, importRegex, extendsRegex, rootExtendsRegex, anchorNamePre
 import { deepRemoveKeys, dig, exit, resolve, deepMapWithKeysAsync } from '~/utils'
 import { ExpressionWarning } from './index'
 import { replaceEachSymbol, symbolizer, symbols } from './symbolizer'
+import { parseTemplateExpression } from './expressions'
 import * as fs from 'fs'
 import * as path from 'path'
 import yaml from 'js-yaml'
@@ -37,7 +38,7 @@ export default class YamlER {
     return path.dirname(this.filePath)
   }
 
-  // does not evaluate expressions
+  // does not evaluate expressions (except for those in !import lines)
   compile(): Record<string, any> {
     this.symbols = {}
     this.warnings = []
@@ -89,11 +90,34 @@ export default class YamlER {
     }
   }
 
+  private parseImportExpressions(match: string): string {
+    if (!this.expressionCallback) return match
+    const expression = parseTemplateExpression(match)
+
+    if (expression) {
+      const context: EvaluationContext = {
+        baseDir: this.baseDir,
+        attributes: this.attributes,
+        path: this.filePath,
+        symbol: expression,
+        name: expression.name,
+        args: expression.args,
+      }
+      return match.replace(expression.match, this.expressionCallback(context))
+    }
+    return match
+  }
+
   private parseImports() {
     this.imports = {}
     this.content = this.content.replace(importRegex, (match, filePath, name) => {
-      const yamlImport = new Import({ name, match, filePath, parentFile: this.filePath })
-      this.imports[yamlImport.name] = yamlImport
+      const yamlImport = this.imports[name] = new Import({
+        name,
+        match,
+        filePath: this.parseImportExpressions(filePath),
+        parentFile: this.filePath,
+        expressionCallback: this.expressionCallback
+      })
 
       const attrs: any = yamlImport.compile()
       this.symbols = { ...this.symbols, ...yamlImport.yamler.symbols }

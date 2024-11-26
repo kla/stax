@@ -7,11 +7,11 @@ export default class Import {
   public filePath: string
   public yamler: YamlER
 
-  constructor({ match, name, filePath, parentFile }: { match: string, name: string, filePath: string, parentFile: string }) {
+  constructor({ match, name, filePath, parentFile, expressionCallback }: { match: string, name: string, filePath: string, parentFile: string, expressionCallback: ExpressionCallback }) {
     this.match = match
     this.name = name
     this.filePath = filePath
-    this.yamler = new YamlER(filePath, { parentFile })
+    this.yamler = new YamlER(filePath, { parentFile, expressionCallback })
   }
 
   get anchorName(): string {

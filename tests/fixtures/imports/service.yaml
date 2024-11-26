@@ -1,4 +1,4 @@
-!import ./environment/test/environment.yaml as environment
+!import ./environment/${{ setting environment }}/environment.yaml as environment
 
 environment: !extends environment
   HELLO: world

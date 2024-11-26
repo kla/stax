@@ -22,6 +22,7 @@ function expressionCallback({ attributes, name, args}) {
   if (name == 'get') return dig(attributes, args[0])
   if (name == 'expression') return '${{ ' + args[0] + ' ' + args[1] + ' }}'
   if (name == 'raw') return args
+  if (name == 'setting') return 'test'
   return '<' + [name].concat(args).join(' ') + '>'
 }
 
