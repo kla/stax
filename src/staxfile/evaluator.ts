@@ -3,6 +3,7 @@ import { EvaluationContext, ExpressionWarning } from '~/yamler'
 import { symbolRegex } from '~/yamler/symbolizer'
 import { dirname } from 'path'
 import icons from '~/icons'
+import settings from '~/settings'
 import Staxfile from '.'
 import inquirer from 'inquirer'
 
@@ -52,6 +53,7 @@ export default class Evaluator {
     if (name === 'prompt') return await this.prompt(args[0], args[1])
     if (name === 'requires?') return this.staxfile.config.requires.includes(args[0])
     if (name === 'test') return this.test(args[0], args[1])
+    if (name === 'setting') return settings.read(args[0])
 
     throw new ExpressionWarning(`Invalid template expression: ${name}`)
   }
