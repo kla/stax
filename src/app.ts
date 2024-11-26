@@ -165,7 +165,8 @@ export default class App {
   }
 
   async rebuild(config: StaxConfig, options: SetupOptions = {}) {
-    return Promise.all(this.containers.map(container => container.rebuild(config, options)))
+    for (const container of this.containers)
+      await container.rebuild(config, options)
   }
 
   async duplicate(newName: string, config: StaxConfig, options: SetupOptions = {}) {
