@@ -73,6 +73,7 @@ export default class Evaluator {
     if (name === 'requires?') return this.staxfile.config.requires.includes(args[0])
     if (name === 'test') return this.test(args[0], args[1])
     if (name === 'setting') return settings.read(args[0])
+    if (name === 'equals') return args[0] === args[1]
 
     throw new ExpressionWarning(`Invalid template expression: ${name}`)
   }

@@ -27,6 +27,12 @@ describe('Staxfile', () => {
     await staxfile.load()
   })
 
+  it('excludes conditional services', () => {
+    expect(staxfile.compose.services['rails_app-production_only_service']).toBeUndefined()
+    expect(staxfile.compose.services['rails_app-web'].if).toBeUndefined()
+    expect(staxfile.compose.services['rails_app-sidekiq'].if).toBeUndefined()
+  })
+
   it('compacts env_file', () => {
     expect(staxfile.compose.services['rails_app-web'].env_file.filter(item => item === null)).toEqual([])
   })

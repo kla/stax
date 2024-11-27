@@ -120,20 +120,24 @@ export default class Staxfile {
     let number = 0
 
     for (const [name, service] of Object.entries(this.compose?.services || {})) {
-      service.image ||= `${this.context}-${this.app}`
-      service.container_name = `${this.context}-${this.app}-${name}`
-      service.hostname ||= `${this.app}-${name}`
+      if (service.hasOwnProperty('if') && !service['if'])
+        continue
 
-      service.labels = { ...service.labels, ...this.makeLabels(number) }
-      service.labels = this.updateHooks(service.labels)
+      service['image'] ||= `${this.context}-${this.app}`
+      service['container_name'] = `${this.context}-${this.app}-${name}`
+      service['hostname'] ||= `${this.app}-${name}`
 
-      if (service.build?.dockerfile)
-        service.build = this.compileBuild(service.build)
+      service['labels'] = { ...service['labels'], ...this.makeLabels(number) }
+      service['labels'] = this.updateHooks(service['labels'])
 
-      if (service.env_file)
-        service.env_file = compact(service.env_file)
+      if (service['build']?.dockerfile)
+        service['build'] = this.compileBuild(service['build'])
+
+      if (service['env_file'])
+        service['env_file'] = compact(service['env_file'])
 
       services[`${this.app}-${name}`] = service
+      delete services[`${this.app}-${name}`].if
       number += 1
     }
 

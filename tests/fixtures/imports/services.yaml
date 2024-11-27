@@ -1,6 +1,7 @@
 !import ./service.yaml as service
 
 web: !extends service
+  if: true
   command: bin/rails server --port ${{ stax.vars.rails_server_port }} --binding 0.0.0.0
   expose:
     - ${{ stax.vars.rails_server_port }}
@@ -9,4 +10,9 @@ web: !extends service
     caddy.reverse_proxy: "{{ upstreams ${{ stax.vars.rails_server_port }} }}"
 
 sidekiq: !extends service
+  if: true
   command: /usr/local/bin/launch bundle exec sidekiq
+
+production_only_service: !extends service
+  if: ${{ equals $environment production }}
+  command: echo "This is a production only service"
