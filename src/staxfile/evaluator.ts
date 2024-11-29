@@ -79,7 +79,11 @@ export default class Evaluator {
   }
 
   fetch(attributes: Record<string, any>, path: string): string {
-    return dig(attributes, path, { required: true })
+    try {
+      return dig(attributes, path, { required: true })
+    } catch (e) {
+      return path
+    }
   }
 
   platform(): string {
