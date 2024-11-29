@@ -131,6 +131,10 @@ export default class Container {
     return [...new Set(ports)]
   }
 
+  get ipAddresses(): string[] {
+    return (Object.values(this.attributes.NetworkSettings?.Networks) || []).map(network => network['IPAddress'])
+  }
+
   async down() {
     return docker.compose(this.context, `stop ${this.name}`, this.composeFile)
   }

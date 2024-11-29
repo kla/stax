@@ -13,7 +13,7 @@ function name(app: App, container: Container) {
 }
 
 export default function list(apps: App[], options: { fields?: string[] } = {}) {
-  const head = ['', 'App', 'Status', 'Uptime', 'Forwarding', 'Source'].concat(options.fields || [])
+  const head = ['', 'App', 'Status', 'Uptime', 'Forwarding', 'IP', 'Source'].concat(options.fields || [])
   const table = new Table({
     head: head,
     style: { head: ['cyan'] },
@@ -38,6 +38,7 @@ export default function list(apps: App[], options: { fields?: string[] } = {}) {
         container.state,
         container.uptime?.replace(' ago', ''),
         container.forwardedPorts.join(', '),
+        container.ipAddresses.join(', '),
         app.containers.length == 1 ? source : '',
       ]
 
