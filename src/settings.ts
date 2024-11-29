@@ -3,8 +3,6 @@ import { exit, verifyDirectory, resolve } from './utils'
 import yaml from 'js-yaml'
 import * as path from 'path'
 
-const VALID_NAMES = [ 'aliases','services_home', 'editor', 'environment' ]
-
 function filename(): string {
   return path.join(process.env.STAX_HOME, 'settings.yaml')
 }
@@ -13,25 +11,17 @@ function load() {
   return (existsSync(filename()) && yaml.load(readFileSync(filename(), 'utf-8'))) || {}
 }
 
-function validateName(name: string) {
-  if (!VALID_NAMES.includes(name))
-    exit(1, { message: `Invalid setting name: ${name}\nValid names are: ${VALID_NAMES.join(', ')}` } )
-}
-
 const settings = {
   all: load,
 
-  isValidName: (name: string) => VALID_NAMES.includes(name),
+  isSettingName: (name: string) => Object.keys(load()).includes(name),
 
   read: (name: string, defaultValue: any | undefined = undefined) => {
-    validateName(name)
     const settings = load()
     return settings[name] || defaultValue
   },
 
   write: (name: string, value: any) => {
-    validateName(name)
-
     if (name === 'services_home') verifyDirectory(value = resolve(value))
 
     const settings = { ...load() }
@@ -41,7 +31,7 @@ const settings = {
   },
 
   interpolate: (filePath: string) => {
-    return filePath.replace(/\$(\w+)/g, (match, name) => settings.isValidName(name) ? settings.read(name) : match)
+    return filePath.replace(/\$(\w+)/g, (match, name) => settings.isSettingName(name) ? settings.read(name) : match)
   }
 }
 
