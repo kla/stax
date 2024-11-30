@@ -29,7 +29,7 @@ export default function list(apps: App[], options: { fields?: string[] } = {}) {
     const source = `${icons[Location.from(app.context, app.name, app.primary.config.source).local ? 'local' : 'remote']} ${app.primary.config.source}`
 
     if (app.containers.length > 1)
-      table.push([ icons[app.state], app.name, '', '', '', source ])
+      table.push([ icons[app.state], app.name, '', '', '', '', source ])
 
     app.containers.forEach((container) => {
       const items = [
