@@ -194,13 +194,16 @@ export default class Container {
   }
 
   async runHook(type) {
-    let hook = this.labels[`stax.${type}`]
-    if (!hook) return
+    [ '', '.host' ].forEach((location) => {
+      let hook = this.labels[`stax.${type}${location}`]
+      if (!hook) return
 
-    if (existsSync(hook))
-      run(`cat ${hook} | docker container exec --interactive ${this.containerName} /bin/sh`)
-    else
-      run(hook)
+      if (existsSync(hook)) {
+        const command = location === '.host' ? hook : `cat ${hook} | docker container exec --interactive ${this.containerName} /bin/sh`
+        run(command)
+      } else
+        run(hook)
+    })
   }
 
   async copy(source: string, destination: string, options: { dontOverwrite?: boolean } = {}) {
