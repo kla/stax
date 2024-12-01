@@ -182,7 +182,11 @@ export default class Container {
   async logs(options: { follow?: boolean, tail?: number, since?: string } = {}) {
     let command = `logs ${this.name}`
 
-    if (options.follow) command += ' --follow'
+    if (options.follow) {
+      command += ' --follow'
+      options.since ||= '0s'
+    }
+
     if (options.tail) command += ` --tail=${options.tail}`
     if (!options.since) options.since = '10m'
     if (options.since) command += ` --since=${options.since}`
