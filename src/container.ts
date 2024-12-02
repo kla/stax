@@ -5,7 +5,6 @@ import { linkSshAuthSock } from '~/host_services'
 import { timeAgo } from '~/utils'
 import docker from '~/docker'
 import Staxfile from '~/staxfile'
-import App from './app'
 import Config from './staxfile/config'
 import icons from './icons'
 
@@ -155,17 +154,6 @@ export default class Container {
     if (this.running)
       return await docker.container(`exec ${args} ${this.containerName} ${command}`, options)
     return await docker.compose(this.context, `run --rm ${args} ${this.name} ${command}`, this.composeFile, options)
-  }
-
-  async rebuild(config: StaxConfig, options: SetupOptions = {}) {
-    config = {
-      ...this.config,
-      ...config,
-      // can't change following on a rebuild
-      context: this.context, source: this.source, staxfile: this.staxfile
-    }
-
-    await App.setup(config, { ...options, rebuild: true })
   }
 
   async shell() {

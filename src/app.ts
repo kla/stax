@@ -165,8 +165,13 @@ export default class App {
   }
 
   async rebuild(config: StaxConfig, options: SetupOptions = {}) {
-    for (const container of this.containers)
-      await container.rebuild(config, options)
+    config = {
+      ...this.primary.config,
+      ...config,
+      // can't change following on a rebuild
+      context: this.context, source: this.primary.source, staxfile: this.primary.staxfile
+    }
+    await this.constructor.setup(config, { ...options, rebuild: true })
   }
 
   async duplicate(newName: string, config: StaxConfig, options: SetupOptions = {}) {
