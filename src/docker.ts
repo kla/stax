@@ -9,11 +9,11 @@ async function compose(context: string, command: string, composeFile: string, op
   options = { append: true, ...options, env: { COMPOSE_IGNORE_ORPHANS: "1" } }
   options.exit && verifyFile(composeFile)
 
-  return run(`${base} -f ${composeFile} ${command}`, options as unknown as RunOptions)
+  return await run(`${base} -f ${composeFile} ${command}`, options as unknown as RunOptions)
 }
 
 async function container(command: string, options: RunOptions = {}) {
-  return run(`docker container ${command}`, options)
+  return await run(`docker container ${command}`, options)
 }
 
 /**
@@ -54,7 +54,7 @@ function volumeExists(volume: string): boolean {
 }
 
 async function volumeRemove(volume: string) {
-  return run(`docker volume rm "${volume}"`)
+  return await run(`docker volume rm "${volume}"`)
 }
 
 const inspectCache: Record<string, Record<string, any>> = {}

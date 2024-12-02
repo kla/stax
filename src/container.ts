@@ -136,15 +136,15 @@ export default class Container {
   }
 
   async down() {
-    return docker.compose(this.context, `stop ${this.name}`, this.composeFile)
+    return await docker.compose(this.context, `stop ${this.name}`, this.composeFile)
   }
 
   async up() {
-    return docker.compose(this.context, `start ${this.name}`, this.composeFile, { exit: true })
+    return await docker.compose(this.context, `start ${this.name}`, this.composeFile, { exit: true })
   }
 
   async remove() {
-    return docker.compose(this.context, 'rm --stop --force --volumes', this.composeFile)
+    return await docker.compose(this.context, 'rm --stop --force --volumes', this.composeFile)
   }
 
   async exec(command: string, options: RunOptions = {}) {
@@ -153,8 +153,8 @@ export default class Container {
     linkSshAuthSock()
 
     if (this.running)
-      return docker.container(`exec ${args} ${this.containerName} ${command}`, options)
-    return docker.compose(this.context, `run --rm ${args} ${this.name} ${command}`, this.composeFile, options)
+      return await docker.container(`exec ${args} ${this.containerName} ${command}`, options)
+    return await docker.compose(this.context, `run --rm ${args} ${this.name} ${command}`, this.composeFile, options)
   }
 
   async rebuild(config: StaxConfig, options: SetupOptions = {}) {
@@ -165,7 +165,7 @@ export default class Container {
       context: this.context, source: this.source, staxfile: this.staxfile
     }
 
-    App.setup(config, { ...options, rebuild: true })
+    await App.setup(config, { ...options, rebuild: true })
   }
 
   async shell() {
@@ -190,24 +190,24 @@ export default class Container {
     if (options.tail) command += ` --tail=${options.tail}`
     if (!options.since) options.since = '10m'
     if (options.since) command += ` --since=${options.since}`
-    return docker.compose(this.context, command, this.composeFile)
+    return await docker.compose(this.context, command, this.composeFile)
   }
 
   async restart() {
-    return docker.compose(this.context, `restart ${this.name}`, this.composeFile)
+    return await docker.compose(this.context, `restart ${this.name}`, this.composeFile)
   }
 
   async runHook(type) {
-    [ '', '.host' ].forEach((location) => {
+    for (const location of ['', '.host']) {
       let hook = this.labels[`stax.${type}${location}`]
-      if (!hook) return
+      if (!hook) continue
 
       if (existsSync(hook)) {
         const command = location === '.host' ? hook : `cat ${hook} | docker container exec --interactive ${this.containerName} /bin/sh`
-        run(command)
+        await run(command)
       } else
-        run(hook)
-    })
+        await run(hook)
+    }
   }
 
   async copy(source: string, destination: string, options: { dontOverwrite?: boolean } = {}) {
@@ -231,10 +231,10 @@ export default class Container {
       return
     }
 
-    docker.container(`cp ${source} ${this.containerName}:${destPath}`)
+    await docker.container(`cp ${source} ${this.containerName}:${destPath}`)
   }
 
   async get(source, destination) {
-    return docker.container(`cp ${this.containerName}:${source} ${destination}`)
+    return await docker.container(`cp ${this.containerName}:${source} ${destination}`)
   }
 }

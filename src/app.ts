@@ -114,11 +114,11 @@ export default class App {
   }
 
   async down() {
-    return docker.compose(this.context, 'stop', this.composeFile)
+    return await docker.compose(this.context, 'stop', this.composeFile)
   }
 
   async up() {
-    return docker.compose(this.context, 'start', this.composeFile, { exit: true })
+    return await docker.compose(this.context, 'start', this.composeFile, { exit: true })
   }
 
   async remove() {
