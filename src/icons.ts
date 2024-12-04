@@ -1,3 +1,5 @@
+import chalk from 'chalk'
+
 const icons = {
   created: '🐣',
   healthy: '🟢',
@@ -22,4 +24,13 @@ const icons = {
   saved: '💾',
 }
 
+const miniStateIcons = {
+  healthy: chalk.green('•'),
+  running: chalk.blue('•'),
+  exited: chalk.black('•'),
+  unhealthy: chalk.yellow('•'),
+  unknown: chalk.black('•'),
+}
+
 export default icons
+export { miniStateIcons }
