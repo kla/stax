@@ -22,9 +22,9 @@ function row(app: App, container: Container, options: { fields?: string[], full?
   const slice = app.containers.length > 1 && options.full ? app.containers.length : 1
 
   if (app.containers.length > 1 && options.full)
-    items.push([ icons[app.state], app.name, '', '', '', '', container.source ])
+    items.push([ icons[app.state], app.name, '', '', '', '', source ])
 
-  app.containers.slice(0, slice).forEach((container) => {
+  app.containers.slice(0, slice).forEach((container, index) => {
     items.push([
       icons[container.state] || icons.unknown,
       name(app, container, options),
@@ -32,7 +32,7 @@ function row(app: App, container: Container, options: { fields?: string[], full?
       container.uptime?.replace(' ago', ''),
       container.forwardedPorts.join(', '),
       container.ipAddresses.join(', '),
-      app.containers.length == 1 ? source : '',
+      app.containers.length == 1 || !options.full ? source : '',
     ])
   })
   return items
