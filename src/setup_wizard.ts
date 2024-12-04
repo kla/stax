@@ -22,7 +22,7 @@ function search(dir: string): string[] {
       staxfiles.push(fullPath)
     }
   }
-  return staxfiles
+  return staxfiles.sort()
 }
 
 function findStaxfiles(context: string): any {
