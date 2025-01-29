@@ -2,7 +2,7 @@ import { existsSync } from 'fs'
 import { SetupOptions, StaxConfig, RunOptions } from '~/types'
 import { run } from '~/shell'
 import { linkSshAuthSock } from '~/host_services'
-import { timeAgo } from '~/utils'
+import { timeAgo, verifyFile } from '~/utils'
 import docker from '~/docker'
 import Staxfile from '~/staxfile'
 import Config from './staxfile/config'
@@ -151,8 +151,14 @@ export default class Container {
 
     linkSshAuthSock()
 
-    if (this.running)
+    if (this.running) {
+      if (options.script) {
+        verifyFile(command)
+        return await run(`cat ${command} | docker container exec --interactive ${this.containerName} /bin/sh`)
+      }
       return await docker.container(`exec ${args} ${this.containerName} ${command}`, options)
+    }
+
     return await docker.compose(this.context, `run --rm ${args} ${this.name} ${command}`, this.composeFile, options)
   }
 

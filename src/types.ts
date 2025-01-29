@@ -30,6 +30,9 @@ export interface RunOptions {
 
   // The standard input/output streams for the command.
   stdio?: 'inherit' | 'pipe' | 'ignore' | 'ipc' | (number | null | undefined)
+
+  // The script, located on the host, to be executed inside the container.
+  script?: string
 }
 
 export interface StaxConfig {

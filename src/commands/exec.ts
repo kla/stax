@@ -9,6 +9,7 @@ export default function registerExecCommand(program: Command, stax: Stax) {
     .option('-s, --service <name>', 'Name of service to act on')
     .option('-q, --quiet', 'Don\'t print logging and info messages')
     .option('-h, --hook', 'Run a hook where the command is the name of the hook to run')
+    .option('--script', 'Run a script, located on the host, inside the container')
     .description('Execute a command (or hook) in a running application')
     .action(async (name, command, options) => {
       const container = await stax.findContainer(name, options)
@@ -16,7 +17,7 @@ export default function registerExecCommand(program: Command, stax: Stax) {
       if (options.hook)
         container.runHook(command)
       else
-        container.exec(command, { quiet: options.quiet })
+        container.exec(command, { quiet: options.quiet, script: options.script })
     })
 }
 
