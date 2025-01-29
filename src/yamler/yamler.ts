@@ -1,4 +1,4 @@
-import { dumpOptions, importRegex, extendsRegex, rootExtendsRegex, anchorNamePrefix, EvaluationContext } from './index'
+import { dumpOptions, importRegex, extendsRegex, extendsArrayRegex, rootExtendsRegex, anchorNamePrefix, EvaluationContext } from './index'
 import { deepRemoveKeys, dig, exit, resolve, deepMapWithKeysAsync } from '~/utils'
 import { ExpressionWarning } from './index'
 import { replaceEachSymbol, symbolizer, symbols } from './symbolizer'
@@ -45,6 +45,7 @@ export default class YamlER {
     this.content = this.readFile(this.filePath)
     this.parseImports()
     this.parseExtends()
+    this.parseExtendsArray()
     this.attributes = yaml.load(this.content)
     this.attributes = deepRemoveKeys(this.attributes, [ new RegExp(`^${anchorNamePrefix}`) ])
     this.attributes = symbolizer(this.filePath, this.attributes, this.symbols)
@@ -130,6 +131,28 @@ export default class YamlER {
 
     if (prepends.size > 0)
       this.content = Array.from(prepends).join('\n\n') + '\n\n' + this.content
+  }
+
+  private parseExtendsArray() {
+    this.content = this.content.replace(extendsArrayRegex, (_match, indent, key, name) => {
+      let text = ''
+
+      if (name.includes('.')) {
+        const imp = this.findImport(name)
+        const subKey = name.split('.').slice(1).join('.')
+        const extendedValue = dig(imp.yamler.attributes, subKey)
+
+        if (extendedValue === undefined)
+          exit(1, { message: `${icons.error} Invalid !extends_array reference: '${name}' in file '${this.filePath}'. The referenced field does not exist.` })
+
+        if (!Array.isArray(extendedValue))
+          exit(1, { message: `${icons.error} Invalid !extends_array reference: '${name}' in file '${this.filePath}'. The referenced field must be an array.` })
+
+        text = dump({ [name]: extendedValue }).replace(`${name}:`, '')
+        text = text.replace(new RegExp(`${indent}`, 'g'), `${indent}  `)
+      }
+      return `${indent}${key}:\n${indent}${text}`
+    })
   }
 
   private async evaluateExpression(context): Promise<any> {

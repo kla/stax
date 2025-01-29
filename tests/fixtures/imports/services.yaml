@@ -12,6 +12,8 @@ web: !extends service
 sidekiq: !extends service
   if: true
   command: /usr/local/bin/launch bundle exec sidekiq
+  env_file: !extends_array service.env_file
+    - sidekiq.env
 
 production_only_service: !extends service
   if: ${{ equals $environment production }}

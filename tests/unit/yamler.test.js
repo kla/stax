@@ -48,6 +48,17 @@ describe('YamlER', () => {
       expect(yaml.services.web.environment.HELLO).toBe('world')
       expect(yaml.services.web.environment.RAILS_ENV).toBe('test')
     })
+
+    it('handles !extends_array', async () => {
+      expect(yaml.services.sidekiq.env_file).toEqual([
+        null,
+        null,
+        '<resolve_relative? ../does-not-exist>',
+        '<resolve_relative? ../env/$environment.env>',
+        '<resolve_relative? ../env/$app.env>',
+        'sidekiq.env'
+      ])
+    })
   })
 
   it('handles expressions that reference a value from an attribute set by another expression', async () => {
