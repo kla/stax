@@ -72,6 +72,7 @@ export interface SetupOptions {
   duplicate?: boolean
   cache?: boolean
   progress?: string
+  runHooks?: boolean
 }
 
 export interface CompileOptions {

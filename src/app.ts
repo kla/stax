@@ -99,7 +99,7 @@ export default class App {
     if (options.duplicate || (!options.rebuild && !staxfile.config.location.local))
       await app.primary.exec(`sh -c '[ -z "$(ls -A ${staxfile.compose.stax.workspace})" ] && git clone ${staxfile.config.source} ${staxfile.compose.stax.workspace} || echo "Directory not empty. Skipping git clone."'`)
 
-    if (options.duplicate || !options.rebuild)
+    if (options.duplicate || !options.rebuild || options.runHooks)
       await app.primary.runHook('after_setup')
 
     return app
