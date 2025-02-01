@@ -110,8 +110,13 @@ describe('Staxfile', () => {
 
     it(`generates common volumes for ${name}`, () => {
       const volumes = staxfile.compose.services[name].volumes
+
+      if (process.platform == 'darwin')
+        expect(volumes[1]).toEndWith(':/run/host-services/ssh-auth.sock')
+      else
+        expect(volumes[1]).toEndWith(':/run/host-services')
+
       expect(volumes[0]).toBe('${HOME}/.ssh/known_hosts:/home/' + process.env.USER + '/.ssh/known_hosts')
-      expect(volumes[1]).toEndWith(':/run/host-services')
       expect(volumes[2]).toBe(`${fixturesDir}:/workspaces/rails_app`)
     })
   })
