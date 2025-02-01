@@ -2,8 +2,8 @@ import { Command } from 'commander'
 import { existsSync, mkdirSync } from 'fs'
 import { parseAndRemoveWildcardOptions } from '~/utils'
 import { StaxConfig } from '~/types'
-import { version } from 'process'
 import { registerCommands } from '~/commands'
+import { version } from '../package.json'
 import * as path from 'path'
 import tmp from 'tmp'
 
@@ -16,6 +16,12 @@ function buildArgs() {
     args = args.slice(0, commandSeparator)
     args.push(command)
   }
+
+  if (args.includes('-v') || args.includes('--version')) {
+    console.log(version)
+    process.exit(0)
+  }
+
   return [ args, overrides ]
 }
 
@@ -24,7 +30,6 @@ function runProgram() {
   const [ args, overrides ] = buildArgs()
 
   registerCommands(program, overrides as unknown as StaxConfig)
-  program.version(version.replace('v', ''))
   program.name('stax')
   program.parse(args as string[])
 }
