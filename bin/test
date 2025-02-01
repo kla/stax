@@ -1,6 +1,26 @@
 #!/bin/bash
 
 args=()
+pattern_used=false
+
+bun_test() {
+  local args=("$@")
+  local base_command="bun test --preload tests/setup.js ${args[*]}"
+  local full_command
+
+  # we have to use script so that grep will actually work
+  if [[ "$OSTYPE" == "darwin"* ]]; then
+    full_command="script -q /dev/null $base_command 2>&1"
+  else
+    full_command="script -q -c \"$base_command\" /dev/null"
+  fi
+
+  if $pattern_used; then
+    eval $full_command | grep -v '»'
+  else
+    eval $full_command
+  fi
+}
 
 while [ $# -gt 0 ]
 do
@@ -11,6 +31,7 @@ do
     shift  # Skip the -n
     pattern="$1"
     args+=("--test-name-pattern" "$pattern")
+    pattern_used=true
     shift  # Skip the pattern value
   else
     args+=("$1")
@@ -18,4 +39,4 @@ do
   fi
 done
 
-bun test --preload tests/setup.js "${args[@]}"
+bun_test "${args[@]}"
