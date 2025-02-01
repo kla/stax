@@ -12,6 +12,6 @@ build:
   context: ${{ resolve_relative ../build }}
   dockerfile: ${{ resolve_relative ../build/Dockerfile }}
 volumes:
-  - ${HOME}/.ssh/known_hosts:/home/${{ user }}/.ssh/known_hosts
-  - ${{ mount_ssh_auth_sock }}
-  - ${{ mount_workspace }}
+- ${HOME}/.ssh/known_hosts:/home/${{ user }}/.ssh/known_hosts
+- ${{ mount_ssh_auth_sock }}
+- ${{ mount_workspace }}

@@ -6,3 +6,12 @@
 services:
   web: !extends services.web
   sidekiq: !extends services.sidekiq
+
+array_test:
+  empty: !extends_array services.web.volumes
+  different_indent: !extends_array services.web.volumes
+  - eh
+  multiple_nesting:
+    one:
+      two: !extends_array services.web.volumes
+        - eh

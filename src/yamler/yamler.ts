@@ -134,9 +134,8 @@ export default class YamlER {
   }
 
   private parseExtendsArray() {
-    this.content = this.content.replace(extendsArrayRegex, (_match, indent, key, name) => {
-      let text = ''
-
+    this.content = this.content.replace(extendsArrayRegex, (_match, indent, key, name, extraBlock) => {
+      let dumpedSection = ''
       if (name.includes('.')) {
         const imp = this.findImport(name)
         const subKey = name.split('.').slice(1).join('.')
@@ -148,10 +147,21 @@ export default class YamlER {
         if (!Array.isArray(extendedValue))
           exit(1, { message: `${icons.error} Invalid !extends_array reference: '${name}' in file '${this.filePath}'. The referenced field must be an array.` })
 
-        text = dump({ [name]: extendedValue }).replace(`${name}:`, '')
-        text = text.replace(new RegExp(`${indent}`, 'g'), `${indent}  `)
+        const dumped = dump(extendedValue)
+        const newIndent = indent + '  '
+        dumpedSection = dumped.split('\n').map(line => line ? newIndent + line : '').join('\n')
       }
-      return `${indent}${key}:\n${indent}${text}`
+
+      let extraSection = ''
+      if (extraBlock) {
+        // Reindent extra lines by trimming and adding newIndent
+        extraSection = extraBlock.split('\n').map(line => line ? indent + '  ' + line.trim() : '').join('\n')
+      }
+
+      // Merge the dumped array and any extra list items
+      const merged = extraSection ? `${dumpedSection}\n${extraSection}` : dumpedSection
+      return `${indent}${key}:
+${merged}`
     })
   }
 

@@ -50,14 +50,14 @@ describe('YamlER', () => {
     })
 
     it('handles !extends_array', async () => {
-      expect(yaml.services.sidekiq.env_file).toEqual([
-        null,
-        null,
-        '<resolve_relative? ../does-not-exist>',
-        '<resolve_relative? ../env/$environment.env>',
-        '<resolve_relative? ../env/$app.env>',
-        'sidekiq.env'
-      ])
+      const base = [
+        '${HOME}/.ssh/known_hosts:/home/<user>/.ssh/known_hosts',
+        '<mount_ssh_auth_sock>',
+        '<mount_workspace>'
+      ]
+      expect(yaml.array_test.empty).toEqual(base)
+      expect(yaml.array_test.different_indent).toEqual(base.concat(['eh']))
+      expect(yaml.array_test.multiple_nesting.one.two).toEqual(base.concat(['eh']))
     })
   })
 
