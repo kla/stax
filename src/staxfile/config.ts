@@ -90,7 +90,10 @@ export default class Config implements StaxConfig {
   }
 
   public filterRequires() {
-    const mapped = this.requires.map(item => ({ name: typeof(item) === 'string' ? item : item['name'], if: truthy(item['if']) }))
+    const mapped = this.requires.map(item => ({
+      name: typeof(item) === 'string' ? item : item['name'],
+      if: item['if'] === undefined ? true : truthy(item['if'])
+    }))
     return this.requires = mapped.filter(item => item.if).map(item => item.name)
   }
 
