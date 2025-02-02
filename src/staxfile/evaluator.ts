@@ -5,7 +5,7 @@ import { dirname } from 'path'
 import icons from '~/icons'
 import settings from '~/settings'
 import Staxfile from '.'
-import inquirer from 'inquirer'
+import { input } from '@inquirer/prompts'
 
 export const evaluatorCache = new Map<string, any>()
 
@@ -113,15 +113,10 @@ export default class Evaluator {
   }
 
   async prompt(message: string, defaultValue: string): Promise<string> {
-    const response = await inquirer.prompt([
-      {
-        type: 'input',
-        name: 'result',
-        message,
-        default: defaultValue,
-      },
-    ])
-    return response.result
+    return input({
+      message,
+      default: defaultValue
+    })
   }
 
   test(filename: string, pattern: string): boolean {

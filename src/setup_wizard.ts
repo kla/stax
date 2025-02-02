@@ -1,12 +1,12 @@
 import { StaxConfig } from './types'
 import { exit, presence } from './utils'
+import { select, confirm } from '@inquirer/prompts'
 import Staxfile from './staxfile'
 import * as fs from 'fs'
 import * as path from 'path'
 import settings from './settings'
 import stax from './stax'
 import icons from './icons'
-import inquirer from 'inquirer'
 import App from './app'
 
 function search(dir: string): string[] {
@@ -42,26 +42,23 @@ function getStaxfileName(filePath: string): string {
 }
 
 async function pickStaxfile(staxfiles: string[]) {
-  const { selected } = await inquirer.prompt([
-    {
-      type: 'list',
-      name: 'selected',
-      message: 'Select service to install:',
-      choices: staxfiles.map(file => ({ name: getStaxfileName(file), value: file })),
-      loop: false
-    }
-  ])
+  const selected = await select({
+    message: 'Select service to install:',
+    choices: staxfiles.map(file => ({
+      name: getStaxfileName(file),
+      value: file
+    })),
+    loop: false
+  })
   return selected
 }
 
 async function installDependencies(missing, stax) {
   const names = Object.keys(missing)
-  const { installMissing } = await inquirer.prompt([{
-    type: 'confirm',
-    name: 'installMissing',
+  const installMissing = await confirm({
     message: `The following dependencies are not installed yet: ${names.join(', ')}. Would you like to install them?`,
     default: true
-  }])
+  })
 
   if (installMissing) {
     for (const [name, file] of Object.entries(missing)) {

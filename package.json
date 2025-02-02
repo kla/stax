@@ -10,12 +10,11 @@
   "type": "module",
   "private": false,
   "dependencies": {
+    "@inquirer/prompts": "^7.2.3",
     "@types/node": "^22.7.5",
     "chalk": "5.3.0",
     "cli-table3": "^0.6.5",
     "commander": "^12.1.0",
-    "inquirer": "^11.1.0",
-    "prompts": "^2.4.2",
     "tmp": "^0.2.3",
     "js-yaml": "^4.1.0"
   },
