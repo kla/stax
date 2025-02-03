@@ -4,6 +4,7 @@ import { requireDockerVersion } from '~/utils'
 import setupWizard from '~/setup_wizard'
 import Stax from '~/stax'
 import settings from '~/settings'
+import logo from '../logo'
 
 export default function registerSetupCommand(program: Command, stax: Stax, overrides: StaxConfig) {
   program.command('setup')
@@ -15,6 +16,7 @@ export default function registerSetupCommand(program: Command, stax: Stax, overr
     .description('Setup an application')
   .action(async (location, options) => {
     requireDockerVersion(27.0, 2.29)
+    console.log(logo())
 
     if (location) {
       const app = await stax.setup({ source: location, ...options }, { ...options, overrides: overrides })
