@@ -2,6 +2,7 @@ import { readFileSync, rmSync } from 'fs'
 import { cacheDir, exit, fileExists, pp, isEmpty } from '~/utils'
 import { StaxConfig, SetupOptions, FindContainerOptions } from '~/types'
 import { linkSshAuthSock } from './host_services'
+import { confirm } from '@inquirer/prompts'
 import chalk from 'chalk'
 import Staxfile from '~/staxfile'
 import icons from '~/icons'
@@ -9,7 +10,6 @@ import docker from '~/docker'
 import Container from '~/container'
 import settings from '~/settings'
 import yaml from 'js-yaml'
-import prompts from 'prompts'
 import Config from './staxfile/config'
 
 export default class App {
@@ -128,15 +128,15 @@ export default class App {
     await docker.compose(this.context, 'rm --stop --force --volumes', this.composeFile)
 
     if (docker.volumeExists(volume)) {
-      const response = await prompts({
-        type: 'confirm',
-        name: 'value',
+      const response = await confirm({
         message: `Do you want to delete the workspace volume '${volume}'?`,
-        initial: false
+        default: false
       })
 
       if (response.value)
         await docker.volumeRemove(volume)
+      else
+        console.log(`${icons.warning}  Not deleting workspace volume`)
     }
 
     if (fileExists(cache)) {
