@@ -7,6 +7,7 @@ import docker from '~/docker'
 import Staxfile from '~/staxfile'
 import Config from './staxfile/config'
 import icons from './icons'
+import { confirm } from '@inquirer/prompts'
 
 export default class Container {
   public attributes: Record<string, any>
@@ -204,13 +205,13 @@ export default class Container {
     }
   }
 
-  async copy(source: string, destination: string, options: { dontOverwrite?: boolean } = {}) {
+  async copy(source: string, destination: string, options: { dontOverwrite?: boolean, prompt?: boolean } = {}) {
     if (!existsSync(source)) {
       console.warn(`${icons.warning}  Couldn't copy '${source}' because it does not exist`)
       return
     }
 
-    const { dontOverwrite = false } = options
+    const { dontOverwrite = false, prompt } = options
     const isDirectory = source.endsWith('/')
     const destinationIsDirectory = destination.endsWith('/')
     const sourceParts = source.split('/')
@@ -220,9 +221,18 @@ export default class Container {
     if (destinationIsDirectory && !isDirectory)
       destPath += sourceFileName
 
-    if (dontOverwrite && docker.fileExists(this.containerName, destPath)) {
-      console.warn(`${icons.warning}  Not copying ${source} because it already exists at ${destPath}`)
-      return
+    if (docker.fileExists(this.containerName, destPath)) {
+      if (prompt) {
+        const answer = await confirm({ message: `File '${destPath}' already exists in the container. Overwrite?`, default: false })
+
+        if (!answer) {
+          console.log(`${icons.warning}  Not copying ${source} because overwrite was declined`)
+          return
+        }
+      } else if (dontOverwrite) {
+        console.warn(`${icons.warning}  Not copying ${source} because it already exists at ${destPath}`)
+        return
+      }
     }
 
     await docker.container(`cp ${source} ${this.containerName}:${destPath}`)
