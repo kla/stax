@@ -15,7 +15,7 @@ export function linkSshAuthSock() {
     try {
       linkSync(process.env.SSH_AUTH_SOCK, targetPath)
     } catch (e) {
-      console.log(`${icons.warning}  Couldn't symlink ${process.env.SSH_AUTH_SOCK} to ${targetPath}. Is the socket still valid? - `, e.message)
+      console.warn(`${icons.warning}  Couldn't symlink ${process.env.SSH_AUTH_SOCK} to ${targetPath}. Is the socket still valid? - `, e.message)
     }
   } else
     console.warn(`${icons.warning}  Couldn't create ${targetPath} because SSH_AUTH_SOCK (${process.env.SSH_AUTH_SOCK}) not found`)

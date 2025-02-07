@@ -104,7 +104,7 @@ export default class Config implements StaxConfig {
       return exit(1, { message: `Could not find a Staxfile at ${this.source}` })
 
     if (!existsSync(this.staxfile)) {
-      console.log(`${icons.warning}  Staxfile missing for ${this.app}: ${this.staxfile}`)
+      console.warn(`${icons.warning}  Staxfile missing for ${this.app}: ${this.staxfile}`)
       return false
     } else
       this.staxfile = resolve(this.staxfile)

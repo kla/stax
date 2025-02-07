@@ -68,7 +68,7 @@ async function installDependencies(missing, stax) {
 
     console.log(`${icons.success} All missing dependencies have been installed.\n`)
   } else {
-    console.log(`${icons.warning} Skipping installation of missing dependencies.\n`)
+    console.warn(`${icons.warning} Skipping installation of missing dependencies.\n`)
   }
 }
 

@@ -226,7 +226,7 @@ export default class Container {
         const answer = await confirm({ message: `File '${destPath}' already exists in the container. Overwrite?`, default: false })
 
         if (!answer) {
-          console.log(`${icons.warning}  Not copying ${source} because overwrite was declined`)
+          console.warn(`${icons.warning}  Not copying ${source} because overwrite was declined`)
           return
         }
       } else if (dontOverwrite) {
