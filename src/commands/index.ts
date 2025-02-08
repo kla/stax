@@ -48,5 +48,5 @@ export function registerCommands(program: Command, overrides: StaxConfig) {
   registerShellCommand(program, stax)
   registerUpCommand(program, stax)
   registerLogoCommand(program)
-  registerAutoCompleteCommand(program, stax)
+  registerAutoCompleteCommand(program)
 }

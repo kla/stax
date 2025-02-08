@@ -1,11 +1,10 @@
-import Stax from '~/stax'
 import * as fs from 'fs'
 import * as path from 'path'
 import * as os from 'os'
 
 const commands = 'cat config copy cp down duplicate edit exec run get inspect logs rebuild remove rm restart shell sh up'.split(' ')
 
-function generate(stax: Stax, shell: string) {
+function generate(shell: string) {
   // Prepare literal arrays for insertion into the completion script
   const commandsList = commands.map(command => `"${command}"`).join(' ')
   
@@ -78,7 +77,7 @@ function getCompletionFile(completionDir: string, shell: string): string {
   return path.join(completionDir, 'stax')
 }
 
-export default function installAutoComplete(stax: Stax) {
+export default function installAutoComplete() {
   const shell = process.env.SHELL?.includes('zsh')
     ? 'zsh'
     : process.env.SHELL?.includes('bash')
@@ -91,7 +90,7 @@ export default function installAutoComplete(stax: Stax) {
   const completionFile = getCompletionFile(completionDir, shell)
 
   if (!fs.existsSync(completionDir)) fs.mkdirSync(completionDir, { recursive: true })
-  fs.writeFileSync(completionFile, generate(stax, shell))
+  fs.writeFileSync(completionFile, generate(shell))
 
   if (shell === 'zsh') {
     const zshrcPath = path.join(os.homedir(), '.zshrc')
