@@ -5,7 +5,7 @@ import setupWizard from '~/setup_wizard'
 import Stax from '~/stax'
 import settings from '~/settings'
 import logo from '../logo'
-import installAutoComplete from '~/auto_complete'
+
 export default function registerSetupCommand(program: Command, stax: Stax, overrides: StaxConfig) {
   program.command('setup')
     .argument('[location]', 'Path to a local directory or git repo of application')
@@ -25,8 +25,5 @@ export default function registerSetupCommand(program: Command, stax: Stax, overr
       await setupWizard(stax)
     else
       console.log('Please specify an application location or set the services home directory.')
-
-    if (settings.read('auto_complete') === 'true')
-      installAutoComplete(stax)
   })
 }
