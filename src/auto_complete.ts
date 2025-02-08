@@ -7,64 +7,7 @@ const commands = 'cat config copy cp down duplicate edit exec run get inspect lo
 function generate(shell: string) {
   // Prepare literal arrays for insertion into the completion script
   const commandsList = commands.map(command => `"${command}"`).join(' ')
-  
-  if (shell === 'zsh') {
-    return `
-#compdef stax
-
-_stax() {
-  local curcontext state
-  _arguments -s \\
-    '1:command:->command' \\
-    '2:app:->app' && return 0
-  
-  case $state in
-    command)
-      local -a main_commands
-      main_commands=(${commandsList})
-      _describe 'stax commands' main_commands
-      ;;
-    app)
-      if [[ $words[1] == sh || $words[1] == shell ]]; then
-         _files
-      else
-         local -a apps
-         # Dynamically get the list of apps using the stax list-apps command
-         apps=($(stax ls --list-names))
-         _describe 'apps' apps
-      fi
-      ;;
-  esac
-}
-
-if ! command -v compinit >/dev/null; then
-  autoload -U compinit && compinit
-fi
-
-compdef _stax stax
-`
-  } else {
-    return `
-_stax_complete() {
-  local cur prev opts
-  COMPREPLY=()
-  cur="\${COMP_WORDS[COMP_CWORD]}"
-  prev="\${COMP_WORDS[COMP_CWORD-1]}"
-  opts="\$(stax ls --list-names)"
-  local app_names="\$(stax ls --list-names)"
-
-  case "\${prev}" in
-    ${commands.join('|')})
-      COMPREPLY=( $(compgen -W "\${app_names}" -- "\${cur}") )
-      return 0
-      ;;
-  esac
-
-  COMPREPLY=( $(compgen -W "\${opts}" -- "\${cur}") )
-}
-complete -F _stax_complete stax
-`
-  }
+  return fs.readFileSync(path.join(__dirname, `auto_complete.${shell}`))
 }
 
 function getCompletionDir(shell: string): string {
