@@ -94,7 +94,7 @@ export default function installAutoComplete() {
 
   if (shell === 'zsh') {
     const zshrcPath = path.join(os.homedir(), '.zshrc')
-    const sourceCommand = `source ${completionFile}`
+    const sourceCommand = `[ -s "${completionFile}" ] && source "${completionFile}"`
     const completionComment = '# stax completions'
     const contentToAdd = `\n${completionComment}\n${sourceCommand}`
 
