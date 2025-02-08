@@ -20,6 +20,7 @@ import registerSetupCommand from './setup'
 import registerShellCommand from './shell'
 import registerUpCommand from './up'
 import registerLogoCommand from './logo'
+import registerAutoCompleteCommand from './auto_complete'
 import Stax from '~/stax'
 
 const DEFAULT_CONTEXT_NAME = 'stax'
@@ -47,4 +48,5 @@ export function registerCommands(program: Command, overrides: StaxConfig) {
   registerShellCommand(program, stax)
   registerUpCommand(program, stax)
   registerLogoCommand(program)
+  registerAutoCompleteCommand(program, stax)
 }
