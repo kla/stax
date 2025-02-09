@@ -133,7 +133,7 @@ export default class App {
         default: false
       })
 
-      if (response.value)
+      if (response)
         await docker.volumeRemove(volume)
       else
         console.log(`${icons.warning}  Not deleting workspace volume`)
