@@ -5,7 +5,7 @@
     "email": "la.kien+npm@gmail.com"
   },
   "repository": "https://github.com/kla/stax",
-  "version": "0.5.2",
+  "version": "0.5.3",
   "main": "src/index",
   "type": "module",
   "private": false,
