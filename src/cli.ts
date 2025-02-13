@@ -42,6 +42,36 @@ function init() {
   if (!existsSync(process.env.STAX_HOST_SERVICES)) mkdirSync(process.env.STAX_HOST_SERVICES)
 
   process.on('SIGINT', () => { tmp.setGracefulCleanup(); process.exit() })
+
+  process.on('unhandledRejection', (reason: any, promise: Promise<any>) => {
+    /*
+    workaround to fix what seems like an input problem with bun. triggers every time when you press
+    enter multiple times during a prompt.
+
+    TypeError: undefined is not an object
+      at <anonymous> (native)
+      at <anonymous> (native)
+      at <anonymous> (native)
+      at <anonymous> (native)
+      at <anonymous> (native)
+      at handleResult (native:36:41)
+      at handleNativeReadableStreamPromiseResult2 (native:7:60)
+      at processTicksAndRejections (native:7:39)
+      at spawnSync (unknown)
+      at spawnSync (node:child_process:233:22)
+
+    this work around causes some input to get ignored and you'll have to press your
+    keys multiple times for it to register but it's better than crashing.
+    */
+    if (reason instanceof TypeError && reason.message === 'undefined is not an object' && reason.stack?.includes('handleResult'))
+      return
+
+    if (reason instanceof Error) {
+      console.error(reason.stack)
+      process.exit(1)
+    }
+  })
+
   tmp.setGracefulCleanup()
 }
 
