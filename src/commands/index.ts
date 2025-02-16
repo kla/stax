@@ -25,7 +25,7 @@ import Stax from '~/stax'
 
 const DEFAULT_CONTEXT_NAME = 'stax'
 
-export function registerCommands(program: Command, overrides: StaxConfig) {
+export function registerCommands(program: Command, overrides: StaxConfig, additionalCommands: Function[] = []) {
   const stax = new Stax(DEFAULT_CONTEXT_NAME)
 
   registerAliasCommand(program, stax)
@@ -49,4 +49,7 @@ export function registerCommands(program: Command, overrides: StaxConfig) {
   registerUpCommand(program, stax)
   registerLogoCommand(program)
   registerAutoCompleteCommand(program)
+
+  if (additionalCommands?.length > 0)
+    additionalCommands.forEach(command => command(program, stax))
 }
