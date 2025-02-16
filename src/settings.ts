@@ -1,5 +1,5 @@
 import { existsSync, readFileSync, writeFileSync } from 'fs'
-import { exit, verifyDirectory, resolve } from './utils'
+import { verifyDirectory, resolve } from './utils'
 import yaml from 'js-yaml'
 import * as path from 'path'
 

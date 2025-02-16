@@ -1,5 +1,5 @@
 import { existsSync } from 'fs'
-import { SetupOptions, StaxConfig, RunOptions } from '~/types'
+import { RunOptions } from '~/types'
 import { run } from '~/shell'
 import { linkSshAuthSock } from '~/host_services'
 import { timeAgo, verifyFile } from '~/utils'

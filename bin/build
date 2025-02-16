@@ -1,0 +1,8 @@
+#!/bin/bash
+set -e
+rm -rf dist/*
+EXTERNAL_PACKAGES=$(jq -r '.dependencies | keys | join(" ")' package.json)
+EXTERNAL_FLAGS=$(echo $EXTERNAL_PACKAGES | xargs -I {} echo --external {})
+bun build src/index.ts --outdir dist --format esm --target node $EXTERNAL_FLAGS
+mv dist/src/* dist/
+rmdir dist/src

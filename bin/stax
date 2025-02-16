@@ -8,8 +8,8 @@ stax_home=$(dirname "$(dirname "$script_path")")
 # Check if src/cli.ts exists
 cli_path="$stax_home/src/cli.ts"
 if [ ! -f "$cli_path" ]; then
-    echo "Error: $cli_path not found" >&2
-    exit 1
+  echo "Error: $cli_path not found" >&2
+  exit 1
 fi
 
 # Run the bun command
