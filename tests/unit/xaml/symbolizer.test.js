@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'bun:test'
-import { replaceEachSymbol, symbols } from '~/yamler/symbolizer'
+import { replaceEachSymbol, symbols } from '~/xaml/symbolizer'
 
 describe('replaceEachSymbol', () => {
   it('returns non-string inputs unchanged', () => expect(replaceEachSymbol(null, async () => '')).resolves.toBe(null))

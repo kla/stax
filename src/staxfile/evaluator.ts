@@ -1,6 +1,6 @@
 import { dasherize, dig, resolve, fileExists } from '~/utils'
-import { EvaluationContext, ExpressionWarning } from '~/yamler'
-import { symbolRegex } from '~/yamler/symbolizer'
+import { EvaluationContext, ExpressionWarning } from '~/xaml'
+import { symbolRegex } from '~/xaml/symbolizer'
 import { dirname } from 'path'
 import icons from '~/icons'
 import settings from '~/settings'

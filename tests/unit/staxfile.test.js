@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach } from 'bun:test'
 import { rmSync, mkdirSync } from 'fs'
 import { resolve } from '~/utils'
-import { dump } from '~/yamler'
+import { dump } from '~/xaml'
 import Staxfile from '~/staxfile'
 import path, { join } from 'path'
 

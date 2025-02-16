@@ -1,4 +1,4 @@
-import YamlER, { EvaluationContext, loadFile, dump } from './yamler'
+import Xaml, { EvaluationContext, loadFile, dump } from './xaml'
 
 export const dumpOptions = { lineWidth: -1, noRefs: true }
 export const sanitizeRegex = /[^a-zA-Z0-9_]/g
@@ -27,4 +27,4 @@ export interface EvaluationContext {
 }
 
 export { loadFile, dump }
-export default YamlER
+export default Xaml

@@ -10,14 +10,14 @@ import settings from '~/settings'
 import Import from './import'
 
 export async function loadFile(filePath: string, expressionCallback?: Function | undefined): Promise<Record<string, any>> {
-  return await new YamlER(filePath, { expressionCallback }).load()
+  return await new Xaml(filePath, { expressionCallback }).load()
 }
 
 export function dump(obj: any): string {
   return yaml.dump(obj, dumpOptions)
 }
 
-export default class YamlER {
+export default class Xaml {
   public filePath: string
   public parentFile: string
   public rootFile: string
@@ -99,7 +99,7 @@ export default class YamlER {
       this.imports[yamlImport.name] = yamlImport
 
       const attrs: any = yamlImport.compile()
-      this.symbols = { ...this.symbols, ...yamlImport.yamler.symbols }
+      this.symbols = { ...this.symbols, ...yamlImport.xaml.symbols }
 
       let text: string = dump({ [yamlImport.anchorName]: attrs })
       text = text.replace(`${yamlImport.anchorName}:`, `${yamlImport.anchorName}: &${yamlImport.name}`)
@@ -118,7 +118,7 @@ export default class YamlER {
       if (name.includes('.')) {
         const imp = this.findImport(name)
         const subKey = name.split('.').slice(1).join('.')
-        const extendedValue = dig(imp.yamler.attributes, subKey)
+        const extendedValue = dig(imp.xaml.attributes, subKey)
 
         if (extendedValue === undefined)
           exit(1, { message: `${icons.error} Invalid !extends reference: '${name}' in file '${this.filePath}'. The referenced field does not exist.` })
@@ -139,7 +139,7 @@ export default class YamlER {
       if (name.includes('.')) {
         const imp = this.findImport(name)
         const subKey = name.split('.').slice(1).join('.')
-        const extendedValue = dig(imp.yamler.attributes, subKey)
+        const extendedValue = dig(imp.xaml.attributes, subKey)
 
         if (extendedValue === undefined)
           exit(1, { message: `${icons.error} Invalid !extends_array reference: '${name}' in file '${this.filePath}'. The referenced field does not exist.` })
@@ -233,6 +233,6 @@ ${merged}`
   private findImport(name: string): Import {
     const importName = name.split('.')[0]
     const imp = this.imports[importName] || exit(1, { message: `${icons.error} Couldn't find import for '${importName}' referenced in '${this.filePath}'` })
-    return dig(imp.yamler.attributes, name.split('.')[1]) ? imp : null
+    return dig(imp.xaml.attributes, name.split('.')[1]) ? imp : null
   }
 }

@@ -1,7 +1,7 @@
 import { writeFileSync, existsSync, mkdirSync, statSync } from 'fs'
 import { cacheDir as _cacheDir, exit, flattenObject, verifyFile, resolve, deepMapWithKeys, compact } from '~/utils'
 import { StaxConfig, CompileOptions, DefaultCompileOptions } from '~/types'
-import YamlER, { dump } from '~/yamler'
+import Xaml, { dump } from '~/xaml'
 import Config from './config'
 import DockerfileCompiler from './dockerfile_compiler'
 import Evaluator from './evaluator'
@@ -79,38 +79,38 @@ export default class Staxfile {
 
   private async load(options: CompileOptions = {}): Promise<void> {
     const evaluator = new Evaluator(this)
-    const yamler = new YamlER(this.staxfile, { expressionCallback: evaluator.evaluate.bind(evaluator) })
+    const xaml = new Xaml(this.staxfile, { expressionCallback: evaluator.evaluate.bind(evaluator) })
 
     options = { ...DefaultCompileOptions, ...options }
 
-    this.compose = yamler.compile()
-    if (!yamler.attributes.stax) yamler.attributes.stax = {}
-    yamler.attributes.stax.app = this.config.app
+    this.compose = xaml.compile()
+    if (!xaml.attributes.stax) xaml.attributes.stax = {}
+    xaml.attributes.stax.app = this.config.app
 
     if (options.excludes?.includes('prompt')) {
-      this.compose = yamler.attributes = await this.keepExistingPromptValues(yamler)
+      this.compose = xaml.attributes = await this.keepExistingPromptValues(xaml)
     } else if (this.compose.stax.source) {
       // need to load stax.source first in case it is a prompt
       // TODO this doesn't handle when stax.source has an embedded expression?
-      const [ value, _ ] = await yamler.replaceSymbols('stax.source', this.compose.stax.source)
-      this.compose.stax.source = yamler.attributes.stax.source = value
+      const [ value, _ ] = await xaml.replaceSymbols('stax.source', this.compose.stax.source)
+      this.compose.stax.source = xaml.attributes.stax.source = value
     }
 
     this.config = new Config({ ...this.config, ...this.compose.stax })
-    this.compose = await yamler.load()
+    this.compose = await xaml.load()
     this.config = new Config({ ...this.config, ...this.compose.stax })
     if (this.config.requires) this.compose.stax.requires = this.config.filterRequires()
     this.updateServices()
 
-    if (yamler.warnings.length > 0)
-      return exit(1, { message: yamler.warnings.join('\n') })
+    if (xaml.warnings.length > 0)
+      return exit(1, { message: xaml.warnings.join('\n') })
   }
 
   // set all prompts to it's current config value or default if it is being excluded
-  private keepExistingPromptValues(yamler: YamlER): Record<string, any> {
+  private keepExistingPromptValues(xaml: Xaml): Record<string, any> {
     return deepMapWithKeys(this.compose, (path, key, value) => {
       // TODO: handle promps in the key as well
-      const hasPrompt = yamler.getSymbols(value).find(symbol => symbol.name == 'prompt')
+      const hasPrompt = xaml.getSymbols(value).find(symbol => symbol.name == 'prompt')
       return [ key, hasPrompt ? this.config.fetch(path) : value]
     })
   }

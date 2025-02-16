@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, it, expect } from 'bun:test'
-import YamlER, { loadFile, dump, ExpressionWarning } from '~/yamler'
+import Xaml, { loadFile, dump, ExpressionWarning } from '~/xaml'
 import { dig, resolve } from '~/utils'
 import { writeFileSync } from 'fs'
 import tmp from 'tmp'
@@ -25,14 +25,14 @@ function expressionCallback({ attributes, name, args}) {
   return '<' + [name].concat(args).join(' ') + '>'
 }
 
-describe('YamlER', () => {
+describe('Xaml', () => {
   let yaml
 
   beforeEach(() => tempFiles.length = 0)
   afterEach(() => tempFiles.forEach(file => file.removeCallback()))
 
   describe('with a file that has imports', () => {
-    beforeEach(async () => yaml = await loadFile(resolve(fixturesDir, 'yamler.yaml'), expressionCallback))
+    beforeEach(async () => yaml = await loadFile(resolve(fixturesDir, 'xaml.yaml'), expressionCallback))
 
     it('loads and processes a YAML file with imports', () => {
       expect(yaml.stax.vars.ruby_version).toBe('1.0.0')
@@ -141,15 +141,15 @@ describe('YamlER', () => {
       value2: '${{ warning }}'
     })
 
-    const yamler = new YamlER(yamlWithWarning, { expressionCallback: warningCallback })
-    await yamler.load()
+    const xaml = new Xaml(yamlWithWarning, { expressionCallback: warningCallback })
+    await xaml.load()
 
-    expect(yamler.warnings).toEqual([
+    expect(xaml.warnings).toEqual([
       'Test warning message',
       'Test warning message'
     ])
-    expect(yamler.attributes.value1).toBe(undefined)
-    expect(yamler.attributes.value2).toBe(undefined)
+    expect(xaml.attributes.value1).toBe(undefined)
+    expect(xaml.attributes.value2).toBe(undefined)
   })
 
   describe('arg parsing', () => {
