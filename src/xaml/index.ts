@@ -6,7 +6,7 @@ export const importRegex = /^ *!import\s+(.+)\sas\s+(.+)$/gm
 export const extendsRegex = /^(\s*)(.+):\s*!extends\s+(.+)$/gm
 export const extendsArrayRegex = new RegExp(String.raw`^(\s*)(\S+):\s*!extends_array\s+(\S+)((\n\1\s*-.*)+)?`, 'gm')
 export const rootExtendsRegex = /^ *!extends\s+(.+)$/gm
-export const anchorNamePrefix = '_stax_import_'
+export const anchorNamePrefix = '_xaml_import_'
 
 export class ExpressionWarning extends Error {
   constructor(message: string) {

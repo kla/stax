@@ -40,8 +40,8 @@ describe('Xaml', () => {
       expect(yaml.services.sidekiq.command).toBe('/usr/local/bin/launch bundle exec sidekiq')
     })
 
-    it('strips _stax_import_ anchors', () => {
-      expect(dump(yaml)).not.toContain('_stax_import_')
+    it('strips _xaml_import_ anchors', () => {
+      expect(dump(yaml)).not.toContain('_xamls_import_')
     })
 
     it('imports correct env', () => {
