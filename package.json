@@ -23,7 +23,7 @@
   "scripts": {
     "test": "bun test",
     "build": "bin/build",
-    "publish": "bin/build && bun publish"
+    "publish": "bin/publish"
   },
   "bin": {
     "stax": "./bin/stax"
