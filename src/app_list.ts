@@ -22,13 +22,12 @@ function row(app: App, container: Container, options: { fields?: string[], full?
   const slice = app.containers.length > 1 && options.full ? app.containers.length : 1
 
   if (app.containers.length > 1 && options.full)
-    items.push([ icons[app.state], app.name, '', '', '', '', source ])
+    items.push([ icons[app.state], app.name, '', '', '', source ])
 
   app.containers.slice(0, slice).forEach((container, index) => {
     items.push([
       icons[container.state] || icons.unknown,
       name(app, container, options),
-      container.state,
       container.uptime?.replace(' ago', ''),
       container.forwardedPorts.join(', '),
       container.ipAddresses.join(', '),
@@ -40,11 +39,11 @@ function row(app: App, container: Container, options: { fields?: string[], full?
 
 export default function list(apps: App[], options: { fields?: string[], full?: boolean, app?: string } = {}) {
   if (options.app) {
-    apps = apps.filter(app => app.name == options.app)
+    apps = apps.filter(app => options.app && app.name.startsWith(options.app))
     options = { ...options, full: true }
   }
 
-  const head = ['', 'App', 'Status', 'Uptime', 'Forwarding', 'IP', 'Source'].concat(options.fields || [])
+  const head = ['', 'App', 'Uptime', 'Forwarding', 'IP', 'Source'].concat(options.fields || [])
   const table = new Table({
     head: head,
     style: { head: ['cyan'] },
