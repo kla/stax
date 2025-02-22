@@ -12,7 +12,7 @@ export default class Stax {
     this.context = context
   }
 
-  list(options: { fields?: string[], full?: boolean } = {}) {
+  list(options: { fields?: string[], full?: boolean, app?: string } = {}) {
     list(this.apps(), options)
   }
 

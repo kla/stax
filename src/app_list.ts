@@ -4,7 +4,7 @@ import Container from './container'
 import Location from './location'
 import icons, { miniStateIcons } from './icons'
 
-function name(app: App, container: Container, options: { fields?: string[], full?: boolean }) {
+function name(app: App, container: Container, options: { fields?: string[], full?: boolean, app?: string }) {
   if (app.containers.length > 1 && options.full) {
     const tree = app.containers.length == container.number + 1 ? '└─' : '├─'
     return `${tree} ${container.service.replace(`${app.name}-`, '')}`
@@ -38,7 +38,12 @@ function row(app: App, container: Container, options: { fields?: string[], full?
   return items
 }
 
-export default function list(apps: App[], options: { fields?: string[], full?: boolean } = {}) {
+export default function list(apps: App[], options: { fields?: string[], full?: boolean, app?: string } = {}) {
+  if (options.app) {
+    apps = apps.filter(app => app.name == options.app)
+    options = { ...options, full: true }
+  }
+
   const head = ['', 'App', 'Status', 'Uptime', 'Forwarding', 'IP', 'Source'].concat(options.fields || [])
   const table = new Table({
     head: head,
