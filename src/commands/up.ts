@@ -3,11 +3,11 @@ import Stax from '~/stax'
 
 export default function registerUpCommand(program: Command, stax: Stax) {
   program.command('up')
-    .argument('<name>', 'Name of application')
+    .argument('[name]', 'Name of application')
     .option('-s, --service <name>', 'Name of service to act on')
     .description('Start an application')
     .action(async (name, options) => {
-      const target = options.service ? stax.findContainer(name, options) : stax.find(name)
+      const target = options.service ? stax.findContainer(name, options) : stax.find(stax.deduceAppName(name))
       target.up()
     })
 }

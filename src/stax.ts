@@ -4,6 +4,8 @@ import App from '~/app'
 import Container from '~/container'
 import settings from '~/settings'
 import list from '~/app_list'
+import path from 'path'
+import icons from '~/icons'
 
 export default class Stax {
   public context: string
@@ -30,7 +32,23 @@ export default class Stax {
     return app
   }
 
+  deduceAppName(appName: string): string {
+    if (!appName) {
+      const dir = path.basename(process.cwd())
+
+      if (this.apps().find(app => app.name == dir))
+        appName = dir
+
+      if (!appName)
+        return exit(1, { message: `${icons.failed} Please specify an app name or navigate to an app directory.` })
+    }
+    return appName
+  }
+
   findContainer(appName: string, options: FindContainerOptions): Container {
+    if (!appName)
+      appName = this.deduceAppName(appName)
+
     return this.find(appName).findContainer(options)
   }
 

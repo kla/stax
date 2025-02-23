@@ -1,5 +1,6 @@
 import { existsSync, statSync } from 'fs'
 import { capture } from '~/shell'
+import { confirm as inquirerConfirm } from '@inquirer/prompts'
 import tmp from 'tmp'
 import icons from './icons'
 import yaml from 'js-yaml'
@@ -467,4 +468,8 @@ export function requireDockerVersion(minDockerVersion: number, minComposeVersion
  */
 export function compact(arr: any[]): any[] {
   return arr.filter(value => value != null && !(Array.isArray(value) && value.length === 0) && value !== '')
+}
+
+export async function confirm(message: string, defaultAnswer: boolean = false): Promise<boolean> {
+  return await inquirerConfirm({ message, default: defaultAnswer })
 }

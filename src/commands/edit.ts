@@ -8,9 +8,10 @@ export default function registerEditCommand(program: Command, stax: Stax) {
   const editor = settings.read('editor', process.env.STAX_EDITOR || 'code') // support STAX_EDITOR for backwards compatibility
 
   program.command('edit')
-    .argument('<name>', 'Name of application')
+    .argument('[name]', 'Name of application')
     .description(`Open application in a vscode based editor`)
     .action(async name => {
+      name = stax.deduceAppName(name)
       const app = stax.find(name)
       let starting = false
 

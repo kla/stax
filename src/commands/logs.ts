@@ -3,7 +3,7 @@ import Stax from '~/stax'
 
 export default function registerLogsCommand(program: Command, stax: Stax) {
   program.command('logs')
-    .argument('<name>', 'Name of application')
+    .argument('[name]', 'Name of application')
     .option('-s, --service <name>', 'Name of service to act on')
     .option('-f, --follow', 'Follow log output')
     .option('-t, --tail <number>', 'Number of lines to show from the end of the logs')

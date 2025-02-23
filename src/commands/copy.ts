@@ -4,7 +4,7 @@ import Stax from '~/stax'
 export default function registerCopyCommand(program: Command, stax: Stax) {
   program.command('copy')
     .alias('cp')
-    .argument('<name>', 'Name of application')
+    .argument('[name]', 'Name of application')
     .argument('<source>', 'Path to a local file or directory')
     .argument('<destination>', 'Path to a destination file or directory in the container')
     .option('-s, --service <name>', 'Name of service to act on')

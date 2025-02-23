@@ -6,12 +6,13 @@ import Stax from '~/stax'
 
 export default function registerInspectCommand(program: Command, stax: Stax) {
   program.command('inspect')
-    .argument('<name>', 'Name of application')
+    .argument('[name]', 'Name of application')
     .option('-c, --compose', 'Show the compose file')
     .option('-d, --dockerfile', 'Show the Dockerfile build (if any)')
     .option('-l, --labels', 'Show container labels')
     .description('Inspect the container or build files.')
     .action((name, options) => {
+      name = stax.deduceAppName(name)
       const app = stax.find(name)
 
       if (options.compose)
