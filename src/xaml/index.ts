@@ -1,11 +1,11 @@
-import Xaml, { EvaluationContext, loadFile, dump } from './xaml'
+import Xaml, { loadFile, dump } from './xaml'
 
 export const dumpOptions = { lineWidth: -1, noRefs: true }
 export const sanitizeRegex = /[^a-zA-Z0-9_]/g
 export const importRegex = /^ *!import\s+(.+)\sas\s+(.+)$/gm
-export const extendsRegex = /^(\s*)(.+):\s*!extends\s+(.+)$/gm
+export const extendsRegex = /^(\s*)(.+):\s*!extends\s+(.+?)$/gm
 export const extendsArrayRegex = new RegExp(String.raw`^(\s*)(\S+):\s*!extends_array\s+(\S+)((\n\1\s*-.*)+)?`, 'gm')
-export const rootExtendsRegex = /^ *!extends\s+(.+)$/gm
+export const rootExtendsRegex = /^ *!extends\s+(.+?)$/gm
 export const anchorNamePrefix = '_xaml_import_'
 
 export class ExpressionWarning extends Error {

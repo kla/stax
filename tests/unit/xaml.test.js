@@ -59,6 +59,15 @@ describe('Xaml', () => {
       expect(yaml.array_test.different_indent).toEqual(base.concat(['eh']))
       expect(yaml.array_test.multiple_nesting.one.two).toEqual(base.concat(['eh']))
     })
+
+    it('handles multiple extends', async () => {
+      expect(yaml.multiple_extends.one).toEqual({
+        RAILS_ENV: 'test',
+        HELLO: 'world',
+        context: '<resolve_relative ../build>',
+        dockerfile: '<resolve_relative ../build/Dockerfile>'
+      })
+    })
   })
 
   it('handles expressions that reference a value from an attribute set by another expression', async () => {

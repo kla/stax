@@ -111,22 +111,31 @@ export default class Xaml {
     const prepends = new Set<string>()
 
     // root level !extends
-    this.content = this.content.replace(rootExtendsRegex, (_match, name) => `<<: *${name}`)
+    this.content = this.content.replace(rootExtendsRegex, (_match, name) => {
+      const names = name.split(',').map(n => n.trim())
+      return names.map(n => `<<: *${n}`).join('\n')
+    })
 
     // non-root level !extends
     this.content = this.content.replace(extendsRegex, (_match, indent, key, name) => {
-      if (name.includes('.')) {
-        const imp = this.findImport(name)
-        const subKey = name.split('.').slice(1).join('.')
-        const extendedValue = dig(imp.xaml.attributes, subKey)
+      const names = name.split(',').map(n => n.trim())
+      
+      for (const singleName of names) {
+        if (singleName.includes('.')) {
+          const imp = this.findImport(singleName)
+          const subKey = singleName.split('.').slice(1).join('.')
+          const extendedValue = dig(imp.xaml.attributes, subKey)
 
-        if (extendedValue === undefined)
-          exit(1, { message: `${icons.error} Invalid !extends reference: '${name}' in file '${this.filePath}'. The referenced field does not exist.` })
+          if (extendedValue === undefined)
+            exit(1, { message: `${icons.error} Invalid !extends reference: '${singleName}' in file '${this.filePath}'. The referenced field does not exist.` })
 
-        let text = dump({ [name]: extendedValue }).replace(`${name}:`, `${imp.buildAnchorName(name)}: &${name}`)
-        prepends.add(text)
+          let text = dump({ [singleName]: extendedValue }).replace(`${singleName}:`, `${imp.buildAnchorName(singleName)}: &${singleName}`)
+          prepends.add(text)
+        }
       }
-      return `${indent}${key}:\n${indent}  <<: *${name}`
+      
+      const merges = names.map(n => `${indent}  <<: *${n}`).join('\n')
+      return `${indent}${key}:\n${merges}`
     })
 
     if (prepends.size > 0)

@@ -15,3 +15,6 @@ array_test:
     one:
       two: !extends_array services.web.volumes
         - eh
+
+multiple_extends:
+  one: !extends services.web.environment, services.web.build
