@@ -5,8 +5,19 @@
     "email": "la.kien+npm@gmail.com"
   },
   "repository": "https://github.com/kla/stax",
-  "version": "0.7.1",
-  "main": "dist/index",
+  "version": "0.7.2-test6",
+  "main": "./dist/index.js",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "module": "./dist/index.js",
+  "files": [
+    "dist/index.js",
+    "dist/index.cjs"
+  ],
   "type": "module",
   "private": false,
   "dependencies": {

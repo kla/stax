@@ -3,6 +3,29 @@ set -e
 rm -rf dist/*
 EXTERNAL_PACKAGES=$(jq -r '.dependencies | keys | join(" ")' package.json)
 EXTERNAL_FLAGS=$(echo $EXTERNAL_PACKAGES | xargs -I {} echo --external {})
+
+# Create dist directory if it doesn't exist
+mkdir -p dist
+
+# Build ESM version
+echo "Building ESM version..."
 bun build src/index.ts --outdir dist --format esm --target node $EXTERNAL_FLAGS
-mv dist/src/* dist/
-rmdir dist/src
+# Move files from nested src directory
+if [ -d "dist/src" ]; then
+  mv dist/src/* dist/
+  rmdir dist/src
+fi
+
+# Build CommonJS version
+echo "Building CommonJS version..."
+# Create a temporary directory for CJS build
+mkdir -p dist/temp
+bun build src/index.ts --outdir dist/temp --format cjs --target node $EXTERNAL_FLAGS
+# Move the CJS file to the correct location
+if [ -d "dist/temp/src" ]; then
+  mv dist/temp/src/index.js dist/index.cjs
+  # Clean up
+  rm -rf dist/temp
+fi
+
+echo "Build completed successfully!"
