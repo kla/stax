@@ -1,4 +1,4 @@
 #!/bin/bash
 set -e
-bun build
+bin/build
 bun publish
