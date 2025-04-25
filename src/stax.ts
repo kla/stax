@@ -34,7 +34,7 @@ export default class Stax {
 
   deduceAppName(appName: string): string {
     if (!appName) {
-      const dir = path.basename(process.cwd())
+      const dir = path.basename(process.env.STAX_APP_DIR || process.cwd())
 
       if (this.apps().find(app => app.name == dir))
         appName = dir
