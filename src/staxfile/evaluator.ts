@@ -68,6 +68,7 @@ export default class Evaluator {
     if (name === 'resolve_relative?') return this.resolveRelative(context.symbol.file, args[0], { nullIfMissing: true })
     if (name === 'user') return process.env.USER || ''
     if (name === 'user_id') return process.getuid()
+    if (name === 'group_id') return process.getgid()
     if (name === 'dasherize') return dasherize(args[0])
     if (name === 'prompt') return await this.prompt(args[0], args[1])
     if (name === 'requires?') return this.staxfile.config.requires.includes(args[0])
