@@ -1,6 +1,6 @@
 import { StaxConfig } from './types'
 import { exit, presence } from './utils'
-import { select, confirm } from '@inquirer/prompts'
+import { search, confirm } from '@inquirer/prompts'
 import Staxfile from './staxfile'
 import * as fs from 'fs'
 import * as path from 'path'
@@ -9,7 +9,7 @@ import stax from './stax'
 import icons from './icons'
 import App from './app'
 
-function search(dir: string): string[] {
+function searchStaxfiles(dir: string): string[] {
   const entries = fs.readdirSync(dir, { withFileTypes: true })
   const staxfiles: string[] = []
 
@@ -17,7 +17,7 @@ function search(dir: string): string[] {
     const fullPath = path.join(dir, entry.name)
 
     if (entry.isDirectory()) {
-      staxfiles.push(...search(fullPath))
+      staxfiles.push(...searchStaxfiles(fullPath))
     } else if (entry.name === 'Staxfile' || entry.name.endsWith('.staxfile')) {
       staxfiles.push(fullPath)
     }
@@ -27,7 +27,7 @@ function search(dir: string): string[] {
 
 function findStaxfiles(context: string): any {
   const servicesHome = settings.read('services_home') || exit(1, { message: `${icons.error} services_home is not set in settings` })
-  const all = presence(search(servicesHome)) || exit(1, { message: `${icons.error} No Staxfiles found in ${servicesHome}` })
+  const all = presence(searchStaxfiles(servicesHome)) || exit(1, { message: `${icons.error} No Staxfiles found in ${servicesHome}` })
   const installed = App.allContainers(context).map(container => container.staxfile)
   const uninstalled = presence(all.filter(file => !installed.includes(file))) || exit(0, { message: `${icons.success} All services in ${servicesHome} are already installed`})
 
@@ -42,14 +42,25 @@ function getStaxfileName(filePath: string): string {
 }
 
 async function pickStaxfile(staxfiles: string[]) {
-  const selected = await select({
-    message: 'Select service to install:',
-    choices: staxfiles.map(file => ({
-      name: getStaxfileName(file),
-      value: file
-    })),
-    loop: false
+  const choices = staxfiles.map(file => ({
+    name: getStaxfileName(file),
+    value: file
+  }))
+  
+  const selected = await search({
+    message: 'Search for service to install:',
+    source: async (input) => {
+      if (!input) {
+        return choices
+      }
+      
+      const searchTerm = input.toLowerCase()
+      return choices.filter(choice => 
+        choice.name.toLowerCase().includes(searchTerm)
+      )
+    }
   })
+  
   return selected
 }
 

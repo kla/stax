@@ -131,3 +131,5 @@ dist
 
 /services/traefik/certs
 /tmp
+
+.claude
