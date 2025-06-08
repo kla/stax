@@ -114,7 +114,9 @@ export default class App {
   }
 
   async down() {
-    return await docker.compose(this.context, 'stop', this.composeFile)
+    const result = await docker.compose(this.context, 'stop', this.composeFile)
+    await this.primary.runHook('after_down')
+    return result
   }
 
   async up() {

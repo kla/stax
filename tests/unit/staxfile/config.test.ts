@@ -141,4 +141,23 @@ describe('Config', () => {
     config.set('before_up', 'echo "New before_up hook"')
     expect(config.before_up).toEqual('echo "New before_up hook"')
   })
+
+  it('supports after_down hook property', () => {
+    const configWithHook = new Config({
+      context: 'test',
+      app: 'testapp',
+      staxfile: './tests/fixtures/Staxfile',
+      source: './tests/fixtures',
+      after_down: 'echo "App stopped"'
+    })
+
+    expect(configWithHook.after_down).toEqual('echo "App stopped"')
+    expect(configWithHook.hasProperty('after_down')).toBe(true)
+    expect(configWithHook.fetch('after_down')).toEqual('echo "App stopped"')
+  })
+
+  it('can set after_down property', () => {
+    config.set('after_down', 'echo "New after_down hook"')
+    expect(config.after_down).toEqual('echo "New after_down hook"')
+  })
 })
