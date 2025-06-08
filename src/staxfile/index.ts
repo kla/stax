@@ -156,7 +156,7 @@ export default class Staxfile {
   }
 
   private updateHooks(labels) {
-    const hooks = [ 'after_setup' ]
+    const hooks = [ 'after_setup', 'before_up' ]
 
     for (const hook of hooks) {
       if (labels[`stax.${hook}`]) {

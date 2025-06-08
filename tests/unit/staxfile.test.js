@@ -1,3 +1,4 @@
+import '../setup.js'
 import { describe, it, expect, beforeEach } from 'bun:test'
 import { rmSync, mkdirSync } from 'fs'
 import { resolve } from '~/utils'

@@ -118,6 +118,7 @@ export default class App {
   }
 
   async up() {
+    await this.primary.runHook('before_up')
     return await docker.compose(this.context, 'start', this.composeFile, { exit: true })
   }
 

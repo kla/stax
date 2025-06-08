@@ -122,4 +122,23 @@ describe('Config', () => {
     config.set('requires', JSON.stringify(['mysql', 'redis']))
     expect(config.requires).toEqual(['mysql', 'redis'])
   })
+
+  it('supports before_up hook property', () => {
+    const configWithHook = new Config({
+      context: 'test',
+      app: 'testapp',
+      staxfile: './tests/fixtures/Staxfile',
+      source: './tests/fixtures',
+      before_up: 'echo "Starting app"'
+    })
+
+    expect(configWithHook.before_up).toEqual('echo "Starting app"')
+    expect(configWithHook.hasProperty('before_up')).toBe(true)
+    expect(configWithHook.fetch('before_up')).toEqual('echo "Starting app"')
+  })
+
+  it('can set before_up property', () => {
+    config.set('before_up', 'echo "New before_up hook"')
+    expect(config.before_up).toEqual('echo "New before_up hook"')
+  })
 })

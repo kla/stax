@@ -140,6 +140,7 @@ export default class Container {
   }
 
   async up() {
+    await this.runHook('before_up')
     return await docker.compose(this.context, `start ${this.name}`, this.composeFile, { exit: true })
   }
 
