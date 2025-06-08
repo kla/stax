@@ -36,8 +36,7 @@
   },
   "scripts": {
     "test": "bun test",
-    "build": "bin/build",
-    "publish": "bin/publish"
+    "build": "bin/build"
   },
   "bin": {
     "stax": "./bin/stax"
