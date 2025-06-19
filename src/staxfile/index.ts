@@ -123,7 +123,7 @@ export default class Staxfile {
       if (service.hasOwnProperty('if') && !service['if'])
         continue
 
-      service['image'] ||= `${this.context}-${this.app}`
+      service['image'] ||= `${this.context}-${this.app}-${name}`
       service['container_name'] = `${this.context}-${this.app}-${name}`
       service['hostname'] ||= `${this.app}-${name}`
 
