@@ -192,6 +192,7 @@ export default class Container {
   }
 
   async restart() {
+    await this.runHook('before_restart')
     return await docker.compose(this.context, `restart ${this.name}`, this.composeFile)
   }
 

@@ -16,6 +16,7 @@ export default class Config implements StaxConfig {
   public after_setup!: string
   public before_up!: string
   public after_down!: string
+  public before_restart!: string
   public requires!: string[]
 
   constructor(config: StaxConfig | Record<string, string> | undefined = undefined) {
