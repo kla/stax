@@ -92,16 +92,17 @@ export default class Evaluator {
   }
 
   mountSshAuthSock(): string {
-    if (this.platform() === 'darwin') {
+    if (this.platform() === 'darwin')
       return '/run/host-services/ssh-auth.sock:/run/host-services/ssh-auth.sock'
-    } else {
-      // On Linux, mount the SSH socket directly to avoid cross-device link issues
-      if (process.env.SSH_AUTH_SOCK && fileExists(process.env.SSH_AUTH_SOCK)) {
-        return `${process.env.SSH_AUTH_SOCK}:/run/host-services/ssh-auth.sock`
-      }
-      // Fallback to mounting the directory if SSH_AUTH_SOCK is not available
-      return `${process.env.STAX_HOST_SERVICES}:/run/host-services`
-    }
+
+    // $SSH_AUTH_SOCK must be a stable path (otherwise you will have to rebuild
+    // the container whenever ssh-agent is restarted) and on the same filesystem
+    // as the container to avoid cross-device link issues
+    if (process.env.SSH_AUTH_SOCK && fileExists(process.env.SSH_AUTH_SOCK))
+      return `\${SSH_AUTH_SOCK}:/run/host-services/ssh-auth.sock`
+
+    // Fallback to mounting the directory if SSH_AUTH_SOCK is not available
+    return `${process.env.STAX_HOST_SERVICES}:/run/host-services`
   }
 
   mountWorkspace(): string {

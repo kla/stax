@@ -115,9 +115,8 @@ describe('Staxfile', () => {
       if (process.platform == 'darwin')
         expect(volumes[1]).toEndWith(':/run/host-services/ssh-auth.sock')
       else {
-        // On Linux, we mount the SSH socket directly if available
         if (process.env.SSH_AUTH_SOCK)
-          expect(volumes[1]).toBe(`${process.env.SSH_AUTH_SOCK}:/run/host-services/ssh-auth.sock`)
+          expect(volumes[1]).toBe(`\${SSH_AUTH_SOCK}:/run/host-services/ssh-auth.sock`)
         else
           expect(volumes[1]).toEndWith(':/run/host-services')
       }
