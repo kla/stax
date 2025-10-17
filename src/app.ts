@@ -114,6 +114,7 @@ export default class App {
   }
 
   async down() {
+    await this.primary.runHook('before_down')
     const result = await docker.compose(this.context, 'stop', this.composeFile)
     await this.primary.runHook('after_down')
     return result

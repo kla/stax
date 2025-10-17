@@ -15,6 +15,7 @@ export default class Config implements StaxConfig {
   public vars!: Record<string, string>
   public after_setup!: string
   public before_up!: string
+  public before_down!: string
   public after_down!: string
   public before_restart!: string
   public requires!: string[]

@@ -136,6 +136,7 @@ export default class Container {
   }
 
   async down() {
+    await this.runHook('before_down')
     const result = await docker.compose(this.context, `stop ${this.name}`, this.composeFile)
     await this.runHook('after_down')
     return result

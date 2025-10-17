@@ -160,4 +160,23 @@ describe('Config', () => {
     config.set('after_down', 'echo "New after_down hook"')
     expect(config.after_down).toEqual('echo "New after_down hook"')
   })
+
+  it('supports before_down hook property', () => {
+    const configWithHook = new Config({
+      context: 'test',
+      app: 'testapp',
+      staxfile: './tests/fixtures/Staxfile',
+      source: './tests/fixtures',
+      before_down: 'echo "App stopping"'
+    })
+
+    expect(configWithHook.before_down).toEqual('echo "App stopping"')
+    expect(configWithHook.hasProperty('before_down')).toBe(true)
+    expect(configWithHook.fetch('before_down')).toEqual('echo "App stopping"')
+  })
+
+  it('can set before_down property', () => {
+    config.set('before_down', 'echo "New before_down hook"')
+    expect(config.before_down).toEqual('echo "New before_down hook"')
+  })
 })
