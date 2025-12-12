@@ -32,6 +32,13 @@ export default function registerEditCommand(program: Command, stax: Stax) {
       }
 
       const hex = Buffer.from(JSON.stringify({ containerName: app.primary.containerName })).toString('hex')
-      run(`${editor} --folder-uri=vscode-remote://attached-container+${hex}%${app.primary.config.workspace}`)
+      const folderUri = `vscode-remote://attached-container+${hex}%${app.primary.config.workspace}`
+
+      // On macOS, use 'open -a' for Cursor to avoid picking up the remote CLI binary
+      if (process.platform === 'darwin' && editor === 'cursor') {
+        run(`open -a Cursor --args --folder-uri=${folderUri}`)
+      } else {
+        run(`${editor} --folder-uri=${folderUri}`)
+      }
     })
 }
