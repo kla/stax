@@ -21,12 +21,11 @@ import registerShellCommand from './shell'
 import registerUpCommand from './up'
 import registerLogoCommand from './logo'
 import registerAutoCompleteCommand from './auto_complete'
+import registerContextCommand, { getContext } from './context'
 import Stax from '~/stax'
 
-const DEFAULT_CONTEXT_NAME = 'stax'
-
 export function registerCommands(program: Command, overrides: StaxConfig, additionalCommands: Function[] = []) {
-  const stax = new Stax(DEFAULT_CONTEXT_NAME)
+  const stax = new Stax(getContext(overrides?.context))
 
   registerAliasCommand(program, stax)
   registerCatCommand(program, stax)
@@ -49,6 +48,7 @@ export function registerCommands(program: Command, overrides: StaxConfig, additi
   registerUpCommand(program, stax)
   registerLogoCommand(program)
   registerAutoCompleteCommand(program)
+  registerContextCommand(program, stax)
 
   if (additionalCommands?.length > 0)
     additionalCommands.forEach(command => command(program, stax))
