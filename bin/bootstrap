@@ -4,5 +4,5 @@ set -e
 if ! command -v bun &> /dev/null
 then
   echo "==> Installing bun"
-  npm install -g bun
+  curl -fsSL https://bun.com/install | bash
 fi
